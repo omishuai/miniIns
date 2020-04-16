@@ -1,0 +1,14 @@
+
+
+entities:
+    -User
+        - id
+        - username
+        - password
+        - email
+        - age
+        - gender
+
+    -Photo
+
+
