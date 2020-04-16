@@ -6,5 +6,5 @@ backend system of mini instagram
 /src/main/resources/application.properties
 
 
-####/register
+#### /register
 to register new user. a user entry is inserted to db, and the page will be redirected to user's home page upon success
