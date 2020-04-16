@@ -1,4 +1,4 @@
-package com.shuaih.springBoot.app.miniIns;
+package com.app.miniIns;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
