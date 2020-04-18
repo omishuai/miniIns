@@ -1,5 +1,7 @@
 package com.app.miniIns.entities;
 
+import org.springframework.validation.annotation.Validated;
+
 import javax.persistence.*;
 import javax.validation.Constraint;
 import javax.validation.constraints.*;
@@ -15,6 +17,7 @@ public class User {
 
     private String username;
 
+    @Email
     private String email;
 
     @Size(min=8, message = "The Password Is Too Short")

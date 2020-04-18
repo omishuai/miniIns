@@ -11,7 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 import java.util.HashMap;
 
-@RestController
+@Controller
 public class MyController {
 
     public UserService getUserService() {
@@ -48,7 +48,8 @@ public class MyController {
     }
 
     @PostMapping(path = "/register")
-    public User register(@Valid User user) throws Exception {
+    @ResponseBody
+    public User register(User user) throws Exception {
         return userService.addUser(user);
     }
 

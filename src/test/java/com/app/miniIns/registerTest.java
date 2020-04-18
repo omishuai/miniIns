@@ -40,12 +40,12 @@ public class registerTest {
     @Test public void registerFail() throws Exception {
         User u = new User("shh", "hs13706717787", "this is the email", 29, "male");
         when(userService.findByEmail("hs13706717787")).thenReturn(u);
-        when(userService.addUser(u)).thenThrow(new Exception("Existing User"));
+        when(userService.addUser(u)).thenThrow(new Exception("Existing Email"));
         try {
             controller.register(u);
             fail("Expected Exception");
         } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("Existing User");
+            assertThat(e.getMessage()).isEqualTo("Existing Email");
             verify(userService).addUser(u);
             verifyNoMoreInteractions(userService);
         }
