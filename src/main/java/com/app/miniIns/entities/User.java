@@ -7,7 +7,6 @@ import javax.validation.Constraint;
 import javax.validation.constraints.*;
 
 @Entity
-@Validated
 @Table(name="user")
 //@Constraint(validatedBy = UserValidator.class)
 public class User {
