@@ -1,21 +1,27 @@
 package com.app.miniIns.entities;
 
 import javax.persistence.*;
+import javax.validation.Constraint;
+import javax.validation.constraints.*;
 
 @Entity
 @Table(name="user")
+//@Constraint(validatedBy = UserValidator.class)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+
     private String username;
 
     private String email;
-    private String password;
-    private int age;
 
-    /*all vars can be validated*/
+    @Size(min=8, message = "The Password Is Too Short")
+    private String password;
+
+    @Min(value=18, message = "Under Age")
+    private int age;
 
     public String getGender() {
         return gender;
