@@ -3,12 +3,14 @@ package com.app.miniIns.controllers;
 import com.app.miniIns.entities.User;
 import com.app.miniIns.daos.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
+import javax.xml.ws.Response;
 import java.util.HashMap;
 
 @Controller
@@ -48,6 +50,7 @@ public class MyController {
     }
 
     @PostMapping(path = "/register")
+    @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public User register(User user) throws Exception {
         return userService.addUser(user);
