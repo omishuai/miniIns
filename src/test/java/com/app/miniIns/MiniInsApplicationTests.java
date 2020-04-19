@@ -1,4 +1,4 @@
-package com.shuaih.app.miniIns;
+package com.app.miniIns;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
