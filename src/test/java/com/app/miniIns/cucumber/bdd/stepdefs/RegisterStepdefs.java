@@ -1,5 +1,6 @@
 package com.app.miniIns.cucumber.bdd.stepdefs;
 
+import com.app.miniIns.cucumber.bdd.RestTemplateResponseErrorHandler;
 import com.app.miniIns.daos.UserRepository;
 import com.app.miniIns.entities.User;
 import com.google.common.base.StandardSystemProperty;
@@ -26,18 +27,23 @@ import org.springframework.web.client.RestTemplate;
 import javax.xml.ws.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Iterator;
 
 
 public class RegisterStepdefs {
 
     @Autowired
     private UserRepository userRepository;
+
+
     RestTemplate restTemplate;
     ResponseEntity<String> response;
 
     @When("User registers with username {string},password {string}, email {string}, age {int} and gender {string}")
     public void userRegistersWithUsernamePasswordEmailAgeAndGender(String username, String password, String email, int age, String gender) throws URISyntaxException {
         restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -54,18 +60,20 @@ public class RegisterStepdefs {
         response = restTemplate.postForEntity(uri, request, String.class);
 //        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 //        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-        User found =  userRepository.findByEmail(email);
+        User found = null;
+        Iterator<User> itr = userRepository.findAll().iterator();
+        if (itr.hasNext()) found = itr.next();
+
         System.out.println("RESPONSE: " + response);
         System.out.println("Retrieved from H2: " + found);
 
 
-        //        User user = new User(username, email, password, age, gender);
-
-        // Make the HTTP POST request, marshaling the request to JSON, and the response to a String
-//        String response = restTemplate.postForObject(uri, user, String.class);
-
-        //        result = restTemplate.postForEntity(uri, user, User.class);
-
+//        final String baseUrl = "http://localhost:8080/register";
+//        URI uri = new URI(baseUrl);
+//        User user = new User(username, email, password, age, gender);
+//        ResponseEntity<User> response = restTemplate.postForEntity(uri, user, User.class);
+//        System.out.println("RESPONSE: " + response);
+//        System.out.println("Retrieved from H2: " + found);
 
     };
 
@@ -99,5 +107,41 @@ public class RegisterStepdefs {
     public void responseHasValueForAge(int attribute, String pick) throws JSONException {
         JSONObject body = new JSONObject(response.getBody());
         Assert.assertEquals(body.getInt("age"), attribute);
+    }
+
+    @Given("User with {string} for {string} exists in database")
+    public void userWithForExistsInDatabase(String attr, String pick) {
+        emptyDatabase();
+        String gender = "male";
+        int age = 21;
+        String password = "password";
+        String username;
+        String email;
+        if (pick.equals("/username")) {
+            username  = attr;
+            email = "email@serv.com";
+        } else {
+            username = "usernam";
+            email = attr;
+        }
+        User u = new User(username, email, password, age, gender);
+        userRepository.save(u);
+
+        System.out.println(u + " EXISTS");
+        Iterator<User> itr = userRepository.findAll().iterator();
+        int c = 0;
+        while (itr.hasNext()) {
+            c++;
+            itr.next();
+        }
+
+        Assert.assertEquals(1, c);
+    }
+
+    @Given("empty database")
+    public void emptyDatabase() {
+        userRepository.deleteAll();
+        Iterator<User> user = userRepository.findAll().iterator();
+        Assert.assertEquals(false, user.hasNext());
     }
 }
