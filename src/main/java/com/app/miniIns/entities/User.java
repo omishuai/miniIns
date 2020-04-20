@@ -23,7 +23,7 @@ public class User {
     @Size(min=8, message = "The Password Is Too Short")
     private String password;
 
-//    @Min(value=18, message = "Under Age")
+    @Min(value=18, message = "Under Age")
     private int age;
 
     public String getGender() {
