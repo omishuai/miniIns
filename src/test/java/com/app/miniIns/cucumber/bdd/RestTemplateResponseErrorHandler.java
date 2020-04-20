@@ -27,15 +27,15 @@ public class RestTemplateResponseErrorHandler
     public void handleError(ClientHttpResponse httpResponse)
             throws IOException {
 
-        if (httpResponse.getStatusCode()
-                .series() == HttpStatus.Series.SERVER_ERROR) {
-            // handle SERVER_ERROR
-        } else if (httpResponse.getStatusCode()
-                .series() == CLIENT_ERROR) {
-            // handle CLIENT_ERROR
-            if (httpResponse.getStatusCode() == HttpStatus.NOT_FOUND) {
-                throw new IOException("The Error Is Not Client Or Server");
-            }
-        }
+//        if (httpResponse.getStatusCode()
+//                .series() == HttpStatus.Series.SERVER_ERROR) {
+//            // handle SERVER_ERROR
+//        } else if (httpResponse.getStatusCode()
+//                .series() == CLIENT_ERROR) {
+//            // handle CLIENT_ERROR
+//            if (httpResponse.getStatusCode() == HttpStatus.NOT_FOUND) {
+//                throw new IOException("The Error Is Not Client Or Server");
+//            }
+//        }
     }
 }

@@ -3,7 +3,8 @@ package com.app.miniIns.cucumber.bdd.stepdefs;
 import com.app.miniIns.cucumber.bdd.RestTemplateResponseErrorHandler;
 import com.app.miniIns.daos.UserRepository;
 import com.app.miniIns.entities.User;
-import com.google.common.base.StandardSystemProperty;
+
+import com.jayway.jsonpath.JsonPath;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -85,45 +86,31 @@ public class RegisterStepdefs {
     @And("Response has value {string} for {string}")
     public void responseHasValueForUsername(String attribute, String pick) throws JSONException {
         System.out.println("body:" + response.getBody());
-        JSONObject body = new JSONObject(response.getBody());
-        switch (pick) {
-            case "/username":
-                Assert.assertEquals(body.getString("username"), attribute);
-                break;
-            case "/password":
-                Assert.assertEquals(body.getString("password"), attribute);
-                break;
-            case "/email":
-                Assert.assertEquals(body.getString("email"), attribute);
-                break;
-            case "/gender":
-                Assert.assertEquals(body.getString("gender"), attribute);
-                break;
-            default:;
-        }
+        Assert.assertEquals(JsonPath.read(response.getBody(), pick), attribute);
     }
 
     @And("Response has value {int} for {string}")
     public void responseHasValueForAge(int attribute, String pick) throws JSONException {
-        JSONObject body = new JSONObject(response.getBody());
-        Assert.assertEquals(body.getInt("age"), attribute);
+        Assert.assertEquals((int)JsonPath.read(response.getBody(), pick), attribute);
     }
 
     @Given("User with {string} for {string} exists in database")
     public void userWithForExistsInDatabase(String attr, String pick) {
         emptyDatabase();
+
         String gender = "male";
         int age = 21;
         String password = "password";
         String username;
         String email;
-        if (pick.equals("/username")) {
+        if (pick.equals("username")) {
             username  = attr;
             email = "email@serv.com";
         } else {
-            username = "usernam";
+            username = "usernae";
             email = attr;
         }
+
         User u = new User(username, email, password, age, gender);
         userRepository.save(u);
 
