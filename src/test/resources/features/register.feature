@@ -11,7 +11,7 @@ Feature: Create User
 
   Scenario: Users Failed to Register Due to Existing Username
     Given empty database
-    And User with "username" for "username" is inserted to database
+    And User with username "username",password "password", email "email2@server.com", age 21 and gender "male" exists
     When User registers with username "username",password "password", email "email@server.com", age 21 and gender "male"
     Then Response has status code 409
     And  Response has value "Existing Username" for "$.message"
@@ -19,7 +19,7 @@ Feature: Create User
 
   Scenario: Users Failed to Register Due to Existing Email
     Given empty database
-    Given User with "email@server.com" for "email" is inserted to database
+    And User with username "userna",password "password", email "email@server.com", age 21 and gender "male" exists
     When User registers with username "username",password "password", email "email@server.com", age 21 and gender "male"
     Then Response has status code 409
     And  Response has value "Existing Email" for "$.message"
