@@ -1,4 +1,4 @@
-package com.app.miniIns;
+package com.app.miniIns.unit;
 
 
 import com.app.miniIns.controllers.MyController;
