@@ -1,4 +1,4 @@
-package com.app.miniIns.unit;
+package com.app.miniIns.controllers;
 
 
 import com.app.miniIns.controllers.MyController;
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.*;
 
-public class registerTest {
+public class MyControllerTest {
     MyController controller;
     UserService userService;
     @BeforeEach
