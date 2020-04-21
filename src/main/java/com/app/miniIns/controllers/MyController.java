@@ -26,7 +26,6 @@ public class MyController {
     @Autowired
     private UserService userService;
 
-
     //Main page
     @GetMapping(path = "/")
     public String getGreetingPage(ModelAndView modelAndView) {
@@ -42,12 +41,13 @@ public class MyController {
     }
 
 
-    @GetMapping (path = "/register")
-    public ModelAndView register(ModelAndView modelAndView, User user) {
-        modelAndView.addObject("user", user);
-        modelAndView.setViewName("register");
-        return modelAndView;
-    }
+//    @GetMapping (path = "/register")
+//    public ModelAndView register(ModelAndView modelAndView, User user) {
+//        modelAndView.addObject("user", user);
+//        modelAndView.setViewName("register");
+//        return modelAndView;
+//    }
+
 
     @PostMapping(path = "/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -56,6 +56,22 @@ public class MyController {
         return userService.addUser(user);
     }
 
+//    @GetMapping (path = "/login")
+//    public ModelAndView login(ModelAndView modelAndView, User user) {
+//        modelAndView.addObject("user", user);
+//        modelAndView.setViewName("login");
+//        return modelAndView;
+//    }
+
+
+    @PostMapping(path = "/login")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public User login(User user) throws Exception {
+
+        System.out.println("Logging in: " + user);
+        return userService.verifyInfo(user);
+    }
 
 
 }
