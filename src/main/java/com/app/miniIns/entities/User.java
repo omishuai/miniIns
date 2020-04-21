@@ -17,7 +17,7 @@ public class User {
 
     private String username;
 
-    @Email
+    @Email (message = "Invalid Email")
     private String email;
 
     @Size(min=8, message = "The Password Is Too Short")
@@ -71,7 +71,15 @@ public class User {
 
     @Override
     public String toString() {
-        return  String.format("%s: {email: '%s', age:'%s'}", username, email, age);
+        return  String.format("{username: '%s', email: '%s', age: '%s', gender: '%s'}", username, email, age, gender);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+            if (o == this) return true;
+            if (!(o instanceof  User)) return false;
+            User u = (User)o;
+            return username.equals(u.username) && email.equals(u.email);
     }
 
 
@@ -94,4 +102,6 @@ public class User {
     public int getAge() {
         return age;
     }
+
+
 }
