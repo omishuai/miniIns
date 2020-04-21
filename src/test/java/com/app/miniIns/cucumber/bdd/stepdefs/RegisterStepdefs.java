@@ -94,21 +94,19 @@ public class RegisterStepdefs {
         Assert.assertEquals((int)JsonPath.read(response.getBody(), pick), attribute);
     }
 
-    @Given("User with {string} for {string} is inserted to database")
-    public void userWithForExistsInDatabase(String attr, String pick) {
-        String gender = "male";
-        int age = 21;
-        String password = "password";
-        String username;
-        String email;
-        if (pick.equals("username")) {
-            username  = attr;
-            email = "email@serv.com";
-        } else {
-            username = "usernae";
-            email = attr;
-        }
 
+    @Given("empty database")
+    public void emptyDatabase() {
+        userRepository.deleteAll();
+        Iterator<User> user = userRepository.findAll().iterator();
+        Assert.assertEquals(false, user.hasNext());
+    }
+
+
+    // login
+
+    @And("User with username {string},password {string}, email {string}, age {int} and gender {string} exists")
+    public void userWithUsernamePasswordEmailAgeAndGenderExistsInDatabase(String username, String password, String email, int age, String gender) {
         User u = new User(username, email, password, age, gender);
         userRepository.save(u);
 
@@ -121,15 +119,34 @@ public class RegisterStepdefs {
         }
 
         Assert.assertEquals(1, c);
-    }
 
-    @Given("empty database")
-    public void emptyDatabase() {
-        userRepository.deleteAll();
-        Iterator<User> user = userRepository.findAll().iterator();
-        Assert.assertEquals(false, user.hasNext());
     }
 
 
+    @When("User logins with {string} {string} and {string}")
+    public void userLoginsWithAnd(String key, String account, String password) throws URISyntaxException {
 
+        System.out.println(key  + " " + account + "       password: " + password);
+        restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap map = new LinkedMultiValueMap();
+        map.add(key, account);
+        map.add("password", password);
+
+        HttpEntity<MultiValueMap> request = new HttpEntity<>(map, headers);
+
+        final String baseUrl = "http://localhost:8080/login";
+        URI uri = new URI(baseUrl);
+        response = restTemplate.postForEntity(uri, request, String.class);
+        User found = null;
+        Iterator<User> itr = userRepository.findAll().iterator();
+        if (itr.hasNext()) found = itr.next();
+
+        System.out.println("RESPONSE: " + response);
+        System.out.println("Retrieved from H2: " + found);
+    }
 }
