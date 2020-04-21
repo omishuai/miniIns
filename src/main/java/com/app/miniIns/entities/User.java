@@ -15,16 +15,23 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
+    @NotNull (message = "Please Enter Username")
     private String username;
 
+    @NotNull (message = "Please Enter Email")
     @Email (message = "Invalid Email")
     private String email;
 
+    @NotNull (message = "Please Enter Password")
     @Size(min=8, message = "The Password Is Too Short")
     private String password;
 
+    @NotNull (message = "Please Enter Age")
     @Min(value=18, message = "Under Age")
     private int age;
+
+    @NotNull (message = "Please Enter Gender")
+    private String gender;
 
     public String getGender() {
         return gender;
@@ -54,7 +61,7 @@ public class User {
         this.gender = gender;
     }
 
-    private String gender;
+
 
 //    @OneToMany(fetch = FetchType.EAGER,mappedBy="user",cascade = CascadeType.ALL)
 //    private Set<Photo> photos;
@@ -71,7 +78,7 @@ public class User {
 
     @Override
     public String toString() {
-        return  String.format("{username: '%s', email: '%s', age: '%s', gender: '%s'}", username, email, age, gender);
+        return  String.format("{username: '%s', password:  '%s', email: '%s', age: '%s', gender: '%s'}", username, password, email, age, gender);
     }
 
     @Override
