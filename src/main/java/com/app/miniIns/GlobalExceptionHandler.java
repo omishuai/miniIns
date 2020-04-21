@@ -1,6 +1,7 @@
 package com.app.miniIns;
 
 import com.app.miniIns.exceptions.DuplicateDataException;
+import com.app.miniIns.exceptions.ErrorResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,17 +19,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {DuplicateDataException.class})
     protected ResponseEntity<Object> handleConflict(
             Exception ex, WebRequest request) {
-
-        String bodyOfResponse = ex.getMessage();
-        return handleExceptionInternal(ex, bodyOfResponse,
+        return handleExceptionInternal(ex, new ErrorResponse(ex.getMessage()),
                 new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 
     @ExceptionHandler(value = {ConstraintViolationException.class})
     protected ResponseEntity<Object> handleBadRequest(
             Exception ex, WebRequest request) {
-        String bodyOfResponse = ex.getMessage();
-        return handleExceptionInternal(ex, bodyOfResponse,
+        return handleExceptionInternal(ex, new ErrorResponse(ex.getMessage()),
                 new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+
     }
 }

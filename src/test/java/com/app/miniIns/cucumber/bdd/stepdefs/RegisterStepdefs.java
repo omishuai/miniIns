@@ -83,10 +83,10 @@ public class RegisterStepdefs {
         Assert.assertEquals(code, response.getStatusCodeValue());
     }
 
+
     @And("Response has value {string} for {string}")
-    public void responseHasValueForUsername(String attribute, String pick) throws JSONException {
-        System.out.println("body:" + response.getBody());
-        Assert.assertEquals(JsonPath.read(response.getBody(), pick), attribute);
+    public void responseHasValueForUsername(String value, String pick) throws JSONException {
+        Assert.assertEquals(JsonPath.read(response.getBody(), pick), value);
     }
 
     @And("Response has value {int} for {string}")
@@ -94,10 +94,8 @@ public class RegisterStepdefs {
         Assert.assertEquals((int)JsonPath.read(response.getBody(), pick), attribute);
     }
 
-    @Given("User with {string} for {string} exists in database")
+    @Given("User with {string} for {string} is inserted to database")
     public void userWithForExistsInDatabase(String attr, String pick) {
-        emptyDatabase();
-
         String gender = "male";
         int age = 21;
         String password = "password";
@@ -131,4 +129,7 @@ public class RegisterStepdefs {
         Iterator<User> user = userRepository.findAll().iterator();
         Assert.assertEquals(false, user.hasNext());
     }
+
+
+
 }

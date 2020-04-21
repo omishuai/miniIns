@@ -46,9 +46,6 @@ public class UserService {
     public User addUser(@Valid User user) throws Exception {
         if (findByEmail(user.getEmail()) != null) throw new DuplicateDataException("Existing Email");
         if (findByUsername(user.getUsername()) != null) throw new DuplicateDataException("Existing Username");
-//        if (user.getPassword().length() < 8) throw new Exception("Password Is Less Than 8 Characters");
-//        if (user.getPassword().length() < 8) throw new Exception("Password Is Less Than 8 Characters");
-//        if (user.getAge() < 18) throw new Exception("Under Age 18");
         return userRepo.save(user);
     }
 

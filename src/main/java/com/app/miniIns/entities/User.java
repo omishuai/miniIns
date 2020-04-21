@@ -17,7 +17,7 @@ public class User {
 
     private String username;
 
-    @Email
+    @Email (message = "Invalid Email")
     private String email;
 
     @Size(min=8, message = "The Password Is Too Short")
