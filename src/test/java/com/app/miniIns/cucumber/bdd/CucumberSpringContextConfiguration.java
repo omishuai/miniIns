@@ -2,7 +2,7 @@ package com.app.miniIns.cucumber.bdd;
 
 
 import com.app.miniIns.MiniInsApplication;
-import cucumber.api.java.Before;
+import io.cucumber.java.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootContextLoader;

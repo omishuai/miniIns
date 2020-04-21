@@ -1,9 +1,5 @@
 package com.app.miniIns.cucumber.bdd;
+import io.cucumber.junit.platform.engine.Cucumber;
 
-import cucumber.api.CucumberOptions;
-import cucumber.api.junit.Cucumber;
-import org.junit.runner.RunWith;
-
-@RunWith(Cucumber.class)
-@CucumberOptions(features = "classpath:features", plugin = {"pretty", "html:target/cucumber"})
+@Cucumber
 public class CucumberTestRunner { }
