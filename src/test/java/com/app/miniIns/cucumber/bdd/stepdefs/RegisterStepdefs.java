@@ -5,27 +5,21 @@ import com.app.miniIns.daos.UserRepository;
 import com.app.miniIns.entities.User;
 
 import com.jayway.jsonpath.JsonPath;
-import cucumber.api.java.en.And;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.origin.SystemEnvironmentOrigin;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import javax.xml.ws.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
@@ -80,18 +74,18 @@ public class RegisterStepdefs {
 
     @Then("Response has status code {int}")
     public void verifyResult(int code) {
-        Assert.assertEquals(code, response.getStatusCodeValue());
+        Assertions.assertEquals(code, response.getStatusCodeValue());
     }
 
 
     @And("Response has value {string} for {string}")
     public void responseHasValueForUsername(String value, String pick) throws JSONException {
-        Assert.assertEquals(JsonPath.read(response.getBody(), pick), value);
+        Assertions.assertEquals(JsonPath.read(response.getBody(), pick), value);
     }
 
     @And("Response has value {int} for {string}")
     public void responseHasValueForAge(int attribute, String pick) throws JSONException {
-        Assert.assertEquals((int)JsonPath.read(response.getBody(), pick), attribute);
+        Assertions.assertEquals((int)JsonPath.read(response.getBody(), pick), attribute);
     }
 
     @Given("User with {string} for {string} is inserted to database")
@@ -120,14 +114,14 @@ public class RegisterStepdefs {
             itr.next();
         }
 
-        Assert.assertEquals(1, c);
+        Assertions.assertEquals(1, c);
     }
 
     @Given("empty database")
     public void emptyDatabase() {
         userRepository.deleteAll();
         Iterator<User> user = userRepository.findAll().iterator();
-        Assert.assertEquals(false, user.hasNext());
+        Assertions.assertEquals(false, user.hasNext());
     }
 
 
