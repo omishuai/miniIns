@@ -57,19 +57,19 @@ public class RegisterStepdefs {
 //        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 //        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         ServerUser found = null;
-        Iterator<ServerUser> itr = userRepository.findAll().iterator();
+//        Iterator<ServerUser> itr = userRepository.findAll().iterator();
 
 //        int c = 0;
-        while (itr.hasNext()) {
-//            c++;
-            found = itr.next();
-        }
+//        while (itr.hasNext()) {
+////            c++;
+//            found = itr.next();
+//        }
 //        Assertions.assertEquals(1, c);
 
 //        if (itr.hasNext()) found = itr.next();
 
         System.out.println("RESPONSE: " + response);
-        System.out.println("Retrieved from H2: " + found);
+//        System.out.println("Retrieved from H2: " + found);
 
 
 //        final String baseUrl = "http://localhost:8080/register";
@@ -100,19 +100,19 @@ public class RegisterStepdefs {
     // login
 
 
-    public void userWithUsernamePasswordEmailAgeAndGenderExistsInDatabase(String username, String password, String email, int age, String gender) {
-        ServerUser u = new ServerUser(username, email, password, age, gender);
-        userRepository.save(u);
-
-        System.out.println(u + " EXISTS");
-        Iterator<ServerUser> itr = userRepository.findAll().iterator();
-        int c = 0;
-        while (itr.hasNext()) {
-            c++;
-            itr.next();
-        }
-        Assertions.assertEquals(1, c);
-    }
+//    public void userWithUsernamePasswordEmailAgeAndGenderExistsInDatabase(String username, String password, String email, int age, String gender) {
+//        ServerUser u = new ServerUser(username, email, password, age, gender);
+//        userRepository.save(u);
+//
+//        System.out.println(u + " EXISTS");
+//        Iterator<ServerUser> itr = userRepository.findAll().iterator();
+//        int c = 0;
+//        while (itr.hasNext()) {
+//            c++;
+//            itr.next();
+//        }
+//        Assertions.assertEquals(1, c);
+//    }
 
     @Given("empty database")
     public void emptyDatabase() {
@@ -141,11 +141,11 @@ public class RegisterStepdefs {
         final String baseUrl = "http://localhost:8080/login";
         URI uri = new URI(baseUrl);
         response = restTemplate.postForEntity(uri, request, String.class);
-        ServerUser found = null;
-        Iterator<ServerUser> itr = userRepository.findAll().iterator();
-        if (itr.hasNext()) found = itr.next();
+//        ServerUser found = null;
+//        Iterator<ServerUser> itr = userRepository.findAll().iterator();
+//        if (itr.hasNext()) found = itr.next();
 
         System.out.println("RESPONSE: " + response);
-        System.out.println("Retrieved from H2: " + found);
+//        System.out.println("Retrieved from H2: " + found);
     }
 }
