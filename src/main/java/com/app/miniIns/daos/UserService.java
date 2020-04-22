@@ -4,6 +4,8 @@ import com.app.miniIns.entities.ClientUser;
 import com.app.miniIns.entities.*;
 import com.app.miniIns.exceptions.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -26,12 +28,24 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
+
+//    public BCryptPasswordEncoder getPasswordEncoder() {
+//        return passwordEncoder;
+//    }
+//
+//    public void setPasswordEncoder(BCryptPasswordEncoder passwordEncoder) {
+//        this.passwordEncoder = passwordEncoder;
+//    }
+//
+//    @Autowired
+//    BCryptPasswordEncoder passwordEncoder;
+
     @Autowired
     private UserRepository userRepo;
 
 
 //    public User addUser(String username, String password, String email, int age, String gender) {
-//        try {
+//        try {if we
 //            User n = new User(username, password, email, age, gender);
 //            userRepo.save(n);
 //            return n;
@@ -50,7 +64,7 @@ public class UserService {
     }
 
 
-    private String getHashedPassword(String saltedPassword, String algorithm) {
+    public String getHashedPassword(String saltedPassword, String algorithm) {
         try {
             //MessageDigest classes Static getInstance method is called with MD5 hashing
             MessageDigest msgDigest = MessageDigest.getInstance(algorithm);
@@ -80,14 +94,11 @@ public class UserService {
         if (findByEmail(user.getEmail()) != null) throw new DuplicateDataException("Existing Email");
         if (findByUsername(user.getUsername()) != null) throw new DuplicateDataException("Existing Username");
 
-        byte[] array = new byte[7]; // length is bounded by 7
-        new Random().nextBytes(array);
-        String salt = new String(array, Charset.forName("UTF-8"));
-
+        String salt = BCrypt.gensalt();
         user.setSalt(salt);
-        String saltedPassword = user.getPassword() + salt ;
-        user.setPassword(getHashedPassword(saltedPassword, "SHA-256"));
 
+        String hashedPassword = BCrypt.hashpw(user.getPassword(), salt);
+        user.setPassword(hashedPassword);
         return userRepo.save(user);
     }
 
@@ -104,14 +115,12 @@ public class UserService {
         if (email != null && !email.equals("")) {
             savedUser = findByEmail(email);
             if (savedUser == null) throw new VerificationFailureException("Unregistered " + email);
-
         } else {
             savedUser = findByUsername(username);
             if (savedUser == null) throw new VerificationFailureException("Unregistered " + username);
         }
 
-       System.out.println(savedUser.getPassword() +  "   " + password + ":"+getHashedPassword(password+ savedUser.getSalt(), "SHA-256"));
-        if (savedUser.getPassword().equals(getHashedPassword(password + savedUser.getSalt(), "SHA-256"))) return savedUser;
+        if (savedUser.getPassword().equals(BCrypt.hashpw(password, savedUser.getSalt()))) return savedUser;
         throw new VerificationFailureException("Incorrect Password");
     }
 

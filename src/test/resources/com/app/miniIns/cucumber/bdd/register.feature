@@ -28,16 +28,16 @@ Feature: Create User
     Given empty database
     When User registers with username "username",password "password", email "email@server.com", age 17 and gender "male"
     Then Response has status code 400
-    And  Response has value "addUser.user.age: Under Age" for "$.message"
+    And  Response has value "Under Age" for "$.message"
 
   Scenario: Users Failed to Register Due to Short Password
     Given empty database
     When User registers with username "username",password "pass", email "email@server.com", age 21 and gender "male"
     Then Response has status code 400
-    And  Response has value "addUser.user.password: The Password Is Too Short" for "$.message"
+    And  Response has value "The Password Is Too Short" for "$.message"
 
   Scenario: Users Failed to Register Due to Wronly Formatted Email
     Given empty database
     When User registers with username "username",password "password", email "emailserver", age 21 and gender "male"
     Then Response has status code 400
-    And Response has value "addUser.user.email: Invalid Email" for "$.message"
+    And Response has value "Invalid Email" for "$.message"

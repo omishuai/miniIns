@@ -14,6 +14,7 @@ public class ServerUser {
     private int id;
 
     @NotNull (message = "Please Enter Username")
+    @Pattern(regexp = "^[A-Z0-9a-z]+$", message = "Username Only Allows Alphanumeric Characters")
     private String username;
 
     @NotNull (message = "Please Enter Email")

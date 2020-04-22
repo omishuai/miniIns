@@ -56,21 +56,8 @@ public class RegisterStepdefs {
         response = restTemplate.postForEntity(uri, request, String.class);
 //        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 //        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-        ServerUser found = null;
-//        Iterator<ServerUser> itr = userRepository.findAll().iterator();
-
-//        int c = 0;
-//        while (itr.hasNext()) {
-////            c++;
-//            found = itr.next();
-//        }
-//        Assertions.assertEquals(1, c);
-
-//        if (itr.hasNext()) found = itr.next();
 
         System.out.println("RESPONSE: " + response);
-//        System.out.println("Retrieved from H2: " + found);
-
 
 //        final String baseUrl = "http://localhost:8080/register";
 //        URI uri = new URI(baseUrl);
@@ -97,22 +84,6 @@ public class RegisterStepdefs {
         Assertions.assertEquals((int)JsonPath.read(response.getBody(), pick), attribute);
     }
 
-    // login
-
-
-//    public void userWithUsernamePasswordEmailAgeAndGenderExistsInDatabase(String username, String password, String email, int age, String gender) {
-//        ServerUser u = new ServerUser(username, email, password, age, gender);
-//        userRepository.save(u);
-//
-//        System.out.println(u + " EXISTS");
-//        Iterator<ServerUser> itr = userRepository.findAll().iterator();
-//        int c = 0;
-//        while (itr.hasNext()) {
-//            c++;
-//            itr.next();
-//        }
-//        Assertions.assertEquals(1, c);
-//    }
 
     @Given("empty database")
     public void emptyDatabase() {
@@ -125,7 +96,7 @@ public class RegisterStepdefs {
     @When("User logins with {string} {string} and {string}")
     public void userLoginsWithAnd(String key, String account, String password) throws URISyntaxException {
 
-        System.out.println(key  + " " + account + "       password: " + password);
+        System.out.println(key  + ": " + account + "       password: " + password);
         restTemplate = new RestTemplate();
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
 
@@ -133,7 +104,7 @@ public class RegisterStepdefs {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         MultiValueMap map = new LinkedMultiValueMap();
-        map.add(key, account);
+        map.add("user", account);
         map.add("password", password);
 
         HttpEntity<MultiValueMap> request = new HttpEntity<>(map, headers);
@@ -145,7 +116,6 @@ public class RegisterStepdefs {
 //        Iterator<ServerUser> itr = userRepository.findAll().iterator();
 //        if (itr.hasNext()) found = itr.next();
 
-        System.out.println("RESPONSE: " + response);
-//        System.out.println("Retrieved from H2: " + found);
+        System.out.println("RESPONSE FROM LOGIN: " + response);
     }
 }
