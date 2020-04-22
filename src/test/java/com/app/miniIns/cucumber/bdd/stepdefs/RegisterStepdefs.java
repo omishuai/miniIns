@@ -1,8 +1,8 @@
 package com.app.miniIns.cucumber.bdd.stepdefs;
 
-import com.app.miniIns.cucumber.bdd.RestTemplateResponseErrorHandler;
+import com.app.miniIns.cucumber.bdd.*;
 import com.app.miniIns.daos.UserRepository;
-import com.app.miniIns.entities.User;
+import com.app.miniIns.entities.*;
 
 import com.jayway.jsonpath.JsonPath;
 import io.cucumber.java.en.And;
@@ -34,6 +34,7 @@ public class RegisterStepdefs {
     RestTemplate restTemplate;
     ResponseEntity<String> response;
 
+    @And("User with username {string},password {string}, email {string}, age {int} and gender {string} exists")
     @When("User registers with username {string},password {string}, email {string}, age {int} and gender {string}")
     public void userRegistersWithUsernamePasswordEmailAgeAndGender(String username, String password, String email, int age, String gender) throws URISyntaxException {
         restTemplate = new RestTemplate();
@@ -55,9 +56,17 @@ public class RegisterStepdefs {
         response = restTemplate.postForEntity(uri, request, String.class);
 //        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 //        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-        User found = null;
-        Iterator<User> itr = userRepository.findAll().iterator();
-        if (itr.hasNext()) found = itr.next();
+        ServerUser found = null;
+        Iterator<ServerUser> itr = userRepository.findAll().iterator();
+
+//        int c = 0;
+        while (itr.hasNext()) {
+//            c++;
+            found = itr.next();
+        }
+//        Assertions.assertEquals(1, c);
+
+//        if (itr.hasNext()) found = itr.next();
 
         System.out.println("RESPONSE: " + response);
         System.out.println("Retrieved from H2: " + found);
@@ -90,13 +99,13 @@ public class RegisterStepdefs {
 
     // login
 
-    @And("User with username {string},password {string}, email {string}, age {int} and gender {string} exists")
+
     public void userWithUsernamePasswordEmailAgeAndGenderExistsInDatabase(String username, String password, String email, int age, String gender) {
-        User u = new User(username, email, password, age, gender);
+        ServerUser u = new ServerUser(username, email, password, age, gender);
         userRepository.save(u);
 
         System.out.println(u + " EXISTS");
-        Iterator<User> itr = userRepository.findAll().iterator();
+        Iterator<ServerUser> itr = userRepository.findAll().iterator();
         int c = 0;
         while (itr.hasNext()) {
             c++;
@@ -108,7 +117,7 @@ public class RegisterStepdefs {
     @Given("empty database")
     public void emptyDatabase() {
         userRepository.deleteAll();
-        Iterator<User> user = userRepository.findAll().iterator();
+        Iterator<ServerUser> user = userRepository.findAll().iterator();
         Assertions.assertEquals(false, user.hasNext());
     }
 
@@ -132,8 +141,8 @@ public class RegisterStepdefs {
         final String baseUrl = "http://localhost:8080/login";
         URI uri = new URI(baseUrl);
         response = restTemplate.postForEntity(uri, request, String.class);
-        User found = null;
-        Iterator<User> itr = userRepository.findAll().iterator();
+        ServerUser found = null;
+        Iterator<ServerUser> itr = userRepository.findAll().iterator();
         if (itr.hasNext()) found = itr.next();
 
         System.out.println("RESPONSE: " + response);

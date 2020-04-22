@@ -1,6 +1,6 @@
 package com.app.miniIns.controllers;
 
-import com.app.miniIns.entities.User;
+import com.app.miniIns.entities.*;
 import com.app.miniIns.daos.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -52,8 +52,9 @@ public class MyController {
     @PostMapping(path = "/register")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public User register(User user) throws Exception {
-        return userService.addUser(user);
+    public ClientUser register(ServerUser user) throws Exception {
+        ServerUser res = userService.addUser(user);
+        return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), user.getGender());
     }
 
 //    @GetMapping (path = "/login")
@@ -67,10 +68,10 @@ public class MyController {
     @PostMapping(path = "/login")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public User login(User user) throws Exception {
-
+    public ClientUser login(ServerUser user) throws Exception {
         System.out.println("Logging in: " + user);
-        return userService.verifyInfo(user);
+        ServerUser res = userService.verifyInfo(user);
+        return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
     }
 
 

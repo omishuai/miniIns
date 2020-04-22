@@ -7,10 +7,8 @@ import javax.validation.Constraint;
 import javax.validation.constraints.*;
 
 @Entity
-@Table(name="user")
-//@Constraint(validatedBy = UserValidator.class)
-public class User {
-
+@Table(name="Users")
+public class ServerUser {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
@@ -32,6 +30,17 @@ public class User {
 
     @NotNull (message = "Please Enter Gender")
     private String gender;
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
+    private String salt;
+
 
     public String getGender() {
         return gender;
@@ -66,7 +75,7 @@ public class User {
 //    @OneToMany(fetch = FetchType.EAGER,mappedBy="user",cascade = CascadeType.ALL)
 //    private Set<Photo> photos;
 
-    public User(String username, String email, String password, int age, String gender) {
+    public ServerUser(String username, String email, String password, int age, String gender) {
         this.username = username;
         this.email = email;
         this.password = password;
@@ -74,7 +83,7 @@ public class User {
         this.gender = gender;
     }
 
-    public User() { }
+    public ServerUser() { }
 
     @Override
     public String toString() {
@@ -84,8 +93,8 @@ public class User {
     @Override
     public boolean equals(Object o) {
             if (o == this) return true;
-            if (!(o instanceof  User)) return false;
-            User u = (User)o;
+            if (!(o instanceof  ServerUser)) return false;
+            ServerUser u = (ServerUser)o;
             return username.equals(u.username) && email.equals(u.email);
     }
 
