@@ -4,7 +4,9 @@ import com.app.miniIns.entities.ServerUser;
 import com.app.miniIns.exceptions.MyAuthenticationException;
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.catalina.filters.ExpiresFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -20,8 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 
@@ -36,14 +37,15 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws AuthenticationException {
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(req.getInputStream()));
-            String line = in.readLine().replace("user=","").replace("password=","");
+            String line = in.readLine().replace("username=","").replace("password=","");
             System.out.println("READING FROM BODY:" + line);
 
-            String[] params = line.split("&");
+            line = line.replace("%40", "@");
+            int index = line.indexOf('&');
             return myAuthenticationProvider.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            params[0].replace("%40", "@"),
-                            params[1],
+                            line.substring(0,index),
+                            line.substring(index + 1),
                             new ArrayList<>())
             );
         } catch (IOException e) { throw new RuntimeException(e); }
@@ -59,16 +61,35 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         res.getWriter().write(((ServerUser) auth.getPrincipal()).toString());
     }
 
-//    @Override
-//    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-//                                              AuthenticationException failed) throws IOException, ServletException {
-//
-//        if (failed instanceof MyAuthenticationException) {
-//
-//            MyAuthenticationException ex = (MyAuthenticationException) failed;
-//            System.out.println("UNSUCCESS:" + ex.getMessage());
-//            response.sendError((HttpServletResponse.SC_UNAUTHORIZED), ex.getMessage());
-//
-//        }
-//    }
+    private ObjectMapper objectMapper = new ObjectMapper();
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                              AuthenticationException failed) throws IOException, ServletException {
+
+
+        if (failed instanceof MyAuthenticationException) {
+
+            MyAuthenticationException ex = (MyAuthenticationException) failed;
+            System.out.println("UNSUCCESS:" + ex.getMessage());
+
+
+            Map<String, Object> data = new HashMap<>();
+            data.put(
+                    "timestamp",
+                    Calendar.getInstance().getTime());
+            data.put(
+                    "exception",
+                    ex.getMessage());
+
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getOutputStream().write((objectMapper.writeValueAsString(data).getBytes("UTF-8")));
+
+//            System.out.println(response);
+//            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
+//            System.out.println(response);
+
+//            response.setContentType("application/json");
+        }
+    }
 }

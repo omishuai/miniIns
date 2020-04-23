@@ -16,6 +16,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -37,8 +38,8 @@ public class RegisterStepdefs {
     @And("User with username {string},password {string}, email {string}, age {int} and gender {string} exists")
     @When("User registers with username {string},password {string}, email {string}, age {int} and gender {string}")
     public void userRegistersWithUsernamePasswordEmailAgeAndGender(String username, String password, String email, int age, String gender) throws URISyntaxException {
-        restTemplate = new RestTemplate();
-        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
+//        restTemplate = new RestTemplate();
+//        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -101,14 +102,14 @@ public class RegisterStepdefs {
     public void userLoginsWithAnd(String key, String account, String password) throws URISyntaxException {
 
         System.out.println(key  + ": " + account + "       password: " + password);
-        restTemplate = new RestTemplate();
-        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
+//        restTemplate = new RestTemplate();
+//        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         MultiValueMap map = new LinkedMultiValueMap();
-        map.add("user", account);
+        map.add("username", account);
         map.add("password", password);
 
         HttpEntity<MultiValueMap> request = new HttpEntity<>(map, headers);
@@ -120,6 +121,16 @@ public class RegisterStepdefs {
 //        Iterator<ServerUser> itr = userRepository.findAll().iterator();
 //        if (itr.hasNext()) found = itr.next();
 
-        System.out.println("RESPONSE FROM LOGIN: " + response);
+        System.out.println("RESPONSE FROM LOGIN: " + response.getBody());
+    }
+
+
+    public RegisterStepdefs() {
+        restTemplate = new RestTemplate();
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+
+        requestFactory.setOutputStreaming(false);
+        restTemplate.setRequestFactory(requestFactory);
+        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
     }
 }

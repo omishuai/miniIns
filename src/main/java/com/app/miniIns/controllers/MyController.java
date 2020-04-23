@@ -41,12 +41,12 @@ public class MyController {
     }
 
 
-//    @GetMapping (path = "/register")
-//    public ModelAndView register(ModelAndView modelAndView, User user) {
-//        modelAndView.addObject("user", user);
-//        modelAndView.setViewName("register");
-//        return modelAndView;
-//    }
+    @GetMapping (path = "/register")
+    public ModelAndView register(ModelAndView modelAndView, ServerUser user) {
+        modelAndView.addObject("user", user);
+        modelAndView.setViewName("register");
+        return modelAndView;
+    }
 
 
     @PostMapping(path = "/register")

@@ -36,10 +36,19 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
         http
                 .addFilter(new JWTAuthenticationFilter(authProvider));
         http
-                .csrf().disable().authorizeRequests()
-                .antMatchers("/register"). permitAll()
+                .csrf().disable()
+
+                .authorizeRequests()
+                .antMatchers("/login", "/register")
+                .permitAll()
                 .anyRequest().authenticated()
-                .and().formLogin().loginPage("/login").failureHandler(myAuthenticationFailureHandler());
+
+//                .and()
+//                .formLogin()
+//                .failureHandler(myAuthenticationFailureHandler())
+//                .successForwardUrl("/register")
+            ;
+
 
     }
 }
