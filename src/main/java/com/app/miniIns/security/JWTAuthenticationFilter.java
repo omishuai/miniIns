@@ -27,27 +27,19 @@ import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
-
     private MyAuthenticationProvider myAuthenticationProvider;
-
     public JWTAuthenticationFilter(MyAuthenticationProvider authenticationManager) {
         this.myAuthenticationProvider = authenticationManager;
     }
     //when a user is attempting to log in
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws MyAuthenticationException,AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws AuthenticationException {
         try {
-            //Need to evaluate getInputStream
-            //Might not be able to map back to the user. coz the userinfo from user could be either email or username
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(req.getInputStream()));
-
+            BufferedReader in = new BufferedReader(new InputStreamReader(req.getInputStream()));
             String line = in.readLine().replace("user=","").replace("password=","");
-            System.out.println(line);
+            System.out.println("READING FROM BODY:" + line);
 
             String[] params = line.split("&");
-            // Need to modify the parameter regarding how user login info is passed in from client
             return myAuthenticationProvider.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             params[0].replace("%40", "@"),
@@ -67,16 +59,16 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         res.getWriter().write(((ServerUser) auth.getPrincipal()).toString());
     }
 
-    @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-                                              AuthenticationException failed) throws IOException, ServletException {
-
-        if (failed instanceof MyAuthenticationException) {
-
-            MyAuthenticationException ex = (MyAuthenticationException) failed;
-            System.out.println("UNSUCCESS:" + ex.getMessage());
-            response.sendError((HttpServletResponse.SC_UNAUTHORIZED), ex.getMessage());
-
-        }
-    }
+//    @Override
+//    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+//                                              AuthenticationException failed) throws IOException, ServletException {
+//
+//        if (failed instanceof MyAuthenticationException) {
+//
+//            MyAuthenticationException ex = (MyAuthenticationException) failed;
+//            System.out.println("UNSUCCESS:" + ex.getMessage());
+//            response.sendError((HttpServletResponse.SC_UNAUTHORIZED), ex.getMessage());
+//
+//        }
+//    }
 }

@@ -18,10 +18,10 @@ public class MyAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     UserService userService;
     @Override
-    public Authentication authenticate(Authentication authentication) throws MyAuthenticationException {
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String name = authentication.getPrincipal().toString();
         String password = authentication.getCredentials().toString();
-        System.out.printf("principal: %s\ncredentials: %s\nname:%s\n",
+        System.out.printf("Reading from JWTAuthenFilter:\nprincipal: %s\ncredentials: %s\nname:%s\n",
                 authentication.getPrincipal(),
                 authentication.getCredentials(),
                 authentication.getName()
@@ -32,30 +32,22 @@ public class MyAuthenticationProvider implements AuthenticationProvider {
 
         candidate.setPassword(password);
         ServerUser returnedUser;
+        System.out.println("Verifying Candidate: " + candidate);
         try {
             returnedUser = userService.verifyInfo(candidate);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new MyAuthenticationException(e.getMessage()); }
+            System.out.println("Something Wrong while verifying: "+ e.getMessage());
+            throw new MyAuthenticationException(e.getMessage());
+        }
         if (returnedUser != null)
             return new UsernamePasswordAuthenticationToken(
                     returnedUser, password, new ArrayList<>());
         return null;
     }
-    @Override
-    public boolean supports(Class<?> aClass) { return false; }
 
-    private boolean checkAgainsDB(String user, String password){
-        ServerUser record;
-        if (user.contains("@")) record = userService.findByEmail(user);
-        else record = userService.findByUsername(user);
-        if (record == null) return false;
-        String salt = record.getSalt();
-        String expectedPassword = record.getPassword();
-        String passwordCandidate = password + salt;
-        String hashedPassword = userService.getHashedPassword(passwordCandidate, "SHA-256");
-        if (hashedPassword.equals(expectedPassword)) return true;
-        return false;
+    @Override
+    public boolean supports(Class<?> aClass) {
+        return aClass.equals(UsernamePasswordAuthenticationToken.class);
     }
 
 }
