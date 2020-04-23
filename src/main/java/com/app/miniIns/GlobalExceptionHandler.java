@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
 
 @ControllerAdvice
@@ -39,13 +40,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ExceptionHandler(value = {AuthenticationException.class})
-    protected ResponseEntity<Object> handleAuthenticateRequest(
-            MyAuthenticationException ex, WebRequest request) {
-        return handleExceptionInternal(ex, new ErrorResponse(ex.getMessage()),
-                new HttpHeaders(), HttpStatus.CONFLICT, request);
+//    @ExceptionHandler(value = {MyAuthenticationException.class})
+//    protected ResponseEntity<Object> handleAuthenticateRequest(
+//            MyAuthenticationException ex, WebRequest request) {
+//
+//        System.out.println("Handling MyAuthen Exception: " +ex.getMessage());
+//        return handleExceptionInternal(ex, new ErrorResponse(ex.getMessage()),
+//                new HttpHeaders(), HttpStatus.FORBIDDEN, request);
+//    }
 
-    }
+//    @ExceptionHandler(AuthenticationException.class)
+//    public GenericResponseBean handleAuthenticationException(AuthenticationException ex, HttpServletResponse response){
+//        GenericResponseBean genericResponseBean = GenericResponseBean.build(MessageKeys.UNAUTHORIZED);
+//        genericResponseBean.setError(true);
+//        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+//        return genericResponseBean;
+//    }
 
 
 }

@@ -97,6 +97,8 @@ public class UserService {
         String salt = BCrypt.gensalt();
         user.setSalt(salt);
 
+        System.out.println("SAVING: " + user);
+
         String hashedPassword = BCrypt.hashpw(user.getPassword(), salt);
         user.setPassword(hashedPassword);
         return userRepo.save(user);

@@ -26,9 +26,23 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.addFilter(new JWTAuthenticationFilter(authProvider)).authorizeRequests().anyRequest().authenticated()
-                .and().httpBasic();
+//        http.addFilter(new JWTAuthenticationFilter(authProvider))
+//                .httpBasic();
+//        http.addFilter(new JWTAuthenticationFilter(authProvider)).authorizeRequests()
+//                .antMatchers("/").permitAll()
+//             .antMatchers("/register").permitAll()
+//                .anyRequest().authenticated();
+
+        http.csrf().disable().authorizeRequests()
+                //.antMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/**/favicon.ico").permitAll()
+                .antMatchers(HttpMethod.POST, "/login","/register").permitAll()
+                //.antMatchers("/rest/*").permitAll()
+                //.antMatchers("/").permitAll()
+                .anyRequest().authenticated()
+        .and()
+        .addFilter(new JWTAuthenticationFilter(authProvider));
     }
+
 
 
 //    @Override

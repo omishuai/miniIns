@@ -53,7 +53,9 @@ public class MyController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public ClientUser register(ServerUser user) throws Exception {
+
         ServerUser res = userService.addUser(user);
+        System.out.println("Registered: " + res);
         return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), user.getGender());
     }
 
@@ -65,14 +67,14 @@ public class MyController {
 //    }
 
 
-    @PostMapping(path = "/login")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public ClientUser login(ServerUser user) throws Exception {
-        System.out.println("Logging in: " + user);
-        ServerUser res = userService.verifyInfo(user);
-        return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
-    }
+//    @PostMapping(path = "/login")
+//    @ResponseStatus(HttpStatus.OK)
+//    @ResponseBody
+//    public ClientUser login(ServerUser user) throws Exception {
+//        System.out.println("Logging in: " + user);
+//        ServerUser res = userService.verifyInfo(user);
+//        return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
+//    }
 
 
 }

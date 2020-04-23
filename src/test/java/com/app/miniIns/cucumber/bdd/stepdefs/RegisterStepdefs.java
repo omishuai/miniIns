@@ -53,6 +53,8 @@ public class RegisterStepdefs {
 
         final String baseUrl = "http://localhost:8080/register";
         URI uri = new URI(baseUrl);
+
+        System.out.println("Request: " + request);
         response = restTemplate.postForEntity(uri, request, String.class);
 //        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 //        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
@@ -81,7 +83,9 @@ public class RegisterStepdefs {
 
     @And("Response has value {int} for {string}")
     public void responseHasValueForAge(int attribute, String pick) throws JSONException {
+        System.out.print(response.getBody());
         Assertions.assertEquals((int)JsonPath.read(response.getBody(), pick), attribute);
+
     }
 
 

@@ -32,6 +32,9 @@ public class ServerUser {
     @NotNull (message = "Please Enter Gender")
     private String gender;
 
+    private String salt;
+
+
     public String getSalt() {
         return salt;
     }
@@ -39,9 +42,6 @@ public class ServerUser {
     public void setSalt(String salt) {
         this.salt = salt;
     }
-
-    private String salt;
-
 
     public String getGender() {
         return gender;
@@ -76,6 +76,15 @@ public class ServerUser {
 //    @OneToMany(fetch = FetchType.EAGER,mappedBy="user",cascade = CascadeType.ALL)
 //    private Set<Photo> photos;
 
+    public ServerUser(String username, String email, String password, int age, String gender, String salt) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.age = age;
+        this.gender = gender;
+        this.salt = salt;
+    }
+
     public ServerUser(String username, String email, String password, int age, String gender) {
         this.username = username;
         this.email = email;
@@ -88,7 +97,7 @@ public class ServerUser {
 
     @Override
     public String toString() {
-        return  String.format("{username: '%s', password:  '%s', email: '%s', age: '%s', gender: '%s'}", username, password, email, age, gender);
+        return  String.format("{username: '%s', password:  '%s', email: '%s', age: %d, gender: '%s', salt: '%s'}", username, password, email, age, gender,salt);
     }
 
     @Override

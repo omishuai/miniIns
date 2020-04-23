@@ -18,8 +18,8 @@ public class MyAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     UserService userService;
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        String name = (String) authentication.getPrincipal();
+    public Authentication authenticate(Authentication authentication) throws MyAuthenticationException {
+        String name = authentication.getPrincipal().toString();
         String password = authentication.getCredentials().toString();
         System.out.printf("principal: %s\ncredentials: %s\nname:%s\n",
                 authentication.getPrincipal(),
@@ -34,7 +34,9 @@ public class MyAuthenticationProvider implements AuthenticationProvider {
         ServerUser returnedUser;
         try {
             returnedUser = userService.verifyInfo(candidate);
-        } catch (Exception e) { throw new MyAuthenticationException(e.getMessage()); }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new MyAuthenticationException(e.getMessage()); }
         if (returnedUser != null)
             return new UsernamePasswordAuthenticationToken(
                     returnedUser, password, new ArrayList<>());

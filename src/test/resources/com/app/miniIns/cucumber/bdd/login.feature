@@ -23,33 +23,33 @@ Feature: User Login
     Given empty database
     And User with username "username",password "password", email "email@server.com", age 21 and gender "male" exists
     When User logins with "email" "email@server.com" and "passworddd"
-    Then Response has status code 409
+    Then Response has status code 403
     And  Response has value "Incorrect Password" for "$.message"
 
   Scenario: Users Failed to Login Because No Password
     When User logins with "email" "email@server.com" and ""
-    Then Response has status code 409
+    Then Response has status code 403
     And  Response has value "Please Enter Password" for "$.message"
 
   Scenario: Users Failed to Login Because No Email
     When User logins with "email" "" and "password"
-    Then Response has status code 409
+    Then Response has status code 403
     And  Response has value "Please Enter Username or Email" for "$.message"
 
   Scenario: Users Failed to Login Because No Username
     When User logins with "username" "" and "password"
-    Then Response has status code 409
+    Then Response has status code 403
     And  Response has value "Please Enter Username or Email" for "$.message"
 
 
   Scenario: Users Failed to Login Due to unregistered Username
     Given empty database
     When User logins with "email" "email@server" and "password"
-    Then Response has status code 409
+    Then Response has status code 403
     And  Response has value "Unregistered email@server" for "$.message"
 
   Scenario: Users Failed to Login Due to unregistered Email
     Given empty database
     When User logins with "username" "userm" and "password"
-    Then Response has status code 409
+    Then Response has status code 403
     And  Response has value "Unregistered userm" for "$.message"

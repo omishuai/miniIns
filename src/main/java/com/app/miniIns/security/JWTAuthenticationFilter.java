@@ -1,6 +1,7 @@
 package com.app.miniIns.security;
 
 import com.app.miniIns.entities.ServerUser;
+import com.app.miniIns.exceptions.MyAuthenticationException;
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,25 +36,22 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
     //when a user is attempting to log in
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws MyAuthenticationException,AuthenticationException {
         try {
-
-            System.out.println("REQ Input: " + req.getInputStream());
             //Need to evaluate getInputStream
             //Might not be able to map back to the user. coz the userinfo from user could be either email or username
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(req.getInputStream()));
 
-            String line = null;
-            while((line = in.readLine()) != null) {
-                System.out.printf("%s\n", line);
-            }
+            String line = in.readLine().replace("user=","").replace("password=","");
+            System.out.println(line);
 
+            String[] params = line.split("&");
             // Need to modify the parameter regarding how user login info is passed in from client
             return myAuthenticationProvider.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            "user",
-                            "password",
+                            params[0].replace("%40", "@"),
+                            params[1],
                             new ArrayList<>())
             );
         } catch (IOException e) { throw new RuntimeException(e); }
@@ -65,5 +63,20 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .sign(HMAC512(SECRET.getBytes()));
         res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
+
+        res.getWriter().write(((ServerUser) auth.getPrincipal()).toString());
+    }
+
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                              AuthenticationException failed) throws IOException, ServletException {
+
+        if (failed instanceof MyAuthenticationException) {
+
+            MyAuthenticationException ex = (MyAuthenticationException) failed;
+            System.out.println("UNSUCCESS:" + ex.getMessage());
+            response.sendError((HttpServletResponse.SC_UNAUTHORIZED), ex.getMessage());
+
+        }
     }
 }
