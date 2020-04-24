@@ -67,7 +67,7 @@ public class MyController {
     }
 
     //home for user
-    @GetMapping("/secret/{user}")
+    @GetMapping("/{user}")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public ClientUser getGreetingPageForUser(ModelAndView modelAndView, @PathVariable  String user){ //@PathVariable String username) {
