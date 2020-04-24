@@ -11,7 +11,7 @@ Feature: Create User
 
   Scenario: Users Failed to Register Due to Existing Username
     Given empty database
-    And User with "username" for "username" is inserted to database
+    And User with username "username",password "password", email "email2@server.com", age 21 and gender "male" exists
     When User registers with username "username",password "password", email "email@server.com", age 21 and gender "male"
     Then Response has status code 409
     And  Response has value "Existing Username" for "$.message"
@@ -19,7 +19,7 @@ Feature: Create User
 
   Scenario: Users Failed to Register Due to Existing Email
     Given empty database
-    Given User with "email@server.com" for "email" is inserted to database
+    And User with username "userna",password "password", email "email@server.com", age 21 and gender "male" exists
     When User registers with username "username",password "password", email "email@server.com", age 21 and gender "male"
     Then Response has status code 409
     And  Response has value "Existing Email" for "$.message"
@@ -28,16 +28,16 @@ Feature: Create User
     Given empty database
     When User registers with username "username",password "password", email "email@server.com", age 17 and gender "male"
     Then Response has status code 400
-    And  Response has value "addUser.user.age: Under Age" for "$.message"
+    And  Response has value "Under Age" for "$.message"
 
   Scenario: Users Failed to Register Due to Short Password
     Given empty database
     When User registers with username "username",password "pass", email "email@server.com", age 21 and gender "male"
     Then Response has status code 400
-    And  Response has value "addUser.user.password: The Password Is Too Short" for "$.message"
+    And  Response has value "The Password Is Too Short" for "$.message"
 
   Scenario: Users Failed to Register Due to Wronly Formatted Email
     Given empty database
     When User registers with username "username",password "password", email "emailserver", age 21 and gender "male"
     Then Response has status code 400
-    And Response has value "addUser.user.email: Invalid Email" for "$.message"
+    And Response has value "Invalid Email" for "$.message"

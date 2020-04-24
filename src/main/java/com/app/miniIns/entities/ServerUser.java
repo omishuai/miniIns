@@ -7,24 +7,41 @@ import javax.validation.Constraint;
 import javax.validation.constraints.*;
 
 @Entity
-@Table(name="user")
-//@Constraint(validatedBy = UserValidator.class)
-public class User {
-
+@Table(name="Users")
+public class ServerUser {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
+    @NotNull (message = "Please Enter Username")
+    @Pattern(regexp = "^[A-Z0-9a-z]+$", message = "Username Only Allows Alphanumeric Characters")
     private String username;
 
+    @NotNull (message = "Please Enter Email")
     @Email (message = "Invalid Email")
     private String email;
 
+    @NotNull (message = "Please Enter Password")
     @Size(min=8, message = "The Password Is Too Short")
     private String password;
 
+    @NotNull (message = "Please Enter Age")
     @Min(value=18, message = "Under Age")
     private int age;
+
+    @NotNull (message = "Please Enter Gender")
+    private String gender;
+
+    private String salt;
+
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
 
     public String getGender() {
         return gender;
@@ -54,12 +71,16 @@ public class User {
         this.gender = gender;
     }
 
-    private String gender;
+    public ServerUser(String username, String email, String password, int age, String gender, String salt) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.age = age;
+        this.gender = gender;
+        this.salt = salt;
+    }
 
-//    @OneToMany(fetch = FetchType.EAGER,mappedBy="user",cascade = CascadeType.ALL)
-//    private Set<Photo> photos;
-
-    public User(String username, String email, String password, int age, String gender) {
+    public ServerUser(String username, String email, String password, int age, String gender) {
         this.username = username;
         this.email = email;
         this.password = password;
@@ -67,18 +88,18 @@ public class User {
         this.gender = gender;
     }
 
-    public User() { }
+    public ServerUser() { }
 
     @Override
     public String toString() {
-        return  String.format("{username: '%s', email: '%s', age: '%s', gender: '%s'}", username, email, age, gender);
+        return  String.format("{username: '%s', password:  '%s', email: '%s', age: %d, gender: '%s', salt: '%s'}", username, password, email, age, gender,salt);
     }
 
     @Override
     public boolean equals(Object o) {
             if (o == this) return true;
-            if (!(o instanceof  User)) return false;
-            User u = (User)o;
+            if (!(o instanceof  ServerUser)) return false;
+            ServerUser u = (ServerUser)o;
             return username.equals(u.username) && email.equals(u.email);
     }
 

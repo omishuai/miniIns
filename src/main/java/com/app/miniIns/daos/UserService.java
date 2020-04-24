@@ -1,12 +1,20 @@
 package com.app.miniIns.daos;
 
-import com.app.miniIns.entities.User;
-import com.app.miniIns.exceptions.DuplicateDataException;
+import com.app.miniIns.entities.ClientUser;
+import com.app.miniIns.entities.*;
+import com.app.miniIns.exceptions.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import javax.validation.Valid;
+import java.nio.charset.Charset;
+import java.util.Random;
 
 @Service
 @Validated
@@ -20,33 +28,51 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
+
     @Autowired
     private UserRepository userRepo;
 
 
-//    public User addUser(String username, String password, String email, int age, String gender) {
-//        try {
-//            User n = new User(username, password, email, age, gender);
-//            userRepo.save(n);
-//            return n;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
-
-    public User findByEmail(String email) {
+    public ServerUser findByEmail(String email) {
         return userRepo.findByEmail(email);
     }
 
-    public User findByUsername(String username) {
+    public ServerUser findByUsername(String username) {
         return userRepo.findByUsername(username);
     }
 
-    public User addUser(@Valid User user) throws Exception {
+
+    public ServerUser addUser(@Valid ServerUser user) throws Exception {
         if (findByEmail(user.getEmail()) != null) throw new DuplicateDataException("Existing Email");
         if (findByUsername(user.getUsername()) != null) throw new DuplicateDataException("Existing Username");
+
+        String salt = BCrypt.gensalt();
+        user.setSalt(salt);
+
+        String hashedPassword = BCrypt.hashpw(user.getPassword(), salt);
+        user.setPassword(hashedPassword);
         return userRepo.save(user);
+    }
+
+    public ServerUser verifyInfo(ServerUser user) throws Exception {
+        String email =  user.getEmail();
+        String password =  user.getPassword();
+        String username =  user.getUsername();
+
+        if ((email == null ||email.equals("")) && (username == null || username.equals(""))) throw new EmptyInputException("Please Enter Username or Email");
+        if (password == null || password.equals("")) throw new EmptyInputException("Please Enter Password");
+
+        ServerUser savedUser;
+        if (email != null && !email.equals("")) {
+            savedUser = findByEmail(email);
+            if (savedUser == null) throw new VerificationFailureException("Unregistered " + email);
+        } else {
+            savedUser = findByUsername(username);
+            if (savedUser == null) throw new VerificationFailureException("Unregistered " + username);
+        }
+
+        if (savedUser.getPassword().equals(BCrypt.hashpw(password, savedUser.getSalt()))) return savedUser;
+        throw new VerificationFailureException("Incorrect Password");
     }
 
 }
