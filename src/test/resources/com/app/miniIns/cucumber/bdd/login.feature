@@ -2,6 +2,7 @@ Feature: User Login
   Scenario: Users Login Successfully Using Username
     Given empty database
     And User with username "username",password "password", email "email@server.com", age 21 and gender "male" exists
+    And Response has status code 201
     When User logins with "username" "username" and "password"
     Then Response has status code 200
     And Response has value "username" for "$.username"
@@ -12,6 +13,7 @@ Feature: User Login
   Scenario: Users Login Successfully Using Email
     Given empty database
     And User with username "username",password "password", email "email@server.com", age 21 and gender "male" exists
+    And Response has status code 201
     When User logins with "email" "email@server.com" and "password"
     Then Response has status code 200
     And Response has value "username" for "$.username"
@@ -22,6 +24,7 @@ Feature: User Login
   Scenario: Users Failed to login due to un-matching password
     Given empty database
     And User with username "username",password "password", email "email@server.com", age 21 and gender "male" exists
+    And Response has status code 201
     When User logins with "email" "email@server.com" and "passworddd"
     Then Response has status code 401
     And  Response has value "Incorrect Password" for "$.exception"

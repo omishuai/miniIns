@@ -29,31 +29,9 @@ public class UserService {
     }
 
 
-//    public BCryptPasswordEncoder getPasswordEncoder() {
-//        return passwordEncoder;
-//    }
-//
-//    public void setPasswordEncoder(BCryptPasswordEncoder passwordEncoder) {
-//        this.passwordEncoder = passwordEncoder;
-//    }
-//
-//    @Autowired
-//    BCryptPasswordEncoder passwordEncoder;
-
     @Autowired
     private UserRepository userRepo;
 
-
-//    public User addUser(String username, String password, String email, int age, String gender) {
-//        try {if we
-//            User n = new User(username, password, email, age, gender);
-//            userRepo.save(n);
-//            return n;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
 
     public ServerUser findByEmail(String email) {
         return userRepo.findByEmail(email);
@@ -64,40 +42,12 @@ public class UserService {
     }
 
 
-    public String getHashedPassword(String saltedPassword, String algorithm) {
-        try {
-            //MessageDigest classes Static getInstance method is called with MD5 hashing
-            MessageDigest msgDigest = MessageDigest.getInstance(algorithm);
-            byte[] inputDigest = msgDigest.digest(saltedPassword.getBytes());
-
-            // Convert byte array into signum representation
-            // BigInteger class is used, to convert the resultant byte array into its signum representation
-            BigInteger inputDigestBigInt = new BigInteger(1, inputDigest);
-
-            // Convert the input digest into hex value
-            String hashtext = inputDigestBigInt.toString(16);
-
-            //Add preceding 0's to pad the hashtext to make it 32 bit
-            while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
-            }
-            return hashtext;
-        }
-        // Catch block to handle the scenarios when an unsupported message digest algorithm is provided.
-        catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
     public ServerUser addUser(@Valid ServerUser user) throws Exception {
         if (findByEmail(user.getEmail()) != null) throw new DuplicateDataException("Existing Email");
         if (findByUsername(user.getUsername()) != null) throw new DuplicateDataException("Existing Username");
 
         String salt = BCrypt.gensalt();
         user.setSalt(salt);
-
-        System.out.println("SAVING: " + user);
 
         String hashedPassword = BCrypt.hashpw(user.getPassword(), salt);
         user.setPassword(hashedPassword);
@@ -109,7 +59,6 @@ public class UserService {
         String password =  user.getPassword();
         String username =  user.getUsername();
 
-        System.out.println("email: " + email + "  username: " +username + "  password: " +password);
         if ((email == null ||email.equals("")) && (username == null || username.equals(""))) throw new EmptyInputException("Please Enter Username or Email");
         if (password == null || password.equals("")) throw new EmptyInputException("Please Enter Password");
 

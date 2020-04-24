@@ -10,3 +10,13 @@ Feature: Authorization
     And Response has value "email@server.com" for "$.email"
     And Response has value 21 for "$.age"
     And Response has value "male" for "$.gender"
+
+
+  Scenario: User Is NOT Authorized
+    Given empty database
+    When User with username "u" visits page "/secret/{user}"
+    Then Response has status code 403
+#    And Response has value "username" for "$.username"
+#    And Response has value "email@server.com" for "$.email"
+#    And Response has value 21 for "$.age"
+#    And Response has value "male" for "$.gender"

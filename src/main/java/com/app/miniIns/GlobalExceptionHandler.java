@@ -39,23 +39,4 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
 
     }
-
-//    @ExceptionHandler(value = {MyAuthenticationException.class})
-//    protected ResponseEntity<Object> handleAuthenticateRequest(
-//            MyAuthenticationException ex, WebRequest request) {
-//
-//        System.out.println("Handling MyAuthen Exception: " +ex.getMessage());
-//        return handleExceptionInternal(ex, new ErrorResponse(ex.getMessage()),
-//                new HttpHeaders(), HttpStatus.FORBIDDEN, request);
-//    }
-
-//    @ExceptionHandler(AuthenticationException.class)
-//    public GenericResponseBean handleAuthenticationException(AuthenticationException ex, HttpServletResponse response){
-//        GenericResponseBean genericResponseBean = GenericResponseBean.build(MessageKeys.UNAUTHORIZED);
-//        genericResponseBean.setError(true);
-//        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-//        return genericResponseBean;
-//    }
-
-
 }

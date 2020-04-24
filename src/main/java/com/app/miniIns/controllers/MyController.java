@@ -33,8 +33,6 @@ public class MyController {
     }
 
 
-
-
     @GetMapping (path = "/register")
     public ModelAndView register(ModelAndView modelAndView, ServerUser user) {
         modelAndView.addObject("user", user);
@@ -49,7 +47,6 @@ public class MyController {
     public ClientUser register(ServerUser user) throws Exception {
 
         ServerUser res = userService.addUser(user);
-        System.out.println("Registered: " + res);
         return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), user.getGender());
     }
 
@@ -65,7 +62,6 @@ public class MyController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public ClientUser login(ServerUser user) throws Exception {
-        System.out.println("Logging in: " + user);
         ServerUser res = userService.verifyInfo(user);
         return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
     }
@@ -75,9 +71,6 @@ public class MyController {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public ClientUser getGreetingPageForUser(ModelAndView modelAndView, @PathVariable  String user){ //@PathVariable String username) {
-
-
-        System.out.println(user +  " after login");
         ServerUser res = userService.findByUsername(user);
         if (res == null) res = userService.findByEmail(user);
 

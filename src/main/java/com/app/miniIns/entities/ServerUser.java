@@ -71,11 +71,6 @@ public class ServerUser {
         this.gender = gender;
     }
 
-
-
-//    @OneToMany(fetch = FetchType.EAGER,mappedBy="user",cascade = CascadeType.ALL)
-//    private Set<Photo> photos;
-
     public ServerUser(String username, String email, String password, int age, String gender, String salt) {
         this.username = username;
         this.email = email;

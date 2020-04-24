@@ -42,8 +42,6 @@ public class RegisterStepdefs {
     @And("User with username {string},password {string}, email {string}, age {int} and gender {string} exists")
     @When("User registers with username {string},password {string}, email {string}, age {int} and gender {string}")
     public void userRegistersWithUsernamePasswordEmailAgeAndGender(String username, String password, String email, int age, String gender) throws URISyntaxException {
-//        restTemplate = new RestTemplate();
-//        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -59,20 +57,7 @@ public class RegisterStepdefs {
         final String baseUrl = "http://localhost:8080/register";
         URI uri = new URI(baseUrl);
 
-        System.out.println("Request: " + request);
         response = restTemplate.postForEntity(uri, request, String.class);
-//        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-//        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-
-        System.out.println("RESPONSE: " + response);
-
-//        final String baseUrl = "http://localhost:8080/register";
-//        URI uri = new URI(baseUrl);
-//        User user = new User(username, email, password, age, gender);
-//        ResponseEntity<User> response = restTemplate.postForEntity(uri, user, User.class);
-//        System.out.println("RESPONSE: " + response);
-//        System.out.println("Retrieved from H2: " + found);
-
     };
 
     @Then("Response has status code {int}")
@@ -88,9 +73,7 @@ public class RegisterStepdefs {
 
     @And("Response has value {int} for {string}")
     public void responseHasValueForAge(int attribute, String pick) throws JSONException {
-        System.out.print(response.getBody());
         Assertions.assertEquals((int)JsonPath.read(response.getBody(), pick), attribute);
-
     }
 
 
@@ -105,10 +88,6 @@ public class RegisterStepdefs {
     @When("User logins with {string} {string} and {string}")
     public void userLoginsWithAnd(String key, String account, String password) throws URISyntaxException {
 
-        System.out.println(key  + ": " + account + "       password: " + password);
-//        restTemplate = new RestTemplate();
-//        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
-
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -121,11 +100,6 @@ public class RegisterStepdefs {
         final String baseUrl = "http://localhost:8080/login";
         URI uri = new URI(baseUrl);
         response = restTemplate.postForEntity(uri, request, String.class);
-//        ServerUser found = null;
-//        Iterator<ServerUser> itr = userRepository.findAll().iterator();
-//        if (itr.hasNext()) found = itr.next();
-        System.out.println("RESPONSE FROM LOGIN Body: " + response.getBody());
-        System.out.println("RESPONSE FROM LOGIN Header: " + response.getHeaders());
     }
 
 
@@ -141,15 +115,9 @@ public class RegisterStepdefs {
     @And("User with {string} {string} is authenticated")
     public void userWithIsAuthenticated(String userinfo, String arg1) throws JsonProcessingException {
         ObjectMapper mapper  = new ObjectMapper();
-        System.out.println("RESPONSE Auth Code: " + response.getHeaders().get("Authorization"));
-//        Map<String, Object> map = mapper.readValue(response.getBody(), Map.class);
-//        System.out.println(map.toString());
-//
-//
         String username = (String)JsonPath.read(response.getBody(), "$.username");
-        System.out.println(username);
-
         String code = response.getHeaders().get("Authorization").get(0);
+
         userAuthMap.put(username, code);
         Assertions.assertTrue(code.contains("Bearer"));
     }
@@ -157,29 +125,22 @@ public class RegisterStepdefs {
     @When("User with username {string} visits page {string}")
     public void userWithUsernameVisitsPage(String user, String page) {
 
-        System.out.printf("userinfo: %s page: %s\n", user, page);
-//        restTemplate = new RestTemplate();
-//        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
-
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setBearerAuth((String)userAuthMap.get(user));
+        String sec = (String)userAuthMap.get(user);
+        if (sec != null)
+            headers.setBearerAuth(sec);
 
         // build the request
         HttpEntity request = new HttpEntity(headers);
-
         final String baseUrl = "http://localhost:8080" + page;
 
-        // make an HTTP GET request with headers
-
+        //make an HTTP GET request with headers
         response = restTemplate.exchange(
                 baseUrl,
                 HttpMethod.GET,
                 request,
                 String.class,
                 user);
-
-
-        System.out.println("RESPONSE FROM /{user}: " + response);
     }
 }

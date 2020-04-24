@@ -17,8 +17,6 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
-
-        System.out.println("in failure handler: "+ e.getMessage());
         httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
         Map<String, Object> data = new HashMap<>();
         data.put(
@@ -27,7 +25,6 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
         data.put(
                 "exception",
                 e.getMessage());
-
         httpServletResponse.getOutputStream()
                 .println(objectMapper.writeValueAsString(data));
     }
