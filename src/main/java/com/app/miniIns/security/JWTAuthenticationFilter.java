@@ -59,6 +59,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
 
         res.getWriter().write(((ServerUser) auth.getPrincipal()).toString());
+
+        System.out.println("AUTHENTICATED!!!");
     }
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -84,6 +86,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getOutputStream().write((objectMapper.writeValueAsString(data).getBytes("UTF-8")));
+
 
 //            System.out.println(response);
 //            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());

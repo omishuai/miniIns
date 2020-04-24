@@ -27,18 +27,12 @@ public class MyController {
     private UserService userService;
 
     //Main page
-    @GetMapping(path = "/")
+    @GetMapping(path = "/greeting")
     public String getGreetingPage(ModelAndView modelAndView) {
         return "greeting";
     }
 
-    //home for user
-    @RequestMapping("/{username}")
-    public ModelAndView getGreetingPageForUser(ModelAndView modelAndView, @PathVariable String username) {
-        modelAndView.addObject("usernmae", username);
-        modelAndView.setViewName("greeting");
-        return modelAndView;
-    }
+
 
 
     @GetMapping (path = "/register")
@@ -59,22 +53,38 @@ public class MyController {
         return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), user.getGender());
     }
 
-//    @GetMapping (path = "/login")
-//    public ModelAndView login(ModelAndView modelAndView, User user) {
-//        modelAndView.addObject("user", user);
-//        modelAndView.setViewName("login");
+    @GetMapping (path = "/login")
+    public ModelAndView login(ModelAndView modelAndView, ServerUser user) {
+        modelAndView.addObject("user", user);
+        modelAndView.setViewName("login");
+        return modelAndView;
+    }
+
+
+    @PostMapping(path = "/login")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public ClientUser login(ServerUser user) throws Exception {
+        System.out.println("Logging in: " + user);
+        ServerUser res = userService.verifyInfo(user);
+        return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
+    }
+
+    //home for user
+    @GetMapping("/secret/{user}")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public ClientUser getGreetingPageForUser(ModelAndView modelAndView, @PathVariable  String user){ //@PathVariable String username) {
+
+
+        System.out.println(user +  " after login");
+        ServerUser res = userService.findByUsername(user);
+        if (res == null) res = userService.findByEmail(user);
+
+//        modelAndView.addObject("usernmae", res.getUsername());
+//        modelAndView.setViewName("greeting");
 //        return modelAndView;
-//    }
-
-
-//    @PostMapping(path = "/login")
-//    @ResponseStatus(HttpStatus.OK)
-//    @ResponseBody
-//    public ClientUser login(ServerUser user) throws Exception {
-//        System.out.println("Logging in: " + user);
-//        ServerUser res = userService.verifyInfo(user);
-//        return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
-//    }
-
+        return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
+    }
 
 }

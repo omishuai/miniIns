@@ -4,6 +4,8 @@ import com.app.miniIns.cucumber.bdd.*;
 import com.app.miniIns.daos.UserRepository;
 import com.app.miniIns.entities.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -12,10 +14,7 @@ import io.cucumber.java.en.When;
 import org.json.JSONException;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -26,7 +25,12 @@ import java.net.URISyntaxException;
 import java.util.Iterator;
 
 
+import java.util.*;
+
 public class RegisterStepdefs {
+
+    //Need a map that maps user to token to simulate front end.
+    HashMap userAuthMap = new HashMap ();
 
     @Autowired
     private UserRepository userRepository;
@@ -120,8 +124,8 @@ public class RegisterStepdefs {
 //        ServerUser found = null;
 //        Iterator<ServerUser> itr = userRepository.findAll().iterator();
 //        if (itr.hasNext()) found = itr.next();
-
-        System.out.println("RESPONSE FROM LOGIN: " + response.getBody());
+        System.out.println("RESPONSE FROM LOGIN Body: " + response.getBody());
+        System.out.println("RESPONSE FROM LOGIN Header: " + response.getHeaders());
     }
 
 
@@ -132,5 +136,50 @@ public class RegisterStepdefs {
         requestFactory.setOutputStreaming(false);
         restTemplate.setRequestFactory(requestFactory);
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
+    }
+
+    @And("User with {string} {string} is authenticated")
+    public void userWithIsAuthenticated(String userinfo, String arg1) throws JsonProcessingException {
+        ObjectMapper mapper  = new ObjectMapper();
+        System.out.println("RESPONSE Auth Code: " + response.getHeaders().get("Authorization"));
+//        Map<String, Object> map = mapper.readValue(response.getBody(), Map.class);
+//        System.out.println(map.toString());
+//
+//
+        String username = (String)JsonPath.read(response.getBody(), "$.username");
+        System.out.println(username);
+
+        String code = response.getHeaders().get("Authorization").get(0);
+        userAuthMap.put(username, code);
+        Assertions.assertTrue(code.contains("Bearer"));
+    }
+
+    @When("User with username {string} visits page {string}")
+    public void userWithUsernameVisitsPage(String user, String page) {
+
+        System.out.printf("userinfo: %s page: %s\n", user, page);
+//        restTemplate = new RestTemplate();
+//        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setBearerAuth((String)userAuthMap.get(user));
+
+        // build the request
+        HttpEntity request = new HttpEntity(headers);
+
+        final String baseUrl = "http://localhost:8080" + page;
+
+        // make an HTTP GET request with headers
+
+        response = restTemplate.exchange(
+                baseUrl,
+                HttpMethod.GET,
+                request,
+                String.class,
+                user);
+
+
+        System.out.println("RESPONSE FROM /{user}: " + response);
     }
 }

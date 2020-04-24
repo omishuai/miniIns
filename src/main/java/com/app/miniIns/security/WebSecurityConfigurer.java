@@ -33,20 +33,20 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
+        //.httpBasic();
+//                .and()
+                http.addFilter(new JWTAuthenticationFilter(authProvider))
+                    .addFilter(new JWTAuthorizationFilter(authenticationManager()));
         http
-                .addFilter(new JWTAuthenticationFilter(authProvider));
-        http
+
                 .csrf().disable()
 
                 .authorizeRequests()
-                .antMatchers("/login", "/register")
+                .antMatchers("/login")
                 .permitAll()
-                .anyRequest().authenticated()
+                .antMatchers("/secret/**", "/register")
+                .authenticated()
 
-//                .and()
-//                .formLogin()
-//                .failureHandler(myAuthenticationFailureHandler())
-//                .successForwardUrl("/register")
             ;
 
 

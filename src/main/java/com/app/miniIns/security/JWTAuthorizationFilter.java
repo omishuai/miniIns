@@ -3,6 +3,7 @@ package com.app.miniIns.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -18,9 +19,8 @@ import java.util.ArrayList;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
-    public JWTAuthorizationFilter(AuthenticationManager authManager) {
-        super(authManager);
-    }
+    public JWTAuthorizationFilter(AuthenticationManager authManager) { super(authManager); }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest req,
@@ -35,13 +35,19 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
         UsernamePasswordAuthenticationToken authentication = getAuthentication(req);
 
+        System.out.println("Authentication Token IS returned");
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        System.out.println(req.getRequestURI() + "\n" + "\n" + res);
+
+
         chain.doFilter(req, res);
     }
 
     // reads the JWT from authorization header and use jwt to validate the token
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
         String token = request.getHeader(HEADER_STRING);
+
+        System.out.println("Token in authorization code: " + token);
         if (token != null) {
             // parse the token.
             String user = JWT.require(Algorithm.HMAC512(SECRET.getBytes()))
@@ -49,6 +55,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
                     .verify(token.replace(TOKEN_PREFIX, ""))
                     .getSubject();
 
+            System.out.println("FROM TOKEN: " + user);
             if (user != null) {
                 return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
             }
