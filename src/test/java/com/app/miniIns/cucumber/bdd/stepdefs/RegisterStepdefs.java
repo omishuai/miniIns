@@ -1,7 +1,7 @@
 package com.app.miniIns.cucumber.bdd.stepdefs;
 
 import com.app.miniIns.cucumber.bdd.*;
-import com.app.miniIns.daos.UserRepository;
+import com.app.miniIns.services.UserRepository;
 import com.app.miniIns.entities.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,17 +11,28 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Iterator;
 
 
@@ -142,5 +153,53 @@ public class RegisterStepdefs {
                 request,
                 String.class,
                 user);
+    }
+
+    @When("User with username {string} uploads file {string}")
+    public void userWithUsernameUploadsFile(String username, String filepath) throws IOException {
+        String currentDirectory = System.getProperty("user.dir");
+        System.out.println("The current working directory is " + currentDirectory);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        String sec = (String)userAuthMap.get(username);
+        if (sec != null)
+            headers.setBearerAuth(sec);
+
+
+        final String baseUrl = "http://localhost:8080/upload";
+
+        //Build Multipartfile
+        FileInputStream input = new FileInputStream(filepath);
+        File file = new File(filepath);
+
+        Path path = Paths.get(filepath);
+        String[] parts = filepath.split("/");
+        String filename = parts[parts.length - 1];
+
+        byte[] content = Files.readAllBytes(path);
+
+        MultipartFile multipartFile = new MockMultipartFile(filepath,
+                filename, "image/png", content);
+
+
+        byte[] bytes = multipartFile.getBytes();
+        ByteArrayResource contentsAsResource = new ByteArrayResource(bytes){
+            public String getFilename(){
+                return filepath;
+            }
+        };
+
+        MultiValueMap body = new LinkedMultiValueMap<>();
+        body.add("file", contentsAsResource);
+
+
+        HttpEntity<MultiValueMap> requestEntity
+                = new HttpEntity<>(body, headers);
+
+        response = restTemplate.exchange(baseUrl,HttpMethod.POST, requestEntity,
+                String.class);
+
+
     }
 }

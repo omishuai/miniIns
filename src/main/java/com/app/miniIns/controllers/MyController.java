@@ -1,17 +1,17 @@
 package com.app.miniIns.controllers;
 
 import com.app.miniIns.entities.*;
-import com.app.miniIns.daos.UserService;
+import com.app.miniIns.services.S3Service;
+import com.app.miniIns.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.validation.Valid;
-import javax.xml.ws.Response;
-import java.util.HashMap;
+import java.io.IOException;
+import java.io.InputStream;
 
 @Controller
 public class MyController {
@@ -25,6 +25,17 @@ public class MyController {
 
     @Autowired
     private UserService userService;
+
+    public S3Service getS3Service() {
+        return s3Service;
+    }
+
+    public void setS3Service(S3Service s3Service) {
+        this.s3Service = s3Service;
+    }
+
+    @Autowired
+    private S3Service s3Service;
 
     //Main page
     @GetMapping(path = "/greeting")
@@ -55,6 +66,15 @@ public class MyController {
         modelAndView.addObject("user", user);
         modelAndView.setViewName("login");
         return modelAndView;
+    }
+
+    //Bucket is creatd by root and assumed to exist
+    @PostMapping(path="/upload")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public String uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
+        s3Service.upload("miniins-bucket", file.getOriginalFilename(), file);
+        return "miniins-bucket/"+file.getOriginalFilename();
     }
 
 

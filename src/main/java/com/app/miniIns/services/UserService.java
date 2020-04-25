@@ -1,20 +1,14 @@
-package com.app.miniIns.daos;
+package com.app.miniIns.services;
 
-import com.app.miniIns.entities.ClientUser;
 import com.app.miniIns.entities.*;
 import com.app.miniIns.exceptions.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import javax.validation.Valid;
-import java.nio.charset.Charset;
-import java.util.Random;
 
 @Service
 @Validated
