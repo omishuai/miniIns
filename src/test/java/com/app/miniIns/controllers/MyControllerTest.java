@@ -1,9 +1,8 @@
 package com.app.miniIns.controllers;
 
 
-import com.app.miniIns.controllers.MyController;
 import static org.assertj.core.api.Assertions.*;
-import com.app.miniIns.daos.UserService;
+import com.app.miniIns.services.UserService;
 import com.app.miniIns.entities.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

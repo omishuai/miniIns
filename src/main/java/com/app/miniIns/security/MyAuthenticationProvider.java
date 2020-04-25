@@ -1,6 +1,6 @@
 package com.app.miniIns.security;
 
-import com.app.miniIns.daos.UserService;
+import com.app.miniIns.services.UserService;
 import com.app.miniIns.entities.ServerUser;
 import com.app.miniIns.exceptions.MyAuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
