@@ -12,10 +12,13 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.mock.web.MockMultipartFile;
@@ -39,6 +42,8 @@ import java.util.Iterator;
 import java.util.*;
 
 public class RegisterStepdefs {
+
+    static Log log = LogFactory.getLog(RegisterStepdefs.class.getName());
 
     //Need a map that maps user to token to simulate front end.
     HashMap userAuthMap = new HashMap ();
@@ -158,7 +163,6 @@ public class RegisterStepdefs {
     @When("User with username {string} uploads file {string}")
     public void userWithUsernameUploadsFile(String username, String filepath) throws IOException {
         String currentDirectory = System.getProperty("user.dir");
-        System.out.println("The current working directory is " + currentDirectory);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -166,33 +170,11 @@ public class RegisterStepdefs {
         if (sec != null)
             headers.setBearerAuth(sec);
 
-
         final String baseUrl = "http://localhost:8080/upload";
-
-        //Build Multipartfile
-        FileInputStream input = new FileInputStream(filepath);
-        File file = new File(filepath);
-
-        Path path = Paths.get(filepath);
-        String[] parts = filepath.split("/");
-        String filename = parts[parts.length - 1];
-
-        byte[] content = Files.readAllBytes(path);
-
-        MultipartFile multipartFile = new MockMultipartFile(filepath,
-                filename, "image/png", content);
-
-
-        byte[] bytes = multipartFile.getBytes();
-        ByteArrayResource contentsAsResource = new ByteArrayResource(bytes){
-            public String getFilename(){
-                return filepath;
-            }
-        };
+        FileSystemResource resource = new FileSystemResource(filepath);
 
         MultiValueMap body = new LinkedMultiValueMap<>();
-        body.add("file", contentsAsResource);
-
+        body.add("file", resource);
 
         HttpEntity<MultiValueMap> requestEntity
                 = new HttpEntity<>(body, headers);
@@ -200,7 +182,7 @@ public class RegisterStepdefs {
         response = restTemplate.exchange(baseUrl,HttpMethod.POST, requestEntity,
                 String.class);
 
-        System.out.println(response.getBody());
+        log.info(response.getBody());
 
 
     }
