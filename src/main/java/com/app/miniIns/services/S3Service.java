@@ -29,9 +29,6 @@ public class S3Service {
 
     AmazonS3 s3client;
 
-    private String accessKey;
-    private String secretKey;
-
     public S3Service(@Value("${s3.admin.accessKey}") String accessKey,  @Value("${s3.admin.secretKey}") String secretKey) {
         AWSCredentials credentials = new BasicAWSCredentials(accessKey,secretKey);
         s3client = AmazonS3ClientBuilder
@@ -39,11 +36,6 @@ public class S3Service {
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withRegion(Regions.US_EAST_1)
                 .build();
-        this.accessKey = accessKey;
-        this.secretKey = secretKey;
-        System.out.printf("%s\n%s", accessKey, secretKey);
-
-
     }
 
     public List<Bucket> listBuckets() {

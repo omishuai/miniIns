@@ -1,10 +1,14 @@
 package com.app.miniIns.controllers;
 
 import com.app.miniIns.entities.*;
+import com.app.miniIns.services.PhotoService;
 import com.app.miniIns.services.S3Service;
 import com.app.miniIns.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.List;
 
 @Controller
 public class MyController {
@@ -26,6 +31,17 @@ public class MyController {
 
     @Autowired
     private UserService userService;
+
+    public PhotoService getPhotoService() {
+        return photoService;
+    }
+
+    public void setPhotoService(PhotoService photoService) {
+        this.photoService = photoService;
+    }
+
+    @Autowired
+    private PhotoService photoService;
 
     public S3Service getS3Service() {
         return s3Service;
@@ -74,8 +90,27 @@ public class MyController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public String uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
-        s3Service.upload("miniins-bucket", file.getOriginalFilename(), file);
-        URL url = s3Service.getUrl("miniins-bucket", file.getOriginalFilename());
+
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication auth = context.getAuthentication();
+
+        String u = (String) auth.getPrincipal();
+        System.out.println("FROM Authentication: " + u);
+        ServerUser user = userService.findByUsername(u);
+        System.out.println("Passed into photo: " + u);
+        Photo photo = new Photo(user, "miniins-bucket", file.getOriginalFilename());
+        photo.setS3_key(photo.getId().toString());
+        photoService.addPhoto(photo);
+
+        List<Photo> photos = photoService.findByUserId(user.getId());
+
+
+        System.out.println("PHOTOS: " + photos);
+
+
+
+        s3Service.upload(photo.getS3_bucket(), photo.getS3_key(), file);
+        URL url = s3Service.getUrl(photo.getS3_bucket(), photo.getS3_key());
         return  url.toString();
     }
 
