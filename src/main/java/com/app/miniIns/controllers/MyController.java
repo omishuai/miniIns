@@ -95,19 +95,10 @@ public class MyController {
         Authentication auth = context.getAuthentication();
 
         String u = (String) auth.getPrincipal();
-        System.out.println("FROM Authentication: " + u);
         ServerUser user = userService.findByUsername(u);
-        System.out.println("Passed into photo: " + u);
         Photo photo = new Photo(user, "miniins-bucket", file.getOriginalFilename());
         photo.setS3_key(photo.getId().toString());
         photoService.addPhoto(photo);
-
-        List<Photo> photos = photoService.findByUserId(user.getId());
-
-
-        System.out.println("PHOTOS: " + photos);
-
-
 
         s3Service.upload(photo.getS3_bucket(), photo.getS3_key(), file);
         URL url = s3Service.getUrl(photo.getS3_bucket(), photo.getS3_key());
