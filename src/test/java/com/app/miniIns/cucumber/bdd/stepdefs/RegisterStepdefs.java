@@ -200,6 +200,8 @@ public class RegisterStepdefs {
         response = restTemplate.exchange(baseUrl,HttpMethod.POST, requestEntity,
                 String.class);
 
+        System.out.println(response.getBody());
+
 
     }
 }

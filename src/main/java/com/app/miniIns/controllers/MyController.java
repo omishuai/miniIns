@@ -12,6 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 @Controller
 public class MyController {
@@ -74,7 +75,8 @@ public class MyController {
     @ResponseBody
     public String uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
         s3Service.upload("miniins-bucket", file.getOriginalFilename(), file);
-        return "miniins-bucket/"+file.getOriginalFilename();
+        URL url = s3Service.getUrl("miniins-bucket", file.getOriginalFilename());
+        return  url.toString();
     }
 
 

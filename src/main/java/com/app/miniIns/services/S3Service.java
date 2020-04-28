@@ -46,18 +46,6 @@ public class S3Service {
 
     }
 
-//
-//    public boolean createBucket(String name) {
-//        if (s3client.doesBucketExistV2(name)) {
-//            System.out.println(name + " Exists");
-//            return false;
-//        }
-//        s3client.createBucket(name);
-//        System.out.println(name + " IS Created");
-//        System.out.printf("%s\n%s", accessKey, secretKey);
-//        return true;
-//    }
-
     public List<Bucket> listBuckets() {
         return s3client.listBuckets();
     }
@@ -67,9 +55,6 @@ public class S3Service {
     }
 
     public void upload(String bucketName, String s3Key, MultipartFile file) throws IOException {
-
-//        // Create bucket first
-//        createBucket(bucketName);
 
         InputStream is = file.getInputStream();
 
