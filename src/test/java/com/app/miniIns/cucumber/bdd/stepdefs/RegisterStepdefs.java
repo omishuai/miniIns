@@ -165,4 +165,10 @@ public class RegisterStepdefs {
 
         log.info(response.getBody());
     }
+
+    @And("Response contains value for {string}")
+    public void responseContainsValueFor(String key) {
+        Assertions.assertNotNull(JsonPath.read(response.getBody(), key));
+    }
+
 }
