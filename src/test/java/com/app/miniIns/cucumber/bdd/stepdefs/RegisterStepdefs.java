@@ -3,8 +3,6 @@ package com.app.miniIns.cucumber.bdd.stepdefs;
 import com.app.miniIns.cucumber.bdd.*;
 import com.app.miniIns.services.UserRepository;
 import com.app.miniIns.entities.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -20,7 +18,6 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
@@ -142,8 +139,7 @@ public class RegisterStepdefs {
                 baseUrl,
                 HttpMethod.GET,
                 request,
-                String.class,
-                user);
+                String.class);
     }
 
     @When("User with username {string} uploads file {string}")

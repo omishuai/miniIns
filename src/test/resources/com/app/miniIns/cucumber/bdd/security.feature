@@ -4,7 +4,7 @@ Feature: Authorization
     And User with username "username",password "password", email "email@server.com", age 21 and gender "male" exists
     And User logins with "email@server.com" and "password"
     And User is authenticated
-    When User with username "username" visits page "/{user}"
+    When User with username "username" visits page "/username"
     Then Response has status code 200
     And Response has value "username" for "$.username"
     And Response has value "email@server.com" for "$.email"
@@ -14,5 +14,5 @@ Feature: Authorization
 
   Scenario: User Is NOT Authorized
     Given empty database
-    When User with username "u" visits page "/{user}"
+    When User with username "u" visits page "/u"
     Then Response has status code 403
