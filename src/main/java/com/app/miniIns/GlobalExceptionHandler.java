@@ -16,6 +16,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {DuplicateDataException.class, VerificationFailureException.class})
     protected ResponseEntity<Object> handleConflict(
             Exception ex, WebRequest request) {
+
         return handleExceptionInternal(ex, new ErrorResponse(ex.getMessage()),
                 new HttpHeaders(), HttpStatus.CONFLICT, request);
     }

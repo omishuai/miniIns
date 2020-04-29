@@ -19,22 +19,18 @@ public class Photo {
     String filename;
 
     @NotNull
-    String s3_bucket;
-
-    @NotNull
-    String s3_key;
-
+    String s3Bucket;
 
     public Photo(){}
-    public Photo(ServerUser user, String s3_bucket, String filename) {
+    public Photo(ServerUser user, String s3Bucket, String filename) {
         this.user = user;
-        this.s3_bucket = s3_bucket;
+        this.s3Bucket = s3Bucket;
         this.filename = filename;
     }
 
 
     public String toString() {
-        return String.format("{id: '%s', userId: %d, filename: '%s', s3_bucket: '%s', s3_key: '%s'}", id, user.getId(), filename, s3_bucket, s3_key);
+        return String.format("{id: '%s', userId: %d, filename: '%s', s3_bucket: '%s'}", id, user.getId(), filename, s3Bucket);
     }
 
     public String getFilename() {
@@ -62,19 +58,11 @@ public class Photo {
     }
 
     public String getS3_bucket() {
-        return s3_bucket;
+        return s3Bucket;
     }
 
     public void setS3_bucket(String s3_bucket) {
-        this.s3_bucket = s3_bucket;
-    }
-
-    public String getS3_key() {
-        return s3_key;
-    }
-
-    public void setS3_key(String s3_key) {
-        this.s3_key = s3_key;
+        this.s3Bucket = s3_bucket;
     }
 
 

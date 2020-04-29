@@ -12,7 +12,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 import java.io.IOException;
 import java.net.URL;
 
@@ -43,33 +42,24 @@ public class MyController {
     @Autowired
     private UserService userService;
 
-    @GetMapping (path = "/register")
-    public ModelAndView register(ModelAndView modelAndView, ServerUser user) {
-        modelAndView.addObject("user", user);
-        modelAndView.setViewName("register");
-        return modelAndView;
-    }
-
     @PostMapping(path = "/register")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public ClientUser register(ServerUser user) throws Exception {
-        ServerUser res = userService.addUser(user);
-        return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), user.getGender());
-    }
+    public ClientUser register(@RequestParam("username") String username,
+                               @RequestParam("email") String email,
+                               @RequestParam("password") String password,
+                               @RequestParam("age") int age,
+                               @RequestParam("gender") String gender) throws Exception {
 
-    @GetMapping (path = "/login")
-    public ModelAndView login(ModelAndView modelAndView, ServerUser user) {
-        modelAndView.addObject("user", user);
-        modelAndView.setViewName("login");
-        return modelAndView;
+        ServerUser res = userService.addUser(new ServerUser(username, email, password, age, gender));
+        return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
     }
 
     //Bucket is creatd by root and assumed to exist
     @PostMapping(path="/upload")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public String uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
+    public ClientPhoto uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
 
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication auth = context.getAuthentication();
@@ -77,20 +67,23 @@ public class MyController {
         String u = (String) auth.getPrincipal();
         ServerUser user = userService.findByUsername(u);
         Photo photo = new Photo(user, "miniins-bucket", file.getOriginalFilename());
-        photo.setS3_key(photo.getId().toString());
+
+        URL url =  s3Service.upload(photo.getS3_bucket(), photo.getId().toString(), file);
         photoService.addPhoto(photo);
 
-        s3Service.upload(photo.getS3_bucket(), photo.getS3_key(), file);
-        URL url = s3Service.getUrl(photo.getS3_bucket(), photo.getS3_key());
-        return  url.toString();
+        ClientPhoto clientPhoto = new ClientPhoto();
+        clientPhoto.setUrl(url);
+        clientPhoto.setUsername(user.getUsername());
+        clientPhoto.setUuid(photo.getId());
+        return clientPhoto;
     }
 
 
     @PostMapping(path = "/login")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ClientUser login(ServerUser user) throws Exception {
-        ServerUser res = userService.verifyInfo(user);
+    public ClientUser login(@RequestParam("user") String accountName, String password) throws Exception {
+        ServerUser res = userService.verifyInfo(accountName, password);
         return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
     }
 

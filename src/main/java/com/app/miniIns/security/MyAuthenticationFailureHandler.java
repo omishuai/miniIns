@@ -1,5 +1,6 @@
 package com.app.miniIns.security;
 
+import com.app.miniIns.exceptions.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -16,14 +17,7 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
     @Override
     public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException {
         httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-        Map<String, Object> data = new HashMap<>();
-        data.put(
-                "timestamp",
-                Calendar.getInstance().getTime());
-        data.put(
-                "exception",
-                e.getMessage());
-        httpServletResponse.getOutputStream()
-                .println(objectMapper.writeValueAsString(data));
+        ErrorResponse response = new ErrorResponse(e.getMessage());
+        httpServletResponse.getOutputStream().println(objectMapper.writeValueAsString(response));
     }
 }

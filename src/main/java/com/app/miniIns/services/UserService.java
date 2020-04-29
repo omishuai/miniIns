@@ -47,16 +47,16 @@ public class UserService {
         return userRepo.save(user);
     }
 
-    public ServerUser verifyInfo(ServerUser user) throws Exception {
-        String email =  user.getEmail();
-        String password =  user.getPassword();
-        String username =  user.getUsername();
+    public ServerUser verifyInfo(String account, String password) throws Exception {
+        if (account == null || (account.equals(""))) throw new EmptyInputException("Please Enter Username or Email");
 
-        if ((email == null ||email.equals("")) && (username == null || username.equals(""))) throw new EmptyInputException("Please Enter Username or Email");
+        String email = account.contains("@") ? account : "";
+        String username =  account.contains("@") ? "": account;
+
         if (password == null || password.equals("")) throw new EmptyInputException("Please Enter Password");
 
         ServerUser savedUser;
-        if (email != null && !email.equals("")) {
+        if (!email.equals("")) {
             savedUser = findByEmail(email);
             if (savedUser == null) throw new VerificationFailureException("Unregistered " + email);
         } else {

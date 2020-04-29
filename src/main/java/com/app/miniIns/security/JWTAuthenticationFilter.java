@@ -67,16 +67,12 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             MyAuthenticationException ex = (MyAuthenticationException) failed;
 
             Map<String, Object> data = new HashMap<>();
-            data.put(
-                    "timestamp",
-                    Calendar.getInstance().getTime());
-            data.put(
-                    "exception",
-                    ex.getMessage());
+            data.put("message", ex.getMessage());
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getOutputStream().write((objectMapper.writeValueAsString(data).getBytes(StandardCharsets.UTF_8)));
+
         }
     }
 }

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -43,14 +44,19 @@ public class S3Service {
         s3client.deleteBucket(bucket);
     }
 
-    public void upload(String bucketName, String s3Key, MultipartFile file) throws IOException {
+    public URL upload(String bucketName, String s3Key, MultipartFile file) throws IOException {
 
         InputStream is = file.getInputStream();
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(file.getContentType());
+        objectMetadata.setContentLength(file.getBytes().length);
+        objectMetadata.setLastModified(new Date());
 
-        s3client.putObject(bucketName, s3Key, is, objectMetadata);
+        PutObjectRequest putRequest = new PutObjectRequest(bucketName, s3Key, is, objectMetadata);
+
+        s3client.putObject(putRequest);
+        return s3client.getUrl(bucketName, s3Key);
     }
 
 
@@ -70,17 +76,17 @@ public class S3Service {
         FileUtils.copyInputStreamToFile(inputStream, new File(filename));//rename the downloaded file
     }
 
-    public void copyObject(String frombBucket, String fromS3Key, String toBucket, String toKey) {
-        s3client.copyObject(frombBucket, fromS3Key, toBucket, toKey);
+    public void copyObject(String fromBucket, String fromS3Key, String toBucket, String toKey) {
+        s3client.copyObject(fromBucket, fromS3Key, toBucket, toKey);
 
     }
     public void deleteObject(String  bucket, String s3key) {
         s3client.deleteObject(bucket, s3key);
     }
 
-    public void moveObject(String frombBucket, String fromS3Key, String toBucket, String toKey) {
-        copyObject(frombBucket, fromS3Key, toBucket, toKey);
-        deleteObject(frombBucket, fromS3Key);
+    public void moveObject(String fromBucket, String fromS3Key, String toBucket, String toKey) {
+        copyObject(fromBucket, fromS3Key, toBucket, toKey);
+        deleteObject(fromBucket, fromS3Key);
     }
 
     public void batchDelete(String[] targets, String bucket) {
