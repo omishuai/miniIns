@@ -1,10 +1,7 @@
 package com.app.miniIns.services;
 
 import com.app.miniIns.entities.Photo;
-import com.app.miniIns.entities.ServerUser;
-import com.app.miniIns.exceptions.DuplicateDataException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;

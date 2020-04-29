@@ -3,7 +3,6 @@ package com.app.miniIns.cucumber.bdd.stepdefs;
 import com.app.miniIns.cucumber.bdd.*;
 import com.app.miniIns.services.UserRepository;
 import com.app.miniIns.entities.*;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
@@ -11,31 +10,19 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.JSONException;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Iterator;
 
 
@@ -74,7 +61,7 @@ public class RegisterStepdefs {
         URI uri = new URI(baseUrl);
 
         response = restTemplate.postForEntity(uri, request, String.class);
-    };
+    }
 
     @Then("Response has status code {int}")
     public void verifyResult(int code) {
@@ -83,12 +70,12 @@ public class RegisterStepdefs {
 
 
     @And("Response has value {string} for {string}")
-    public void responseHasValueForUsername(String value, String pick) throws JSONException {
+    public void responseHasValueForUsername(String value, String pick) {
         Assertions.assertEquals(JsonPath.read(response.getBody(), pick), value);
     }
 
     @And("Response has value {int} for {string}")
-    public void responseHasValueForAge(int attribute, String pick) throws JSONException {
+    public void responseHasValueForAge(int attribute, String pick) {
         Assertions.assertEquals((int)JsonPath.read(response.getBody(), pick), attribute);
     }
 
@@ -97,12 +84,12 @@ public class RegisterStepdefs {
     public void emptyDatabase() {
         userRepository.deleteAll();
         Iterator<ServerUser> user = userRepository.findAll().iterator();
-        Assertions.assertEquals(false, user.hasNext());
+        Assertions.assertFalse(user.hasNext());
     }
 
 
-    @When("User logins with {string} {string} and {string}")
-    public void userLoginsWithAnd(String key, String account, String password) throws URISyntaxException {
+    @When("User logins with {string} and {string}")
+    public void userLoginsWithAnd(String account, String password) throws URISyntaxException {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -128,10 +115,9 @@ public class RegisterStepdefs {
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
     }
 
-    @And("User with {string} {string} is authenticated")
-    public void userWithIsAuthenticated(String userinfo, String arg1) throws JsonProcessingException {
-        ObjectMapper mapper  = new ObjectMapper();
-        String username = (String)JsonPath.read(response.getBody(), "$.username");
+    @And("User is authenticated")
+    public void userWithIsAuthenticated() {
+        String username = JsonPath.read(response.getBody(), "$.username");
         String code = response.getHeaders().get("Authorization").get(0);
 
         userAuthMap.put(username, code);
@@ -161,8 +147,7 @@ public class RegisterStepdefs {
     }
 
     @When("User with username {string} uploads file {string}")
-    public void userWithUsernameUploadsFile(String username, String filepath) throws IOException {
-        String currentDirectory = System.getProperty("user.dir");
+    public void userWithUsernameUploadsFile(String username, String filepath) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -183,7 +168,5 @@ public class RegisterStepdefs {
                 String.class);
 
         log.info(response.getBody());
-
-
     }
 }

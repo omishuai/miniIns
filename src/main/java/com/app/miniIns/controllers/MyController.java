@@ -13,11 +13,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
-import java.util.List;
 
 @Controller
 public class MyController {
@@ -28,38 +25,23 @@ public class MyController {
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
-
-    @Autowired
-    private UserService userService;
-
     public PhotoService getPhotoService() {
         return photoService;
     }
-
     public void setPhotoService(PhotoService photoService) {
         this.photoService = photoService;
     }
-
-    @Autowired
-    private PhotoService photoService;
-
-    public S3Service getS3Service() {
-        return s3Service;
-    }
-
+    public S3Service getS3Service() { return s3Service; }
     public void setS3Service(S3Service s3Service) {
         this.s3Service = s3Service;
     }
 
     @Autowired
+    private PhotoService photoService;
+    @Autowired
     private S3Service s3Service;
-
-    //Main page
-    @GetMapping(path = "/greeting")
-    public String getGreetingPage(ModelAndView modelAndView) {
-        return "greeting";
-    }
-
+    @Autowired
+    private UserService userService;
 
     @GetMapping (path = "/register")
     public ModelAndView register(ModelAndView modelAndView, ServerUser user) {
@@ -68,12 +50,10 @@ public class MyController {
         return modelAndView;
     }
 
-
     @PostMapping(path = "/register")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public ClientUser register(ServerUser user) throws Exception {
-
         ServerUser res = userService.addUser(user);
         return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), user.getGender());
     }
@@ -118,13 +98,9 @@ public class MyController {
     @GetMapping("/{user}")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public ClientUser getGreetingPageForUser(ModelAndView modelAndView, @PathVariable  String user){ //@PathVariable String username) {
+    public ClientUser getGreetingPageForUser(@PathVariable  String user){
         ServerUser res = userService.findByUsername(user);
         if (res == null) res = userService.findByEmail(user);
-
-//        modelAndView.addObject("usernmae", res.getUsername());
-//        modelAndView.setViewName("greeting");
-//        return modelAndView;
         return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
     }
 
