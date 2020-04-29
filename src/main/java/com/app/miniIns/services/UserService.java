@@ -1,20 +1,13 @@
-package com.app.miniIns.daos;
+package com.app.miniIns.services;
 
-import com.app.miniIns.entities.ClientUser;
 import com.app.miniIns.entities.*;
 import com.app.miniIns.exceptions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import javax.validation.Valid;
-import java.nio.charset.Charset;
-import java.util.Random;
 
 @Service
 @Validated
@@ -54,16 +47,16 @@ public class UserService {
         return userRepo.save(user);
     }
 
-    public ServerUser verifyInfo(ServerUser user) throws Exception {
-        String email =  user.getEmail();
-        String password =  user.getPassword();
-        String username =  user.getUsername();
+    public ServerUser verifyInfo(String account, String password) throws Exception {
+        if (account == null || (account.equals(""))) throw new EmptyInputException("Please Enter Username or Email");
 
-        if ((email == null ||email.equals("")) && (username == null || username.equals(""))) throw new EmptyInputException("Please Enter Username or Email");
+        String email = account.contains("@") ? account : "";
+        String username =  account.contains("@") ? "": account;
+
         if (password == null || password.equals("")) throw new EmptyInputException("Please Enter Password");
 
         ServerUser savedUser;
-        if (email != null && !email.equals("")) {
+        if (!email.equals("")) {
             savedUser = findByEmail(email);
             if (savedUser == null) throw new VerificationFailureException("Unregistered " + email);
         } else {

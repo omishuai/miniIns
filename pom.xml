@@ -59,6 +59,13 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>1.11.764</version>
+		</dependency>
+
+
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>

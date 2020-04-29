@@ -10,12 +10,12 @@ import org.springframework.security.core.AuthenticationException;
 import static com.app.miniIns.security.SecurityConstants.*;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
@@ -46,37 +46,33 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     //When the user logs in, and a JWT will be returned
     @Override
-    protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth) throws IOException {
         String token = JWT.create()
                 .withSubject(((ServerUser) auth.getPrincipal()).getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .sign(HMAC512(SECRET.getBytes()));
         res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
 
-        res.getWriter().write(((ServerUser) auth.getPrincipal()).toString());
+        res.getWriter().write(auth.getPrincipal().toString());
     }
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-                                              AuthenticationException failed) throws IOException, ServletException {
+                                              AuthenticationException failed) throws IOException {
 
         if (failed instanceof MyAuthenticationException) {
 
             MyAuthenticationException ex = (MyAuthenticationException) failed;
 
             Map<String, Object> data = new HashMap<>();
-            data.put(
-                    "timestamp",
-                    Calendar.getInstance().getTime());
-            data.put(
-                    "exception",
-                    ex.getMessage());
+            data.put("message", ex.getMessage());
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getOutputStream().write((objectMapper.writeValueAsString(data).getBytes("UTF-8")));
+            response.getOutputStream().write((objectMapper.writeValueAsString(data).getBytes(StandardCharsets.UTF_8)));
+
         }
     }
 }

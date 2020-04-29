@@ -1,6 +1,6 @@
 package com.app.miniIns.security;
 
-import com.app.miniIns.daos.UserService;
+import com.app.miniIns.services.UserService;
 import com.app.miniIns.entities.ServerUser;
 import com.app.miniIns.exceptions.MyAuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,17 +19,12 @@ public class MyAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-        String name = authentication.getPrincipal().toString();
-        String password = authentication.getCredentials().toString();
-
-        ServerUser candidate = new ServerUser();
-        if (name.contains("@")) candidate.setEmail(name);
-        else candidate.setUsername(name);
-        candidate.setPassword(password);
+        String name = authentication.getPrincipal() == null ? "" : authentication.getPrincipal().toString();
+        String password = authentication.getCredentials() == null ? "" : authentication.getCredentials().toString();
 
         ServerUser returnedUser;
         try {
-            returnedUser = userService.verifyInfo(candidate);
+            returnedUser = userService.verifyInfo(name, password);
         } catch (Exception e) {
             throw new MyAuthenticationException(e.getMessage());
         }

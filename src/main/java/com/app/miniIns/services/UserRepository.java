@@ -1,4 +1,4 @@
-package com.app.miniIns.daos;
+package com.app.miniIns.services;
 
 import com.app.miniIns.entities.ServerUser;
 import org.springframework.data.repository.CrudRepository;
