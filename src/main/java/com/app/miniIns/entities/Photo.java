@@ -30,7 +30,7 @@ public class Photo {
 
 
     public String toString() {
-        return String.format("{id: '%s', userId: %d, filename: '%s', s3_bucket: '%s'}", id, user.getId(), filename, s3Bucket);
+        return String.format("{id: '%s', userId: %d, filename: '%s', s3Bucket: '%s'}", id, user.getId(), filename, s3Bucket);
     }
 
     public String getFilename() {
@@ -57,12 +57,12 @@ public class Photo {
         this.user = user;
     }
 
-    public String getS3_bucket() {
+    public String getS3Bucket() {
         return s3Bucket;
     }
 
-    public void setS3_bucket(String s3_bucket) {
-        this.s3Bucket = s3_bucket;
+    public void setS3Bucket(String s3Bucket) {
+        this.s3Bucket = s3Bucket;
     }
 
 

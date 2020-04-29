@@ -5,20 +5,10 @@ import java.util.UUID;
 
 public class ClientPhoto {
 
-    private long size;
     private String username;
     private URL url;
-    private int width;
-    private int height;
     private UUID uuid;
 
-    public long getSize() {
-        return size;
-    }
-
-    public void setSize(long size) {
-        this.size = size;
-    }
 
     public String getUsername() {
         return username;
@@ -34,22 +24,6 @@ public class ClientPhoto {
 
     public void setUrl(URL url) {
         this.url = url;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
     }
 
     public UUID getUuid() {

@@ -16,3 +16,4 @@ Feature: Authorization
     Given empty database
     When User with username "u" visits page "/u"
     Then Response has status code 403
+    And Response has value "Access Denied" for "$.message"

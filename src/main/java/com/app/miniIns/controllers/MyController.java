@@ -68,7 +68,7 @@ public class MyController {
         ServerUser user = userService.findByUsername(u);
         Photo photo = new Photo(user, "miniins-bucket", file.getOriginalFilename());
 
-        URL url =  s3Service.upload(photo.getS3_bucket(), photo.getId().toString(), file);
+        URL url =  s3Service.upload(photo.getS3Bucket(), photo.getId().toString(), file);
         photoService.addPhoto(photo);
 
         ClientPhoto clientPhoto = new ClientPhoto();
