@@ -1,6 +1,7 @@
 package com.app.miniIns.cucumber.bdd.stepdefs;
 
 import com.app.miniIns.cucumber.bdd.*;
+import com.app.miniIns.services.PhotoRepository;
 import com.app.miniIns.services.UserRepository;
 import com.app.miniIns.entities.*;
 import com.jayway.jsonpath.JsonPath;
@@ -10,6 +11,8 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -34,6 +37,9 @@ public class RegisterStepdefs {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PhotoRepository photoRepository;
 
 
     RestTemplate restTemplate;
@@ -73,15 +79,22 @@ public class RegisterStepdefs {
 
     @And("Response has value {int} for {string}")
     public void responseHasValueForAge(int attribute, String pick) {
+
         Assertions.assertEquals((int)JsonPath.read(response.getBody(), pick), attribute);
     }
 
 
     @Given("empty database")
     public void emptyDatabase() {
+        photoRepository.deleteAll();
+        Iterator<Photo> photo = photoRepository.findAll().iterator();
+        Assertions.assertFalse(photo.hasNext());
+
         userRepository.deleteAll();
-        Iterator<ServerUser> user = userRepository.findAll().iterator();
+        Iterator<User> user = userRepository.findAll().iterator();
         Assertions.assertFalse(user.hasNext());
+
+
     }
 
 
@@ -171,4 +184,15 @@ public class RegisterStepdefs {
         Assertions.assertNotNull(JsonPath.read(response.getBody(), key));
     }
 
+    @Then("Response contains {int} images")
+    public void responseContainsImages(int count) throws JSONException {
+        JSONArray arr = new JSONArray(response.getBody());
+        Assertions.assertEquals(count, arr.length());
+    }
+
+    @And("Response contains {int} photos for {string}")
+    public void responseContainsPhotosFor(int count, String key) {
+        List<ClientPhoto> photos = JsonPath.read(response.getBody(), key);
+        Assertions.assertEquals(photos.size(), count);
+    }
 }

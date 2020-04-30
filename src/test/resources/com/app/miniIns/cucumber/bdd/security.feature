@@ -5,11 +5,7 @@ Feature: Authorization
     And User logins with "email@server.com" and "password"
     And User is authenticated
     When User with username "username" visits page "/username"
-    Then Response has status code 200
-    And Response has value "username" for "$.username"
-    And Response has value "email@server.com" for "$.email"
-    And Response has value 21 for "$.age"
-    And Response has value "male" for "$.gender"
+
 
 
   Scenario: User Is NOT Authorized

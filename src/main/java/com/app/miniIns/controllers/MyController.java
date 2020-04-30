@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @Controller
 public class MyController {
@@ -51,7 +54,7 @@ public class MyController {
                                @RequestParam("age") int age,
                                @RequestParam("gender") String gender) throws Exception {
 
-        ServerUser res = userService.addUser(new ServerUser(username, email, password, age, gender));
+        User res = userService.addUser(new User(username, email, password, age, gender));
         return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
     }
 
@@ -65,16 +68,13 @@ public class MyController {
         Authentication auth = context.getAuthentication();
 
         String u = (String) auth.getPrincipal();
-        ServerUser user = userService.findByUsername(u);
+        User user = userService.findByUsername(u);
         Photo photo = new Photo(user, "miniins-bucket", file.getOriginalFilename());
 
         URL url =  s3Service.upload(photo.getS3Bucket(), photo.getId().toString(), file);
         photoService.addPhoto(photo);
 
-        ClientPhoto clientPhoto = new ClientPhoto();
-        clientPhoto.setUrl(url);
-        clientPhoto.setUsername(user.getUsername());
-        clientPhoto.setUuid(photo.getId());
+        ClientPhoto clientPhoto = new ClientPhoto(user.getUsername(), url, photo.getId());
         return clientPhoto;
     }
 
@@ -83,7 +83,7 @@ public class MyController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public ClientUser login(@RequestParam("user") String accountName, String password) throws Exception {
-        ServerUser res = userService.verifyInfo(accountName, password);
+        User res = userService.verifyInfo(accountName, password);
         return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
     }
 
@@ -91,10 +91,30 @@ public class MyController {
     @GetMapping("/{user}")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public ClientUser getGreetingPageForUser(@PathVariable  String user){
-        ServerUser res = userService.findByUsername(user);
-        if (res == null) res = userService.findByEmail(user);
-        return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
+    public HashMap getGreetingPageForUser(@PathVariable  String user){
+        User res = userService.findByUsername(user);
+        ClientUser u = new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
+
+        List<Photo> serverPhotos = photoService.findByUserId(res.getId());
+        List<ClientPhoto>  photos = new ArrayList<>();
+        for (Photo p : serverPhotos)
+            photos.add(new ClientPhoto(p.getUser().getUsername(), s3Service.getUrl(p.getS3Bucket(), p.getId().toString()), p.getId()));
+
+        HashMap map = new HashMap();
+        map.put("user", u);
+        map.put("photos", photos);
+        return map;
     }
 
+    @GetMapping("/{user}/explore")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public List<ClientPhoto> getPhotoPool(){
+
+        List<ClientPhoto> res = new ArrayList<>();
+        List<Photo> ls = photoService.findAll();
+        for (Photo p: ls)
+            res.add(new ClientPhoto(p.getUser().getUsername(), s3Service.getUrl(p.getS3Bucket(),p.getId().toString()), p.getId()));
+        return res;
+    }
 }

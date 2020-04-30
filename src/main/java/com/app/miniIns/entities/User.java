@@ -1,14 +1,10 @@
 package com.app.miniIns.entities;
 
-import org.springframework.validation.annotation.Validated;
-
 import javax.persistence.*;
-import javax.validation.Constraint;
 import javax.validation.constraints.*;
 
 @Entity
-@Table(name="Users")
-public class ServerUser {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
@@ -71,7 +67,7 @@ public class ServerUser {
         this.gender = gender;
     }
 
-    public ServerUser(String username, String email, String password, int age, String gender, String salt) {
+    public User(String username, String email, String password, int age, String gender, String salt) {
         this.username = username;
         this.email = email;
         this.password = password;
@@ -80,7 +76,7 @@ public class ServerUser {
         this.salt = salt;
     }
 
-    public ServerUser(String username, String email, String password, int age, String gender) {
+    public User(String username, String email, String password, int age, String gender) {
         this.username = username;
         this.email = email;
         this.password = password;
@@ -88,7 +84,7 @@ public class ServerUser {
         this.gender = gender;
     }
 
-    public ServerUser() { }
+    public User() { }
 
     @Override
     public String toString() {
@@ -98,8 +94,8 @@ public class ServerUser {
     @Override
     public boolean equals(Object o) {
             if (o == this) return true;
-            if (!(o instanceof  ServerUser)) return false;
-            ServerUser u = (ServerUser)o;
+            if (!(o instanceof User)) return false;
+            User u = (User)o;
             return username.equals(u.username) && email.equals(u.email);
     }
 

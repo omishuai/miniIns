@@ -29,4 +29,11 @@ public class PhotoService{
     public Photo addPhoto(@Valid Photo photo){
         return photoRepository.save(photo);
     }
+
+    public List<Photo> findAll() {
+        List<Photo> ls = new ArrayList<>();
+        Iterator<Photo> itr =  photoRepository.findAll().iterator();
+        while (itr.hasNext()) ls.add(itr.next());
+        return ls;
+    }
 }

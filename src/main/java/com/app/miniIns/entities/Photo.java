@@ -5,15 +5,14 @@ import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Entity
-@Table (name = "Photos")
 public class Photo {
     @Id
     UUID id = UUID.randomUUID();
 
-    @OneToOne (cascade = CascadeType.ALL)
-    @JoinColumn (name = "userId", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn (name="userId", referencedColumnName = "id")
     @NotNull
-    ServerUser user;
+    User user;
 
     @NotNull
     String filename;
@@ -22,7 +21,7 @@ public class Photo {
     String s3Bucket;
 
     public Photo(){}
-    public Photo(ServerUser user, String s3Bucket, String filename) {
+    public Photo(User user, String s3Bucket, String filename) {
         this.user = user;
         this.s3Bucket = s3Bucket;
         this.filename = filename;
@@ -49,11 +48,11 @@ public class Photo {
         this.id = id;
     }
 
-    public ServerUser getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(ServerUser user) {
+    public void setUser(User user) {
         this.user = user;
     }
 
