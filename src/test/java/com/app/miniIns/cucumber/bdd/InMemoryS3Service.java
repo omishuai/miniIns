@@ -1,5 +1,6 @@
-package com.app.miniIns.services;
+package com.app.miniIns.cucumber.bdd;
 
+import com.app.miniIns.services.AbstractS3;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -8,7 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 @Service
-public class InMemoryS3Service implements AbstractS3{
+public class InMemoryS3Service implements AbstractS3 {
 
 
     @Override

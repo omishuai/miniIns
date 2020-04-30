@@ -1,11 +1,9 @@
 package com.app.miniIns.controllers;
 
 import com.app.miniIns.entities.*;
-import com.app.miniIns.services.InMemoryS3Service;
-import com.app.miniIns.services.PhotoService;
-import com.app.miniIns.services.S3Service;
-import com.app.miniIns.services.UserService;
+import com.app.miniIns.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -35,18 +33,17 @@ public class MyController {
     public void setPhotoService(PhotoService photoService) {
         this.photoService = photoService;
     }
-    public S3Service getS3Service() { return s3Service; }
+    public AbstractS3 getS3Service() { return s3Service; }
     public void setS3Service(S3Service s3Service) {
         this.s3Service = s3Service;
     }
 
     @Autowired
     private PhotoService photoService;
-    @Autowired
-    private S3Service s3Service;
+
 
     @Autowired
-    private InMemoryS3Service inMemoryS3Service;
+    private AbstractS3 s3Service;
 
     @Autowired
     private UserService userService;
@@ -77,7 +74,7 @@ public class MyController {
         User user = userService.findByUsername(u);
         Photo photo = new Photo(user, "miniins-bucket", file.getOriginalFilename());
 
-        URL url =  inMemoryS3Service.upload(photo.getS3Bucket(), photo.getId().toString(), file);
+        URL url =  s3Service.upload(photo.getS3Bucket(), photo.getId().toString(), file);
         photoService.addPhoto(photo);
 
         ClientPhoto clientPhoto = new ClientPhoto(user.getUsername(), url, photo.getId());
@@ -104,7 +101,7 @@ public class MyController {
         List<Photo> serverPhotos = photoService.findByUserId(res.getId());
         List<ClientPhoto>  photos = new ArrayList<>();
         for (Photo p : serverPhotos)
-            photos.add(new ClientPhoto(p.getUser().getUsername(), inMemoryS3Service.getUrl(p.getS3Bucket(), p.getId().toString()), p.getId()));
+            photos.add(new ClientPhoto(p.getUser().getUsername(), s3Service.getUrl(p.getS3Bucket(), p.getId().toString()), p.getId()));
 
         HashMap map = new HashMap();
         map.put("user", u);
@@ -120,7 +117,7 @@ public class MyController {
         List<ClientPhoto> res = new ArrayList<>();
         List<Photo> ls = photoService.findAll();
         for (Photo p: ls)
-            res.add(new ClientPhoto(p.getUser().getUsername(), inMemoryS3Service.getUrl(p.getS3Bucket(),p.getId().toString()), p.getId()));
+            res.add(new ClientPhoto(p.getUser().getUsername(), s3Service.getUrl(p.getS3Bucket(),p.getId().toString()), p.getId()));
         return res;
     }
 }
