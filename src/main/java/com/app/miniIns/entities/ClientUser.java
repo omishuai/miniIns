@@ -28,4 +28,8 @@ public class ClientUser {
     public String getGender() {
         return gender;
     }
+
+    public String toString() {
+        return  String.format("{username: '%s', email: '%s', age: %d, gender: '%s'}", username, email, age, gender);
+    }
 }

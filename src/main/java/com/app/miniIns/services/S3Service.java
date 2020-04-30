@@ -25,7 +25,7 @@ import java.util.List;
 
 
 @Service
-@Profile("dev")
+@Profile("!test")
 public class S3Service implements FileStorageService {
 
     private String bucketName = "miniins-bucket";

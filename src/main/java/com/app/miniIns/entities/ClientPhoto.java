@@ -38,4 +38,8 @@ public class ClientPhoto {
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
     }
+
+    public String toString() {
+        return String.format("{id: '%s', username: '%s', url: '%s'}", uuid, username, url);
+    }
 }

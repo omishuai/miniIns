@@ -20,7 +20,10 @@ Feature: Photo Pool
     And User registers with username "username4",password "password", email "email4@server.com", age 21 and gender "male"
     And User logins with "email4@server.com" and "password"
     And User is authenticated
-    When User with username "username4" visits page "/username4/explore"
-    Then Response contains 3 images
-    And Response has status code 200
+    When User with username "username4" visits page "/explore"
+    Then Response has value 3 for "$.length()"
+    And Response has value "username" for "$[0].username"
+    And Response has value "username2" for "$[1].username"
+    And Response has value "username3" for "$[2].username"
 
+    And Response has status code 200

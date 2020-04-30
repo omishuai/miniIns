@@ -1,10 +1,12 @@
 package com.app.miniIns.entities;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.loader.plan.spi.QuerySpaceUidNotRegisteredException;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -21,6 +23,9 @@ public class Photo {
     @NotNull
     String filename;
 
+    @CreationTimestamp
+    private LocalDateTime createDateTime;
+
     public Photo(){}
     public Photo(User user, String filename) {
         this.user = user;
@@ -29,7 +34,7 @@ public class Photo {
 
 
     public String toString() {
-        return String.format("{id: '%s', userId: %d, filename: '%s'}", id, user.getId(), filename);
+        return String.format("{id: %s, userId: %d, filename: '%s'}", id, user.getId(), filename);
     }
 
     public String getFilename() {

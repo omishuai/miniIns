@@ -11,9 +11,8 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.junit.jupiter.api.Assertions;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
@@ -83,6 +82,10 @@ public class RegisterStepdefs {
         Assertions.assertEquals((int)JsonPath.read(response.getBody(), pick), attribute);
     }
 
+    @And("Response contains value for {string}")
+    public void responseContainsValueFor(String key) {
+        Assertions.assertNotNull(JsonPath.read(response.getBody(), key));
+    }
 
     @Given("empty database")
     public void emptyDatabase() {
@@ -143,6 +146,7 @@ public class RegisterStepdefs {
         if (sec != null)
             headers.setBearerAuth(sec);
 
+
         // build the request
         HttpEntity request = new HttpEntity(headers);
         final String baseUrl = "http://localhost:8080" + page;
@@ -179,20 +183,7 @@ public class RegisterStepdefs {
         log.info(response.getBody());
     }
 
-    @And("Response contains value for {string}")
-    public void responseContainsValueFor(String key) {
-        Assertions.assertNotNull(JsonPath.read(response.getBody(), key));
-    }
 
-    @Then("Response contains {int} images")
-    public void responseContainsImages(int count) throws JSONException {
-        JSONArray arr = new JSONArray(response.getBody());
-        Assertions.assertEquals(count, arr.length());
-    }
 
-    @And("Response contains {int} photos for {string}")
-    public void responseContainsPhotosFor(int count, String key) {
-        List<ClientPhoto> photos = JsonPath.read(response.getBody(), key);
-        Assertions.assertEquals(photos.size(), count);
-    }
+
 }

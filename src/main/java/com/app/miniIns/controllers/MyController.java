@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,9 +76,7 @@ public class MyController {
         //In case the destination becomes disk, we make controller unaware of s3 bucket
         Photo photo = new Photo(user, file.getOriginalFilename());
 
-        System.out.println(photo);
         URL url =  fileStorageService.upload(photo.getId().toString(), file);
-
 
         photoService.addPhoto(photo);
 
@@ -98,7 +97,8 @@ public class MyController {
     @GetMapping("/{user}")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public HashMap getGreetingPageForUser(@PathVariable  String user) throws MalformedURLException {
+    public UserResponse getGreetingPageForUser(@PathVariable  String user) throws MalformedURLException {
+
         User res = userService.findByUsername(user);
         ClientUser u = new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
 
@@ -107,19 +107,16 @@ public class MyController {
         for (Photo p : serverPhotos)
             photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getId().toString()), p.getId()));
 
-        HashMap map = new HashMap();
-        map.put("user", u);
-        map.put("photos", photos);
-        return map;
+        return new UserResponse(u, photos);
     }
 
-    @GetMapping("/{user}/explore")
+    @GetMapping("/explore")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public List<ClientPhoto> getPhotoPool() throws MalformedURLException {
 
         List<ClientPhoto> res = new ArrayList<>();
-        List<Photo> ls = photoService.findAll();
+        List<Photo> ls = photoService.findAllByCreateDateTimeBetween(LocalDateTime.now().minusDays(1), LocalDateTime.now());
         for (Photo p: ls)
             res.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getId().toString()), p.getId()));
         return res;
