@@ -3,7 +3,6 @@ package com.app.miniIns.controllers;
 import com.app.miniIns.entities.*;
 import com.app.miniIns.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -33,17 +32,18 @@ public class MyController {
     public void setPhotoService(PhotoService photoService) {
         this.photoService = photoService;
     }
-    public AbstractS3 getS3Service() { return s3Service; }
-    public void setS3Service(S3Service s3Service) {
-        this.s3Service = s3Service;
+    public FileStorageService getFileStorageService() {
+        return fileStorageService;
+    }
+    public void setFileStorageService(FileStorageService fileStorageService) {
+        this.fileStorageService = fileStorageService;
     }
 
     @Autowired
     private PhotoService photoService;
 
-
     @Autowired
-    private AbstractS3 s3Service;
+    private FileStorageService fileStorageService;
 
     @Autowired
     private UserService userService;
@@ -61,7 +61,6 @@ public class MyController {
         return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
     }
 
-    //Bucket is creatd by root and assumed to exist
     @PostMapping(path="/upload")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
@@ -72,9 +71,14 @@ public class MyController {
 
         String u = (String) auth.getPrincipal();
         User user = userService.findByUsername(u);
-        Photo photo = new Photo(user, "miniins-bucket", file.getOriginalFilename());
 
-        URL url =  s3Service.upload(photo.getS3Bucket(), photo.getId().toString(), file);
+        //In case the destination becomes disk, we make controller unaware of s3 bucket
+        Photo photo = new Photo(user, file.getOriginalFilename());
+
+        System.out.println(photo);
+        URL url =  fileStorageService.upload(photo.getId().toString(), file);
+
+
         photoService.addPhoto(photo);
 
         ClientPhoto clientPhoto = new ClientPhoto(user.getUsername(), url, photo.getId());
@@ -101,7 +105,7 @@ public class MyController {
         List<Photo> serverPhotos = photoService.findByUserId(res.getId());
         List<ClientPhoto>  photos = new ArrayList<>();
         for (Photo p : serverPhotos)
-            photos.add(new ClientPhoto(p.getUser().getUsername(), s3Service.getUrl(p.getS3Bucket(), p.getId().toString()), p.getId()));
+            photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getId().toString()), p.getId()));
 
         HashMap map = new HashMap();
         map.put("user", u);
@@ -117,7 +121,7 @@ public class MyController {
         List<ClientPhoto> res = new ArrayList<>();
         List<Photo> ls = photoService.findAll();
         for (Photo p: ls)
-            res.add(new ClientPhoto(p.getUser().getUsername(), s3Service.getUrl(p.getS3Bucket(),p.getId().toString()), p.getId()));
+            res.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getId().toString()), p.getId()));
         return res;
     }
 }
