@@ -1,6 +1,7 @@
 package com.app.miniIns.controllers;
 
 import com.app.miniIns.entities.*;
+import com.app.miniIns.services.InMemoryS3Service;
 import com.app.miniIns.services.PhotoService;
 import com.app.miniIns.services.S3Service;
 import com.app.miniIns.services.UserService;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +44,10 @@ public class MyController {
     private PhotoService photoService;
     @Autowired
     private S3Service s3Service;
+
+    @Autowired
+    private InMemoryS3Service inMemoryS3Service;
+
     @Autowired
     private UserService userService;
 
@@ -71,7 +77,7 @@ public class MyController {
         User user = userService.findByUsername(u);
         Photo photo = new Photo(user, "miniins-bucket", file.getOriginalFilename());
 
-        URL url =  s3Service.upload(photo.getS3Bucket(), photo.getId().toString(), file);
+        URL url =  inMemoryS3Service.upload(photo.getS3Bucket(), photo.getId().toString(), file);
         photoService.addPhoto(photo);
 
         ClientPhoto clientPhoto = new ClientPhoto(user.getUsername(), url, photo.getId());
@@ -91,14 +97,14 @@ public class MyController {
     @GetMapping("/{user}")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public HashMap getGreetingPageForUser(@PathVariable  String user){
+    public HashMap getGreetingPageForUser(@PathVariable  String user) throws MalformedURLException {
         User res = userService.findByUsername(user);
         ClientUser u = new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
 
         List<Photo> serverPhotos = photoService.findByUserId(res.getId());
         List<ClientPhoto>  photos = new ArrayList<>();
         for (Photo p : serverPhotos)
-            photos.add(new ClientPhoto(p.getUser().getUsername(), s3Service.getUrl(p.getS3Bucket(), p.getId().toString()), p.getId()));
+            photos.add(new ClientPhoto(p.getUser().getUsername(), inMemoryS3Service.getUrl(p.getS3Bucket(), p.getId().toString()), p.getId()));
 
         HashMap map = new HashMap();
         map.put("user", u);
@@ -109,12 +115,12 @@ public class MyController {
     @GetMapping("/{user}/explore")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public List<ClientPhoto> getPhotoPool(){
+    public List<ClientPhoto> getPhotoPool() throws MalformedURLException {
 
         List<ClientPhoto> res = new ArrayList<>();
         List<Photo> ls = photoService.findAll();
         for (Photo p: ls)
-            res.add(new ClientPhoto(p.getUser().getUsername(), s3Service.getUrl(p.getS3Bucket(),p.getId().toString()), p.getId()));
+            res.add(new ClientPhoto(p.getUser().getUsername(), inMemoryS3Service.getUrl(p.getS3Bucket(),p.getId().toString()), p.getId()));
         return res;
     }
 }

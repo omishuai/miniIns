@@ -23,7 +23,7 @@ import java.util.List;
 
 
 @Service
-public class S3Service {
+public class S3Service implements AbstractS3{
 
     AmazonS3 s3client;
 
