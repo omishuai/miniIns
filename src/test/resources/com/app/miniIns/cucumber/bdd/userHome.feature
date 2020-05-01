@@ -32,19 +32,6 @@ Feature: User Home
 
   Scenario: User Does not Log In to See Photos in User's Home Page
     Given empty database
-    And User registers with username "username",password "password", email "email@server.com", age 21 and gender "male"
-    When User logins with "email@server.com" and "passworddd"
-    Then Response has status code 401
-    And  Response has value "Incorrect Password" for "$.message"
     When User with username "useme" visits page "/user/useme"
-    Then Response has status code 403
-    And Response has value "Access Denied" for "$.message"
-
-  Scenario: Unregistered User Fails to See Photos in User's Home Page
-    Given empty database
-    When User logins with "email@server" and "password"
-    Then Response has status code 401
-    And  Response has value "Unregistered email@server" for "$.message"
-    When User with username "uSD" visits page "/user/uSD"
     Then Response has status code 403
     And Response has value "Access Denied" for "$.message"

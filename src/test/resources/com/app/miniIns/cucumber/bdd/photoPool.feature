@@ -22,9 +22,16 @@ Feature: Photo Pool
     And User logins with "email4@server.com" and "password"
     And User is authenticated
     When User with username "username4" visits page "/explore"
-    Then Response has value 3 for "$.length()"
+    Then Response has status code 200
+    And Response has value 3 for "$.length()"
     And Response has value "username" for "$[0].username"
     And Response has value "username2" for "$[1].username"
     And Response has value "username3" for "$[2].username"
 
-    And Response has status code 200
+
+
+  Scenario: User Does not Log In to See Photos in Explore
+    Given empty database
+    When User with username "useme" visits page "/explore"
+    Then Response has status code 403
+    And Response has value "Access Denied" for "$.message"
