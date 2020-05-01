@@ -1,6 +1,7 @@
 package com.app.miniIns.cucumber.bdd.stepdefs;
 
 import com.app.miniIns.cucumber.bdd.*;
+import com.app.miniIns.services.PhotoRepository;
 import com.app.miniIns.services.UserRepository;
 import com.app.miniIns.entities.*;
 import com.jayway.jsonpath.JsonPath;
@@ -11,6 +12,7 @@ import io.cucumber.java.en.When;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Assertions;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
@@ -34,6 +36,9 @@ public class RegisterStepdefs {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PhotoRepository photoRepository;
 
 
     RestTemplate restTemplate;
@@ -73,15 +78,26 @@ public class RegisterStepdefs {
 
     @And("Response has value {int} for {string}")
     public void responseHasValueForAge(int attribute, String pick) {
+
         Assertions.assertEquals((int)JsonPath.read(response.getBody(), pick), attribute);
     }
 
+    @And("Response contains value for {string}")
+    public void responseContainsValueFor(String key) {
+        Assertions.assertNotNull(JsonPath.read(response.getBody(), key));
+    }
 
     @Given("empty database")
     public void emptyDatabase() {
+        photoRepository.deleteAll();
+        Iterator<Photo> photo = photoRepository.findAll().iterator();
+        Assertions.assertFalse(photo.hasNext());
+
         userRepository.deleteAll();
-        Iterator<ServerUser> user = userRepository.findAll().iterator();
+        Iterator<User> user = userRepository.findAll().iterator();
         Assertions.assertFalse(user.hasNext());
+
+
     }
 
 
@@ -130,6 +146,7 @@ public class RegisterStepdefs {
         if (sec != null)
             headers.setBearerAuth(sec);
 
+
         // build the request
         HttpEntity request = new HttpEntity(headers);
         final String baseUrl = "http://localhost:8080" + page;
@@ -166,9 +183,7 @@ public class RegisterStepdefs {
         log.info(response.getBody());
     }
 
-    @And("Response contains value for {string}")
-    public void responseContainsValueFor(String key) {
-        Assertions.assertNotNull(JsonPath.read(response.getBody(), key));
-    }
+
+
 
 }

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -28,5 +29,19 @@ public class PhotoService{
 
     public Photo addPhoto(@Valid Photo photo){
         return photoRepository.save(photo);
+    }
+
+    public List<Photo> findAll() {
+        List<Photo> ls = new ArrayList<>();
+        Iterator<Photo> itr =  photoRepository.findAll().iterator();
+        while (itr.hasNext()) ls.add(itr.next());
+        return ls;
+    }
+
+    public List<Photo> findAllByCreateDateTimeBetween(LocalDateTime from, LocalDateTime to) {
+        List<Photo> ls = new ArrayList<>();
+        Iterator<Photo> itr =  photoRepository.findAllByCreateDateTimeBetween(from, to).iterator();
+        while (itr.hasNext()) ls.add(itr.next());
+        return ls;
     }
 }

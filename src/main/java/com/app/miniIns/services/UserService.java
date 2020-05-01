@@ -26,16 +26,16 @@ public class UserService {
     private UserRepository userRepo;
 
 
-    public ServerUser findByEmail(String email) {
+    public User findByEmail(String email) {
         return userRepo.findByEmail(email);
     }
 
-    public ServerUser findByUsername(String username) {
+    public User findByUsername(String username) {
         return userRepo.findByUsername(username);
     }
 
 
-    public ServerUser addUser(@Valid ServerUser user) throws Exception {
+    public User addUser(@Valid User user) throws Exception {
         if (findByEmail(user.getEmail()) != null) throw new DuplicateDataException("Existing Email");
         if (findByUsername(user.getUsername()) != null) throw new DuplicateDataException("Existing Username");
 
@@ -47,7 +47,7 @@ public class UserService {
         return userRepo.save(user);
     }
 
-    public ServerUser verifyInfo(String account, String password) throws Exception {
+    public User verifyInfo(String account, String password) throws Exception {
         if (account == null || (account.equals(""))) throw new EmptyInputException("Please Enter Username or Email");
 
         String email = account.contains("@") ? account : "";
@@ -55,7 +55,7 @@ public class UserService {
 
         if (password == null || password.equals("")) throw new EmptyInputException("Please Enter Password");
 
-        ServerUser savedUser;
+        User savedUser;
         if (!email.equals("")) {
             savedUser = findByEmail(email);
             if (savedUser == null) throw new VerificationFailureException("Unregistered " + email);

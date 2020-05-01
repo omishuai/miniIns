@@ -10,12 +10,14 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,7 +25,10 @@ import java.util.List;
 
 
 @Service
-public class S3Service {
+@Profile("!test")
+public class S3Service implements FileStorageService {
+
+    private String bucketName = "miniins-bucket";
 
     AmazonS3 s3client;
 
@@ -36,15 +41,7 @@ public class S3Service {
                 .build();
     }
 
-    public List<Bucket> listBuckets() {
-        return s3client.listBuckets();
-    }
-
-    public void deleteBucket(String bucket) throws AmazonServiceException{
-        s3client.deleteBucket(bucket);
-    }
-
-    public URL upload(String bucketName, String s3Key, MultipartFile file) throws IOException {
+    public URL upload(String s3Key, MultipartFile file) throws IOException {
 
         InputStream is = file.getInputStream();
 
@@ -60,42 +57,23 @@ public class S3Service {
     }
 
 
-    public List<String> listObjects(String bucket) {
-        ObjectListing objectList = s3client.listObjects(bucket);
-
-        List<String> res = new ArrayList<>();
-        for (S3ObjectSummary os: objectList.getObjectSummaries()) {
-            res.add(os.getKey());
-        }
-        return res;
-    }
-
-    public void download(String bucket, String key,  String filename) throws IOException {
-        S3Object o =s3client.getObject(bucket, key);
+    public void download(String key,  String filename) throws IOException {
+        S3Object o =s3client.getObject(bucketName, key);
         S3ObjectInputStream inputStream = o.getObjectContent();
         FileUtils.copyInputStreamToFile(inputStream, new File(filename));//rename the downloaded file
     }
 
-    public void copyObject(String fromBucket, String fromS3Key, String toBucket, String toKey) {
-        s3client.copyObject(fromBucket, fromS3Key, toBucket, toKey);
-
-    }
-    public void deleteObject(String  bucket, String s3key) {
-        s3client.deleteObject(bucket, s3key);
+    public void deleteObject(String s3key) {
+        s3client.deleteObject(bucketName, s3key);
     }
 
-    public void moveObject(String fromBucket, String fromS3Key, String toBucket, String toKey) {
-        copyObject(fromBucket, fromS3Key, toBucket, toKey);
-        deleteObject(fromBucket, fromS3Key);
-    }
-
-    public void batchDelete(String[] targets, String bucket) {
-        DeleteObjectsRequest delObjReq = new DeleteObjectsRequest(bucket)
+    public void batchDelete(String[] targets) {
+        DeleteObjectsRequest delObjReq = new DeleteObjectsRequest(bucketName)
                 .withKeys(targets);
         s3client.deleteObjects(delObjReq);
     }
 
-    public URL getUrl(String bucket, String s3Key) {
-        return s3client.getUrl(bucket, s3Key);
+    public URL getUrl(String s3Key) {
+        return s3client.getUrl(bucketName, s3Key);
     }
 }

@@ -20,7 +20,7 @@ public class MyControllerTest {
 
     @Test public void registerSuccess() throws Exception {
 
-        ServerUser u = new ServerUser("shh", "hs13706717787", "this is the email", 29, "male");
+        User u = new User("shh", "hs13706717787", "this is the email", 29, "male");
         when(userService.findByEmail("hs13706717787")).thenReturn(null);
         when(userService.addUser(u)).thenReturn(u);
 
@@ -36,7 +36,7 @@ public class MyControllerTest {
     }
 
     @Test public void registerFail() throws Exception {
-        ServerUser u = new ServerUser("shh", "hs13706717787", "this is the email", 29, "male");
+        User u = new User("shh", "hs13706717787", "this is the email", 29, "male");
         when(userService.findByEmail("hs13706717787")).thenReturn(u);
         when(userService.addUser(u)).thenThrow(new Exception("Existing Email"));
         try {

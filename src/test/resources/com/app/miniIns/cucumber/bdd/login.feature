@@ -1,3 +1,4 @@
+@login
 Feature: User Login
   Scenario: Users Login Successfully Using Username
     Given empty database

@@ -1,9 +1,7 @@
 package com.app.miniIns.controllers;
 
 import com.app.miniIns.entities.*;
-import com.app.miniIns.services.PhotoService;
-import com.app.miniIns.services.S3Service;
-import com.app.miniIns.services.UserService;
+import com.app.miniIns.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -13,7 +11,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @Controller
 public class MyController {
@@ -30,15 +33,19 @@ public class MyController {
     public void setPhotoService(PhotoService photoService) {
         this.photoService = photoService;
     }
-    public S3Service getS3Service() { return s3Service; }
-    public void setS3Service(S3Service s3Service) {
-        this.s3Service = s3Service;
+    public FileStorageService getFileStorageService() {
+        return fileStorageService;
+    }
+    public void setFileStorageService(FileStorageService fileStorageService) {
+        this.fileStorageService = fileStorageService;
     }
 
     @Autowired
     private PhotoService photoService;
+
     @Autowired
-    private S3Service s3Service;
+    private FileStorageService fileStorageService;
+
     @Autowired
     private UserService userService;
 
@@ -51,11 +58,10 @@ public class MyController {
                                @RequestParam("age") int age,
                                @RequestParam("gender") String gender) throws Exception {
 
-        ServerUser res = userService.addUser(new ServerUser(username, email, password, age, gender));
+        User res = userService.addUser(new User(username, email, password, age, gender));
         return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
     }
 
-    //Bucket is creatd by root and assumed to exist
     @PostMapping(path="/upload")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
@@ -65,16 +71,16 @@ public class MyController {
         Authentication auth = context.getAuthentication();
 
         String u = (String) auth.getPrincipal();
-        ServerUser user = userService.findByUsername(u);
-        Photo photo = new Photo(user, "miniins-bucket", file.getOriginalFilename());
+        User user = userService.findByUsername(u);
 
-        URL url =  s3Service.upload(photo.getS3Bucket(), photo.getId().toString(), file);
+        //In case the destination becomes disk, we make controller unaware of s3 bucket
+        Photo photo = new Photo(user, file.getOriginalFilename());
+
+        URL url =  fileStorageService.upload(photo.getId().toString(), file);
+
         photoService.addPhoto(photo);
 
-        ClientPhoto clientPhoto = new ClientPhoto();
-        clientPhoto.setUrl(url);
-        clientPhoto.setUsername(user.getUsername());
-        clientPhoto.setUuid(photo.getId());
+        ClientPhoto clientPhoto = new ClientPhoto(user.getUsername(), url, photo.getId());
         return clientPhoto;
     }
 
@@ -83,18 +89,36 @@ public class MyController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public ClientUser login(@RequestParam("user") String accountName, String password) throws Exception {
-        ServerUser res = userService.verifyInfo(accountName, password);
+        User res = userService.verifyInfo(accountName, password);
         return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
     }
 
     //home for user
-    @GetMapping("/{user}")
+    @GetMapping("/user/{user}")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public ClientUser getGreetingPageForUser(@PathVariable  String user){
-        ServerUser res = userService.findByUsername(user);
-        if (res == null) res = userService.findByEmail(user);
-        return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
+    public UserResponse getGreetingPageForUser(@PathVariable  String user) throws MalformedURLException {
+
+        User res = userService.findByUsername(user);
+        ClientUser u = new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
+
+        List<Photo> serverPhotos = photoService.findByUserId(res.getId());
+        List<ClientPhoto>  photos = new ArrayList<>();
+        for (Photo p : serverPhotos)
+            photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getId().toString()), p.getId()));
+
+        return new UserResponse(u, photos);
     }
 
+    @GetMapping("/explore")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public List<ClientPhoto> getPhotoPool() throws MalformedURLException {
+
+        List<ClientPhoto> res = new ArrayList<>();
+        List<Photo> ls = photoService.findAllByCreateDateTimeBetween(LocalDateTime.now().minusDays(1), LocalDateTime.now());
+        for (Photo p: ls)
+            res.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getId().toString()), p.getId()));
+        return res;
+    }
 }

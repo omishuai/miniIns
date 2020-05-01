@@ -1,3 +1,4 @@
+@register
 Feature: Create User
 
   Scenario: Users Register Correctly

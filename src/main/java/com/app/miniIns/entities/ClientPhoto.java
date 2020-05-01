@@ -9,6 +9,11 @@ public class ClientPhoto {
     private URL url;
     private UUID uuid;
 
+    public ClientPhoto(String username, URL url, UUID uuid) {
+        this.username = username;
+        this.url = url;
+        this.uuid = uuid;
+    }
 
     public String getUsername() {
         return username;
@@ -32,5 +37,9 @@ public class ClientPhoto {
 
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
+    }
+
+    public String toString() {
+        return String.format("{id: '%s', username: '%s', url: '%s'}", uuid, username, url);
     }
 }
