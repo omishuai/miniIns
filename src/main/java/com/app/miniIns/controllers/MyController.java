@@ -94,7 +94,7 @@ public class MyController {
     }
 
     //home for user
-    @GetMapping("/{user}")
+    @GetMapping("/user/{user}")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public UserResponse getGreetingPageForUser(@PathVariable  String user) throws MalformedURLException {

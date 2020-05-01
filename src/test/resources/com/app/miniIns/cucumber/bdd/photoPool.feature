@@ -1,3 +1,4 @@
+@pool
 Feature: Photo Pool
 
   Scenario: User Logs In and See Recent Photos Uploaded by Users

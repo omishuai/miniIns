@@ -1,3 +1,4 @@
+@upload
 Feature: upload
   Scenario: User Signed In With Email Uploads an image to Cloud Storage
     Given empty database
