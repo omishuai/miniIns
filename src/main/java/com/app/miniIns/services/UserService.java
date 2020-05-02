@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @Service
 @Validated
@@ -28,6 +31,12 @@ public class UserService {
 
     public User findByEmail(String email) {
         return userRepo.findByEmail(email);
+    }
+    public List<User> findAll() {
+        Iterator<User> itr = userRepo.findAll().iterator();
+        List<User> res = new ArrayList<>();
+        while (itr.hasNext()) res.add(itr.next());
+        return res;
     }
 
     public User findByUsername(String username) {

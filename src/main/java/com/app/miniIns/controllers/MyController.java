@@ -113,7 +113,13 @@ public class MyController {
         String u = (String) auth.getPrincipal();
         User user = userService.findByUsername(u);
         User toFollow = userService.findByUsername(username);
+        System.out.println("Before: \n" + "User1: " + "\n" + userService.findByUsername(u).getFollowedList() + "\n" +  userService.findByUsername(u).getFollowingList());
+        System.out.println("User2: " + "\n" + userService.findByUsername(username).getFollowedList() + "\n" +  userService.findByUsername(username).getFollowingList());
+
         user.follow(toFollow);
+
+        System.out.println("After: \n" + "User1: " + "\n" + userService.findByUsername(u).getFollowedList() + "\n" +  userService.findByUsername(u).getFollowingList());
+        System.out.println("User2: " + "\n" + userService.findByUsername(username).getFollowedList() + "\n" +  userService.findByUsername(username).getFollowingList());
 
         List<String> following1 = new ArrayList<>();
         for (User usr : toFollow.getFollowingList()) following1.add(usr.getUsername());
@@ -139,6 +145,8 @@ public class MyController {
                 user.getGender(),
                 following2,
                 followedBy2);
+        List<User> ls = userService.findAll();
+        for (User usr : ls) System.out.println(usr.getUsername() + ":" + usr.getFollowedList()+ usr.getFollowingList());
         return new UserRelation(follow, followed);
     }
 
@@ -146,12 +154,23 @@ public class MyController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public UserRelation unfollow(@RequestParam("username") String username) {
+        List<User> ls = userService.findAll();
+        for (User u : ls) System.out.println(u.getUsername() + ":" + u.getFollowedList()+ u.getFollowingList());
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication auth = context.getAuthentication();
         String u = (String) auth.getPrincipal();
         User user = userService.findByUsername(u);
+        System.out.println(user.getFollowedList() + "\n" + user.getFollowingList());
+
+        System.out.println("Before:\n" + "User1: " + "\n" + userService.findByUsername(u).getFollowedList() + "\n" +  userService.findByUsername(u).getFollowingList());
         User followed = userService.findByUsername(username);
+        System.out.println(followed.getFollowedList() + "\n" + followed.getFollowingList());
+        System.out.println("User2: " + "\n" + userService.findByUsername(username).getFollowedList() + "\n" +  userService.findByUsername(username).getFollowingList());
+
         user.stopFollow(followed);
+
+        System.out.println("After:\n" + "User1: " + "\n" + userService.findByUsername(u).getFollowedList() + "\n" +  userService.findByUsername(u).getFollowingList());
+        System.out.println("User2: " + "\n" + userService.findByUsername(username).getFollowedList() + "\n" +  userService.findByUsername(username).getFollowingList());
 
         List<String> following1 = new ArrayList<>();
         for (User usr : followed.getFollowingList()) following1.add(usr.getUsername());
