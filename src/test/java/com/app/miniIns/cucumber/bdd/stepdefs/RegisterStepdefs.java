@@ -184,6 +184,26 @@ public class RegisterStepdefs {
     }
 
 
+    @When("User with username {string} \\(un)follows {string} through {string}")
+    public void userWithUsernameUnfollows(String u1, String u2, String url) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        String sec = (String)userAuthMap.get(u1);
+        if (sec != null)
+            headers.setBearerAuth(sec);
 
+        final String baseUrl = "http://localhost:8080"+ url;
 
+        MultiValueMap body = new LinkedMultiValueMap<>();
+        body.add("username", u2);
+
+        HttpEntity<MultiValueMap> requestEntity
+                = new HttpEntity<>(body, headers);
+        System.out.println(baseUrl + "\n" + requestEntity);
+
+        response = restTemplate.exchange(baseUrl,HttpMethod.POST, requestEntity,
+                String.class);
+
+        log.info(response.getBody());
+    }
 }

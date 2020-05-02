@@ -2,6 +2,7 @@ package com.app.miniIns.entities;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import java.util.*;
 
 @Entity
 public class User {
@@ -30,6 +31,34 @@ public class User {
 
     private String salt;
 
+
+
+    @ManyToMany
+    @JoinTable(
+            joinColumns = { @JoinColumn(name = "follower_id") },
+            inverseJoinColumns = { @JoinColumn(name = "followed_id") })
+    private Set<User> followingList = new HashSet<>();
+
+    @ManyToMany
+    private Set<User> followedList = new HashSet<User>();
+
+
+    public void follow(User user) {
+        this.followingList.add(user);
+        user.getFollowedList().add(this);
+    }
+    public void stopFollow(User u) {
+        this.followingList.remove(u);
+        u.getFollowedList().remove(this);
+    }
+
+    public Set<User> getFollowingList() {
+        return followingList;
+    }
+
+    public Set<User> getFollowedList() {
+        return followedList;
+    }
 
     public String getSalt() {
         return salt;
@@ -88,7 +117,16 @@ public class User {
 
     @Override
     public String toString() {
-        return  String.format("{username: '%s', password:  '%s', email: '%s', age: %d, gender: '%s', salt: '%s'}", username, password, email, age, gender,salt);
+        return
+                String.format("{username: '%s', password:  '%s', email: '%s', age: %d, gender: '%s', salt: '%s'}",
+                        username,
+                        password,
+                        email,
+                        age,
+                        gender,
+                        salt);
+//                        followingList,
+//                        followedList);
     }
 
     @Override

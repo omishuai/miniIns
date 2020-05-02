@@ -2,6 +2,7 @@ package com.app.miniIns.controllers;
 
 import com.app.miniIns.entities.*;
 import com.app.miniIns.services.*;
+import org.apache.catalina.realm.UserDatabaseRealm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -36,9 +37,7 @@ public class MyController {
     public FileStorageService getFileStorageService() {
         return fileStorageService;
     }
-    public void setFileStorageService(FileStorageService fileStorageService) {
-        this.fileStorageService = fileStorageService;
-    }
+    public void setFileStorageService(FileStorageService fileStorageService) { this.fileStorageService = fileStorageService; }
 
     @Autowired
     private PhotoService photoService;
@@ -90,7 +89,96 @@ public class MyController {
     @ResponseBody
     public ClientUser login(@RequestParam("user") String accountName, String password) throws Exception {
         User res = userService.verifyInfo(accountName, password);
-        return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
+        List<String> following = new ArrayList<>();
+        for (User usr : res.getFollowingList()) following.add(usr.getUsername());
+        List<String> followedBy = new ArrayList<>();
+        for (User usr : res.getFollowedList()) followedBy.add(usr.getUsername());
+
+        return new ClientUser(
+                res.getUsername(),
+                res.getEmail(),
+                res.getAge(),
+                res.getGender(),
+                following,
+                followedBy);
+    }
+
+    //follow user
+    @PostMapping(path = "/follow")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public UserRelation follow(@RequestParam("username") String username) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication auth = context.getAuthentication();
+        String u = (String) auth.getPrincipal();
+        User user = userService.findByUsername(u);
+        User toFollow = userService.findByUsername(username);
+        user.follow(toFollow);
+
+        List<String> following1 = new ArrayList<>();
+        for (User usr : toFollow.getFollowingList()) following1.add(usr.getUsername());
+        List<String> followedBy1 = new ArrayList<>();
+        for (User usr : toFollow.getFollowedList()) followedBy1.add(usr.getUsername());
+
+        List<String> following2 = new ArrayList<>();
+        for (User usr : user.getFollowingList()) following2.add(usr.getUsername());
+        List<String> followedBy2 = new ArrayList<>();
+        for (User usr : user.getFollowedList()) followedBy2.add(usr.getUsername());
+
+        ClientUser followed = new ClientUser(
+                toFollow.getUsername(),
+                toFollow.getEmail(),
+                toFollow.getAge(),
+                toFollow.getGender(),
+                following1,
+                followedBy1);
+        ClientUser follow = new ClientUser(
+                user.getUsername(),
+                user.getEmail(),
+                user.getAge(),
+                user.getGender(),
+                following2,
+                followedBy2);
+        return new UserRelation(follow, followed);
+    }
+
+    @PostMapping(path = "/unfollow")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public UserRelation unfollow(@RequestParam("username") String username) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication auth = context.getAuthentication();
+        String u = (String) auth.getPrincipal();
+        User user = userService.findByUsername(u);
+        User followed = userService.findByUsername(username);
+        user.stopFollow(followed);
+
+        List<String> following1 = new ArrayList<>();
+        for (User usr : followed.getFollowingList()) following1.add(usr.getUsername());
+        List<String> followedBy1 = new ArrayList<>();
+        for (User usr : followed.getFollowedList()) followedBy1.add(usr.getUsername());
+
+        List<String> following2 = new ArrayList<>();
+        for (User usr : user.getFollowingList()) following2.add(usr.getUsername());
+        List<String> followedBy2 = new ArrayList<>();
+        for (User usr : user.getFollowedList()) followedBy2.add(usr.getUsername());
+
+        ClientUser unfollowed = new ClientUser(
+                followed.getUsername(),
+                followed.getEmail(),
+                followed.getAge(),
+                followed.getGender(),
+                following1,
+                followedBy1);
+
+        ClientUser follow = new ClientUser(
+                user.getUsername(),
+                user.getEmail(),
+                user.getAge(),
+                user.getGender(),
+                following2,
+                followedBy2);
+        return new UserRelation(follow, unfollowed);
     }
 
     //home for user
@@ -100,7 +188,18 @@ public class MyController {
     public UserResponse getGreetingPageForUser(@PathVariable  String user) throws MalformedURLException {
 
         User res = userService.findByUsername(user);
-        ClientUser u = new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
+        List<String> following = new ArrayList<>();
+        for (User usr : res.getFollowingList()) following.add(usr.getUsername());
+        List<String> followedBy = new ArrayList<>();
+        for (User usr : res.getFollowedList()) followedBy.add(usr.getUsername());
+
+        ClientUser u =  new ClientUser(
+                res.getUsername(),
+                res.getEmail(),
+                res.getAge(),
+                res.getGender(),
+                following,
+                followedBy);
 
         List<Photo> serverPhotos = photoService.findByUserId(res.getId());
         List<ClientPhoto>  photos = new ArrayList<>();
