@@ -29,8 +29,7 @@ import java.util.List;
 public class S3Service implements FileStorageService {
 
     private String bucketName = "miniins-bucket";
-
-    AmazonS3 s3client;
+    private AmazonS3 s3client;
 
     public S3Service(@Value("${s3.admin.accessKey}") String accessKey,  @Value("${s3.admin.secretKey}") String secretKey) {
         AWSCredentials credentials = new BasicAWSCredentials(accessKey,secretKey);

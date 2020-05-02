@@ -18,15 +18,16 @@ public class Photo {
     @ManyToOne
     @JoinColumn (name="userId", referencedColumnName = "id")
     @NotNull
-    User user;
+    private User user;
 
     @NotNull
-    String filename;
+    private String filename;
 
     @CreationTimestamp
     private LocalDateTime createDateTime;
 
     public Photo(){}
+
     public Photo(User user, String filename) {
         this.user = user;
         this.filename = filename;

@@ -15,7 +15,7 @@ import java.util.*;
 @Component
 public class MyAuthenticationProvider implements AuthenticationProvider {
     @Autowired
-    UserService userService;
+    private UserService userService;
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
