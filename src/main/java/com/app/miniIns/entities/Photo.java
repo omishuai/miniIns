@@ -1,11 +1,8 @@
 package com.app.miniIns.entities;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.loader.plan.spi.QuerySpaceUidNotRegisteredException;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
