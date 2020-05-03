@@ -90,9 +90,9 @@ public class MyController {
     public ClientUser login(@RequestParam("user") String accountName, String password) throws Exception {
         User res = userService.verifyInfo(accountName, password);
         List<String> following = new ArrayList<>();
-        for (User usr : res.getFollowingList()) following.add(usr.getUsername());
+        for (User usr : res.getFollows()) following.add(usr.getUsername());
         List<String> followedBy = new ArrayList<>();
-        for (User usr : res.getFollowedList()) followedBy.add(usr.getUsername());
+        for (User usr : res.getFollowedBy()) followedBy.add(usr.getUsername());
 
         return new ClientUser(
                 res.getUsername(),
@@ -125,10 +125,10 @@ public class MyController {
     private ClientUser constructClientUserWithFollowingList(User user) {
 
         List<String> following = new ArrayList<>();
-        for (User usr : user.getFollowingList()) following.add(usr.getUsername());
+        for (User usr : user.getFollows()) following.add(usr.getUsername());
 
         List<String> followedBy = new ArrayList<>();
-        for (User usr : user.getFollowedList()) followedBy.add(usr.getUsername());
+        for (User usr : user.getFollowedBy()) followedBy.add(usr.getUsername());
 
         return new ClientUser(
                 user.getUsername(),
@@ -163,9 +163,9 @@ public class MyController {
 
         User res = userService.findByUsername(user);
         List<String> following = new ArrayList<>();
-        for (User usr : res.getFollowingList()) following.add(usr.getUsername());
+        for (User usr : res.getFollows()) following.add(usr.getUsername());
         List<String> followedBy = new ArrayList<>();
-        for (User usr : res.getFollowedList()) followedBy.add(usr.getUsername());
+        for (User usr : res.getFollowedBy()) followedBy.add(usr.getUsername());
 
         ClientUser u =  new ClientUser(
                 res.getUsername(),
