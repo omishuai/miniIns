@@ -34,9 +34,7 @@ public class UserService {
         User user2 = userRepo.findByUsername(followed);
         user1.getFollows().add(user2);
 
-        userRepo.save(user2);
         userRepo.save(user1);
-
     }
 
     public void stopFollowUser(String follower, String followed) {
@@ -45,7 +43,6 @@ public class UserService {
         user1.getFollows().remove(user2);
 
         userRepo.save(user1);
-        userRepo.save(user2);
     }
 
 
