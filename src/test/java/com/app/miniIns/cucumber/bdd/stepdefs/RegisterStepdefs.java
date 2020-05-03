@@ -78,7 +78,6 @@ public class RegisterStepdefs {
 
     @And("Response has value {int} for {string}")
     public void responseHasValueForAge(int attribute, String pick) {
-
         Assertions.assertEquals((int)JsonPath.read(response.getBody(), pick), attribute);
     }
 
@@ -96,8 +95,6 @@ public class RegisterStepdefs {
         userRepository.deleteAll();
         Iterator<User> user = userRepository.findAll().iterator();
         Assertions.assertFalse(user.hasNext());
-
-
     }
 
 

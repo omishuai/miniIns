@@ -5,6 +5,7 @@ import javax.validation.constraints.*;
 import java.util.*;
 
 @Entity
+@Table (name = "user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -31,22 +32,33 @@ public class User {
 
     private String salt;
 
-
-
     @ManyToMany
     @JoinTable(
+            name = "relationship",
             joinColumns = { @JoinColumn(name = "follower_id") },
             inverseJoinColumns = { @JoinColumn(name = "followed_id") })
     private Set<User> followingList = new HashSet<>();
 
-    @ManyToMany
-    private Set<User> followedList = new HashSet<User>();
+    @ManyToMany(mappedBy = "followingList")
+    private Set<User> followedList = new HashSet<>();
+
+
+    public User(String username, String email, String password, int age, String gender) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.age = age;
+        this.gender = gender;
+    }
+
+    public User() { }
 
 
     public void follow(User user) {
         this.followingList.add(user);
         user.getFollowedList().add(this);
     }
+
     public void stopFollow(User u) {
         this.followingList.remove(u);
         u.getFollowedList().remove(this);
@@ -96,25 +108,6 @@ public class User {
         this.gender = gender;
     }
 
-    public User(String username, String email, String password, int age, String gender, String salt) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.age = age;
-        this.gender = gender;
-        this.salt = salt;
-    }
-
-    public User(String username, String email, String password, int age, String gender) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.age = age;
-        this.gender = gender;
-    }
-
-    public User() { }
-
     @Override
     public String toString() {
         return
@@ -125,8 +118,6 @@ public class User {
                         age,
                         gender,
                         salt);
-//                        followingList,
-//                        followedList);
     }
 
     @Override
@@ -157,6 +148,4 @@ public class User {
     public int getAge() {
         return age;
     }
-
-
 }

@@ -107,100 +107,58 @@ public class MyController {
     @PostMapping(path = "/follow")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public UserRelation follow(@RequestParam("username") String username) {
+    public UserRelation follow(@RequestParam("username") String username) throws Exception {
+
+        // Get the current user in context
         SecurityContext context = SecurityContextHolder.getContext();
-        Authentication auth = context.getAuthentication();
-        String u = (String) auth.getPrincipal();
-        User user = userService.findByUsername(u);
-        User toFollow = userService.findByUsername(username);
-        System.out.println("Before: \n" + "User1: " + "\n" + userService.findByUsername(u).getFollowedList() + "\n" +  userService.findByUsername(u).getFollowingList());
-        System.out.println("User2: " + "\n" + userService.findByUsername(username).getFollowedList() + "\n" +  userService.findByUsername(username).getFollowingList());
+        String username1 = (String) context.getAuthentication().getPrincipal();
 
-        user.follow(toFollow);
+        User user2 = userService.followUser(username1, username);
+        User user1 = userService.findByUsername(username1);
 
-        System.out.println("After: \n" + "User1: " + "\n" + userService.findByUsername(u).getFollowedList() + "\n" +  userService.findByUsername(u).getFollowingList());
-        System.out.println("User2: " + "\n" + userService.findByUsername(username).getFollowedList() + "\n" +  userService.findByUsername(username).getFollowingList());
+        ClientUser follow = constructClientUserWithFollowingList(user1);
+        ClientUser followed = constructClientUserWithFollowingList(user2);
 
-        List<String> following1 = new ArrayList<>();
-        for (User usr : toFollow.getFollowingList()) following1.add(usr.getUsername());
-        List<String> followedBy1 = new ArrayList<>();
-        for (User usr : toFollow.getFollowedList()) followedBy1.add(usr.getUsername());
+        return new UserRelation(follow, followed);
+    }
 
-        List<String> following2 = new ArrayList<>();
-        for (User usr : user.getFollowingList()) following2.add(usr.getUsername());
-        List<String> followedBy2 = new ArrayList<>();
-        for (User usr : user.getFollowedList()) followedBy2.add(usr.getUsername());
 
-        ClientUser followed = new ClientUser(
-                toFollow.getUsername(),
-                toFollow.getEmail(),
-                toFollow.getAge(),
-                toFollow.getGender(),
-                following1,
-                followedBy1);
-        ClientUser follow = new ClientUser(
+    private ClientUser constructClientUserWithFollowingList(User user) {
+
+        List<String> following = new ArrayList<>();
+        for (User usr : user.getFollowingList()) following.add(usr.getUsername());
+
+        List<String> followedBy = new ArrayList<>();
+        for (User usr : user.getFollowedList()) followedBy.add(usr.getUsername());
+
+        return new ClientUser(
                 user.getUsername(),
                 user.getEmail(),
                 user.getAge(),
                 user.getGender(),
-                following2,
-                followedBy2);
-        List<User> ls = userService.findAll();
-        for (User usr : ls) System.out.println(usr.getUsername() + ":" + usr.getFollowedList()+ usr.getFollowingList());
-        return new UserRelation(follow, followed);
+                following,
+                followedBy);
     }
 
     @PostMapping(path = "/unfollow")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public UserRelation unfollow(@RequestParam("username") String username) {
-        List<User> ls = userService.findAll();
-        for (User u : ls) System.out.println(u.getUsername() + ":" + u.getFollowedList()+ u.getFollowingList());
+        
+        // Get the current user in context
         SecurityContext context = SecurityContextHolder.getContext();
-        Authentication auth = context.getAuthentication();
-        String u = (String) auth.getPrincipal();
-        User user = userService.findByUsername(u);
-        System.out.println(user.getFollowedList() + "\n" + user.getFollowingList());
+        String username1 = (String) context.getAuthentication().getPrincipal();
 
-        System.out.println("Before:\n" + "User1: " + "\n" + userService.findByUsername(u).getFollowedList() + "\n" +  userService.findByUsername(u).getFollowingList());
-        User followed = userService.findByUsername(username);
-        System.out.println(followed.getFollowedList() + "\n" + followed.getFollowingList());
-        System.out.println("User2: " + "\n" + userService.findByUsername(username).getFollowedList() + "\n" +  userService.findByUsername(username).getFollowingList());
 
-        user.stopFollow(followed);
+        User user2 = userService.stopFollowUser(username1, username);
+        User user1 = userService.findByUsername(username1);
 
-        System.out.println("After:\n" + "User1: " + "\n" + userService.findByUsername(u).getFollowedList() + "\n" +  userService.findByUsername(u).getFollowingList());
-        System.out.println("User2: " + "\n" + userService.findByUsername(username).getFollowedList() + "\n" +  userService.findByUsername(username).getFollowingList());
+        ClientUser follow = constructClientUserWithFollowingList(user1);
+        ClientUser unfollowed = constructClientUserWithFollowingList(user2);
 
-        List<String> following1 = new ArrayList<>();
-        for (User usr : followed.getFollowingList()) following1.add(usr.getUsername());
-        List<String> followedBy1 = new ArrayList<>();
-        for (User usr : followed.getFollowedList()) followedBy1.add(usr.getUsername());
-
-        List<String> following2 = new ArrayList<>();
-        for (User usr : user.getFollowingList()) following2.add(usr.getUsername());
-        List<String> followedBy2 = new ArrayList<>();
-        for (User usr : user.getFollowedList()) followedBy2.add(usr.getUsername());
-
-        ClientUser unfollowed = new ClientUser(
-                followed.getUsername(),
-                followed.getEmail(),
-                followed.getAge(),
-                followed.getGender(),
-                following1,
-                followedBy1);
-
-        ClientUser follow = new ClientUser(
-                user.getUsername(),
-                user.getEmail(),
-                user.getAge(),
-                user.getGender(),
-                following2,
-                followedBy2);
         return new UserRelation(follow, unfollowed);
     }
 
-    //home for user
     @GetMapping("/user/{user}")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
