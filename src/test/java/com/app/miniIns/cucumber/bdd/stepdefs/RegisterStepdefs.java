@@ -78,7 +78,6 @@ public class RegisterStepdefs {
 
     @And("Response has value {int} for {string}")
     public void responseHasValueForAge(int attribute, String pick) {
-
         Assertions.assertEquals((int)JsonPath.read(response.getBody(), pick), attribute);
     }
 
@@ -96,8 +95,6 @@ public class RegisterStepdefs {
         userRepository.deleteAll();
         Iterator<User> user = userRepository.findAll().iterator();
         Assertions.assertFalse(user.hasNext());
-
-
     }
 
 
@@ -184,6 +181,26 @@ public class RegisterStepdefs {
     }
 
 
+    @When("User with username {string} \\(un)follows {string} through {string}")
+    public void userWithUsernameUnfollows(String u1, String u2, String url) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        String sec = (String)userAuthMap.get(u1);
+        if (sec != null)
+            headers.setBearerAuth(sec);
 
+        final String baseUrl = "http://localhost:8080"+ url;
 
+        MultiValueMap body = new LinkedMultiValueMap<>();
+        body.add("username", u2);
+
+        HttpEntity<MultiValueMap> requestEntity
+                = new HttpEntity<>(body, headers);
+        System.out.println(baseUrl + "\n" + requestEntity);
+
+        response = restTemplate.exchange(baseUrl,HttpMethod.POST, requestEntity,
+                String.class);
+
+        log.info(response.getBody());
+    }
 }

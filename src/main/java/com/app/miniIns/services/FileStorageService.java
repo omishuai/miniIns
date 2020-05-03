@@ -8,8 +8,8 @@ import java.net.URL;
 
 public interface FileStorageService {
 
-    public abstract URL upload(String s3Key, MultipartFile file) throws IOException;
+    URL upload(String s3Key, MultipartFile file) throws IOException;
 
-    public abstract URL getUrl(String s3Key) throws MalformedURLException;
+    URL getUrl(String s3Key) throws MalformedURLException;
 
 }

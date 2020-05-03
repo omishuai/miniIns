@@ -20,7 +20,7 @@ public class PhotoService{
     }
 
     @Autowired
-    PhotoRepository photoRepository;
+    private PhotoRepository photoRepository;
 
     public List<Photo> findByUserId(int id) {
         return photoRepository.findByUserId(id);

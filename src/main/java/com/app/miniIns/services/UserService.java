@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @Service
 @Validated
@@ -26,8 +29,31 @@ public class UserService {
     private UserRepository userRepo;
 
 
+    public void followUser(String follower, String followed) {
+        User user1 = userRepo.findByUsername(follower);
+        User user2 = userRepo.findByUsername(followed);
+        user1.getFollows().add(user2);
+
+        userRepo.save(user1);
+    }
+
+    public void stopFollowUser(String follower, String followed) {
+        User user1 = userRepo.findByUsername(follower);
+        User user2 = userRepo.findByUsername(followed);
+        user1.getFollows().remove(user2);
+
+        userRepo.save(user1);
+    }
+
+
     public User findByEmail(String email) {
         return userRepo.findByEmail(email);
+    }
+    public List<User> findAll() {
+        Iterator<User> itr = userRepo.findAll().iterator();
+        List<User> res = new ArrayList<>();
+        while (itr.hasNext()) res.add(itr.next());
+        return res;
     }
 
     public User findByUsername(String username) {

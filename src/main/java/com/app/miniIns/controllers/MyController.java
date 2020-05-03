@@ -2,6 +2,7 @@ package com.app.miniIns.controllers;
 
 import com.app.miniIns.entities.*;
 import com.app.miniIns.services.*;
+import org.apache.catalina.realm.UserDatabaseRealm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -36,9 +37,7 @@ public class MyController {
     public FileStorageService getFileStorageService() {
         return fileStorageService;
     }
-    public void setFileStorageService(FileStorageService fileStorageService) {
-        this.fileStorageService = fileStorageService;
-    }
+    public void setFileStorageService(FileStorageService fileStorageService) { this.fileStorageService = fileStorageService; }
 
     @Autowired
     private PhotoService photoService;
@@ -90,17 +89,91 @@ public class MyController {
     @ResponseBody
     public ClientUser login(@RequestParam("user") String accountName, String password) throws Exception {
         User res = userService.verifyInfo(accountName, password);
-        return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
+        List<String> following = new ArrayList<>();
+        for (User usr : res.getFollows()) following.add(usr.getUsername());
+        List<String> followedBy = new ArrayList<>();
+        for (User usr : res.getFollowedBy()) followedBy.add(usr.getUsername());
+
+        return new ClientUser(
+                res.getUsername(),
+                res.getEmail(),
+                res.getAge(),
+                res.getGender(),
+                following,
+                followedBy);
     }
 
-    //home for user
+    //follow user
+    @PostMapping(path = "/follow")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public UserRelation follow(@RequestParam("username") String followedUsername) throws Exception {
+
+        // Get the current user in context
+        SecurityContext context = SecurityContextHolder.getContext();
+        String followerUsername = (String) context.getAuthentication().getPrincipal();
+
+        userService.followUser(followerUsername, followedUsername);
+
+        ClientUser follower = constructClientUserWithFollowingList(userService.findByUsername(followerUsername));
+        ClientUser followed = constructClientUserWithFollowingList(userService.findByUsername(followedUsername));
+
+        return new UserRelation(follower, followed);
+    }
+
+
+    private ClientUser constructClientUserWithFollowingList(User user) {
+
+        List<String> following = new ArrayList<>();
+        for (User usr : user.getFollows()) following.add(usr.getUsername());
+
+        List<String> followedBy = new ArrayList<>();
+        for (User usr : user.getFollowedBy()) followedBy.add(usr.getUsername());
+
+        return new ClientUser(
+                user.getUsername(),
+                user.getEmail(),
+                user.getAge(),
+                user.getGender(),
+                following,
+                followedBy);
+    }
+
+    @PostMapping(path = "/unfollow")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public UserRelation unfollow(@RequestParam("username") String unfollowedUsername) {
+        
+        // Get the current user in context
+        SecurityContext context = SecurityContextHolder.getContext();
+        String followerUsername = (String) context.getAuthentication().getPrincipal();
+
+        userService.stopFollowUser(followerUsername, unfollowedUsername);
+
+        ClientUser follower = constructClientUserWithFollowingList(userService.findByUsername(followerUsername));
+        ClientUser unfollowed = constructClientUserWithFollowingList(userService.findByUsername(unfollowedUsername));
+
+        return new UserRelation(follower, unfollowed);
+    }
+
     @GetMapping("/user/{user}")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public UserResponse getGreetingPageForUser(@PathVariable  String user) throws MalformedURLException {
 
         User res = userService.findByUsername(user);
-        ClientUser u = new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
+        List<String> following = new ArrayList<>();
+        for (User usr : res.getFollows()) following.add(usr.getUsername());
+        List<String> followedBy = new ArrayList<>();
+        for (User usr : res.getFollowedBy()) followedBy.add(usr.getUsername());
+
+        ClientUser u =  new ClientUser(
+                res.getUsername(),
+                res.getEmail(),
+                res.getAge(),
+                res.getGender(),
+                following,
+                followedBy);
 
         List<Photo> serverPhotos = photoService.findByUserId(res.getId());
         List<ClientPhoto>  photos = new ArrayList<>();

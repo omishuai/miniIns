@@ -2,8 +2,10 @@ package com.app.miniIns.entities;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import java.util.*;
 
 @Entity
+@Table (name = "user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,6 +31,44 @@ public class User {
     private String gender;
 
     private String salt;
+
+    @ManyToMany
+    @JoinTable(
+            name = "relationship",
+            joinColumns = { @JoinColumn(name = "followerId") },
+            inverseJoinColumns = { @JoinColumn(name = "followedId") })
+    private Set<User> follows = new HashSet<>();
+
+    @ManyToMany(mappedBy = "follows")
+    private Set<User> followedBy = new HashSet<>();
+
+    public Set<User> getFollows() {
+        return follows;
+    }
+
+    public void setFollows(Set<User> follows) {
+        this.follows = follows;
+    }
+
+    public Set<User> getFollowedBy() {
+        return followedBy;
+    }
+
+    public void setFollowedBy(Set<User> followedBy) {
+        this.followedBy = followedBy;
+    }
+
+
+
+    public User(String username, String email, String password, int age, String gender) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.age = age;
+        this.gender = gender;
+    }
+
+    public User() { }
 
 
     public String getSalt() {
@@ -67,28 +107,16 @@ public class User {
         this.gender = gender;
     }
 
-    public User(String username, String email, String password, int age, String gender, String salt) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.age = age;
-        this.gender = gender;
-        this.salt = salt;
-    }
-
-    public User(String username, String email, String password, int age, String gender) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.age = age;
-        this.gender = gender;
-    }
-
-    public User() { }
-
     @Override
     public String toString() {
-        return  String.format("{username: '%s', password:  '%s', email: '%s', age: %d, gender: '%s', salt: '%s'}", username, password, email, age, gender,salt);
+        return
+                String.format("{username: '%s', password:  '%s', email: '%s', age: %d, gender: '%s', salt: '%s'}",
+                        username,
+                        password,
+                        email,
+                        age,
+                        gender,
+                        salt);
     }
 
     @Override
@@ -119,6 +147,4 @@ public class User {
     public int getAge() {
         return age;
     }
-
-
 }
