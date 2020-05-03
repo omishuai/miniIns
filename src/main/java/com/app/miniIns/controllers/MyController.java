@@ -115,10 +115,10 @@ public class MyController {
 
         userService.followUser(followerUsername, followedUsername);
 
-        ClientUser follow = constructClientUserWithFollowingList(userService.findByUsername(followerUsername));
+        ClientUser follower = constructClientUserWithFollowingList(userService.findByUsername(followerUsername));
         ClientUser followed = constructClientUserWithFollowingList(userService.findByUsername(followedUsername));
 
-        return new UserRelation(follow, followed);
+        return new UserRelation(follower, followed);
     }
 
 

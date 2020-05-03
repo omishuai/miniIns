@@ -6,7 +6,7 @@ public class ClientUser {
     private String email;
     private int age;
     private String gender;
-    private List<String> following;
+    private List<String> follows;
     private List<String> followedBy;
 
     public ClientUser(String username, String email, int age, String gender) {
@@ -16,21 +16,21 @@ public class ClientUser {
         this.gender = gender;
     }
 
-    public ClientUser(String username, String email, int age, String gender, List<String> following, List<String> followedBy) {
+    public ClientUser(String username, String email, int age, String gender, List<String> follows, List<String> followedBy) {
         this.username = username;
         this.email = email;
         this.age = age;
         this.gender = gender;
         this.followedBy = followedBy;
-        this.following = following;
+        this.follows = follows;
     }
 
-    public List<String> getFollowing() {
-        return following;
+    public List<String> getFollows() {
+        return follows;
     }
 
-    public void setFollowing(List<String> following) {
-        this.following = following;
+    public void setFollows(List<String> follows) {
+        this.follows = follows;
     }
 
     public void setFollowedBy(List<String> followedBy) {
@@ -58,12 +58,12 @@ public class ClientUser {
     }
 
     public String toString() {
-        return  String.format("{username: '%s', email: '%s', age: %d, gender: '%s', following: %s, followedBy: %s}",
+        return  String.format("{username: '%s', email: '%s', age: %d, gender: '%s', follows: %s, followedBy: %s}",
                 username,
                 email,
                 age,
                 gender,
-                following,
+                follows,
                 followedBy
                 );
     }
