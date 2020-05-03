@@ -107,17 +107,16 @@ public class MyController {
     @PostMapping(path = "/follow")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public UserRelation follow(@RequestParam("username") String username) throws Exception {
+    public UserRelation follow(@RequestParam("username") String followedUsername) throws Exception {
 
         // Get the current user in context
         SecurityContext context = SecurityContextHolder.getContext();
-        String username1 = (String) context.getAuthentication().getPrincipal();
+        String followerUsername = (String) context.getAuthentication().getPrincipal();
 
-        User user2 = userService.followUser(username1, username);
-        User user1 = userService.findByUsername(username1);
+        userService.followUser(followerUsername, followedUsername);
 
-        ClientUser follow = constructClientUserWithFollowingList(user1);
-        ClientUser followed = constructClientUserWithFollowingList(user2);
+        ClientUser follow = constructClientUserWithFollowingList(userService.findByUsername(followerUsername));
+        ClientUser followed = constructClientUserWithFollowingList(userService.findByUsername(followedUsername));
 
         return new UserRelation(follow, followed);
     }
@@ -143,20 +142,18 @@ public class MyController {
     @PostMapping(path = "/unfollow")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public UserRelation unfollow(@RequestParam("username") String username) {
+    public UserRelation unfollow(@RequestParam("username") String unfollowedUsername) {
         
         // Get the current user in context
         SecurityContext context = SecurityContextHolder.getContext();
-        String username1 = (String) context.getAuthentication().getPrincipal();
+        String followerUsername = (String) context.getAuthentication().getPrincipal();
 
+        userService.stopFollowUser(followerUsername, unfollowedUsername);
 
-        User user2 = userService.stopFollowUser(username1, username);
-        User user1 = userService.findByUsername(username1);
+        ClientUser follower = constructClientUserWithFollowingList(userService.findByUsername(followerUsername));
+        ClientUser unfollowed = constructClientUserWithFollowingList(userService.findByUsername(unfollowedUsername));
 
-        ClientUser follow = constructClientUserWithFollowingList(user1);
-        ClientUser unfollowed = constructClientUserWithFollowingList(user2);
-
-        return new UserRelation(follow, unfollowed);
+        return new UserRelation(follower, unfollowed);
     }
 
     @GetMapping("/user/{user}")

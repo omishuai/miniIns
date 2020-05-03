@@ -28,27 +28,24 @@ public class UserService {
     @Autowired
     private UserRepository userRepo;
 
-    public User followUser(String username1, String username2) {
-        User user1 = userRepo.findByUsername(username1);
-        User user2 = userRepo.findByUsername(username2);
 
-        user1.follow(user2);
+    public void followUser(String follower, String followed) {
+        User user1 = userRepo.findByUsername(follower);
+        User user2 = userRepo.findByUsername(followed);
+        user1.getFollows().add(user2);
 
-        userRepo.save(user1);
         userRepo.save(user2);
+        userRepo.save(user1);
 
-        return user2;
     }
 
-    public User stopFollowUser(String username1, String username2) {
-        User user1 = userRepo.findByUsername(username1);
-        User user2 = userRepo.findByUsername(username2);
-        user1.stopFollow(user2);
+    public void stopFollowUser(String follower, String followed) {
+        User user1 = userRepo.findByUsername(follower);
+        User user2 = userRepo.findByUsername(followed);
+        user1.getFollows().remove(user2);
 
         userRepo.save(user1);
         userRepo.save(user2);
-
-        return user2;
     }
 
 

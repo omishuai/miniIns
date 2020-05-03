@@ -35,12 +35,29 @@ public class User {
     @ManyToMany
     @JoinTable(
             name = "relationship",
-            joinColumns = { @JoinColumn(name = "follower_id") },
-            inverseJoinColumns = { @JoinColumn(name = "followed_id") })
-    private Set<User> followingList = new HashSet<>();
+            joinColumns = { @JoinColumn(name = "followerId") },
+            inverseJoinColumns = { @JoinColumn(name = "followedId") })
+    private Set<User> follows = new HashSet<>();
 
-    @ManyToMany(mappedBy = "followingList")
-    private Set<User> followedList = new HashSet<>();
+    @ManyToMany(mappedBy = "follows")
+    private Set<User> followedBy = new HashSet<>();
+
+    public Set<User> getFollows() {
+        return follows;
+    }
+
+    public void setFollows(Set<User> follows) {
+        this.follows = follows;
+    }
+
+    public Set<User> getFollowedBy() {
+        return followedBy;
+    }
+
+    public void setFollowedBy(Set<User> followedBy) {
+        this.followedBy = followedBy;
+    }
+
 
 
     public User(String username, String email, String password, int age, String gender) {
@@ -53,24 +70,6 @@ public class User {
 
     public User() { }
 
-
-    public void follow(User user) {
-        this.followingList.add(user);
-        user.getFollowedList().add(this);
-    }
-
-    public void stopFollow(User u) {
-        this.followingList.remove(u);
-        u.getFollowedList().remove(this);
-    }
-
-    public Set<User> getFollowingList() {
-        return followingList;
-    }
-
-    public Set<User> getFollowedList() {
-        return followedList;
-    }
 
     public String getSalt() {
         return salt;
