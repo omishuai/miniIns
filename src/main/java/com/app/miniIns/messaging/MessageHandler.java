@@ -1,72 +1,117 @@
 package com.app.miniIns.messaging;
 
 import com.app.miniIns.entities.Message;
+import com.app.miniIns.entities.User;
 import com.app.miniIns.services.MessageService;
 import com.app.miniIns.services.UserService;
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 
-
-
+@Component
 public class MessageHandler extends TextWebSocketHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageHandler.class);
 
     HashMap<String, WebSocketSession> sessionsByclientName = new HashMap<>();
 
     @Autowired
     MessageService messageService;
+
     @Autowired
     UserService userService;
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 
+        LOGGER.info("Received message: "+ message.getPayload());
         Map value = new Gson().fromJson(message.getPayload(), Map.class);
         String type = (String) value.get("type");
+
+
         if (type.equals("ack")) {
-            int messageId = (int)value.get("messageId");
+            double messageId = (Double)value.get("messageId");
             // remove from database;
-            messageService.deleteById(messageId);
+            messageService.deleteById((int)messageId);
+
+            LOGGER.info(messageId + "  IS deleted from db");
             return;
         }
 
         String sender = session.getPrincipal().getName();
         String receiver = (String) value.get("receiver");
-        String text = (String) value.get("text");
+        String text = (String) value.get("message");
 
-        messageService.addMessage(new Message(
+        WebSocketSession webSocketSenderSession = sessionsByclientName.get(sender);
+        if (webSocketSenderSession == null) return;
+
+        Message msg = messageService.addMessage(new Message(
                 userService.findByUsername(sender),
                 userService.findByUsername(receiver),
                 text));
 
-        WebSocketSession webSocketSenderSession = sessionsByclientName.get(sender);
-        webSocketSenderSession.sendMessage(new TextMessage("Message has been Received on Server"));
+
+        webSocketSenderSession.sendMessage(new TextMessage(
+                String.format("{type: \"%s\", message: \"%s\", messageId: %d, sender: \"%s\", receiver: \"%s\"}",
+                        "ack",
+                        "has been Received on Server",
+                        msg.getId(),
+                        msg.getSender().getUsername(),
+                        msg.getReceiver().getUsername()
+                        ))
+        );
 
         WebSocketSession webSocketReceiverSession = sessionsByclientName.get(receiver);
 
         if (webSocketReceiverSession != null) {
-            webSocketReceiverSession.sendMessage(new TextMessage(sender + value.get("text")));
+            webSocketReceiverSession.sendMessage(new TextMessage(
+                    String.format("{type: \"%s\", message: \"%s\", messageId: %d, sender: \"%s\", receiver: \"%s\", time:\"%s\"}",
+                    "message",
+                    msg.getText(),
+                    msg.getId(),
+                    msg.getSender().getUsername(),
+                    msg.getReceiver().getUsername(),
+                    msg.getCreateDateTime()
+            )));
         }
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         // Session here refers to a connection to the user
-        String username =  session.getPrincipal().getName();
+        String username =   session.getPrincipal().getName();
+
+        LOGGER.info("User " + username + " is Connecting to Server through " + session);
+
         sessionsByclientName.put(username, session);
 
         // send all the messages that are pending for current user
-       List<Message> messages =  messageService.findByReceiverId(userService.findByUsername(username).getId());
+        User user = userService.findByUsername(username);
+        LOGGER.info("" + user);
+
+       List<Message> messages =  messageService.findByReceiverId(user.getId());
        for (Message message: messages) {
 
            // send to the user
-           session.sendMessage(new TextMessage(message.getText()));
+           session.sendMessage(new TextMessage(
+                   String.format("{type: \"%s\", message: \"%s\", messageId: %d, sender: \"%s\", receiver: \"%s\", time:\"%s\"}",
+                           "message",
+                           message.getText(),
+                           message.getId(),
+                           message.getSender().getUsername(),
+                           message.getReceiver().getUsername(),
+                           message.getCreateDateTime()
+                           ))
+           );
+           Thread.sleep(1000);
        }
     }
 

@@ -1,11 +1,28 @@
 package com.app.miniIns.messaging;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
+@Configuration
+@EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
+
+    @Autowired
+    MessageHandler messageHandler;
+
+    public MessageHandler getMessageHandler() {
+        return messageHandler;
+    }
+
+    public void setMessageHandler(MessageHandler messageHandler) {
+        this.messageHandler = messageHandler;
+    }
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
-        webSocketHandlerRegistry.addHandler(new MessageHandler(), "/message");
+        webSocketHandlerRegistry.addHandler(messageHandler, "/message");
     }
 }

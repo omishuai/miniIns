@@ -1,6 +1,7 @@
 package com.app.miniIns.cucumber.bdd.stepdefs;
 
 import com.app.miniIns.cucumber.bdd.*;
+import com.app.miniIns.services.MessageService;
 import com.app.miniIns.services.PhotoRepository;
 import com.app.miniIns.services.UserRepository;
 import com.app.miniIns.entities.*;
@@ -11,8 +12,11 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.aspectj.apache.bcel.generic.LOOKUPSWITCH;
 import org.junit.jupiter.api.Assertions;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
@@ -20,12 +24,24 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketHttpHeaders;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.client.WebSocketClient;
+import org.springframework.web.socket.client.standard.StandardWebSocketClient;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 public class RegisterStepdefs {
 
@@ -202,5 +218,92 @@ public class RegisterStepdefs {
                 String.class);
 
         log.info(response.getBody());
+    }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RegisterStepdefs.class);
+
+
+    HashMap<String, WebSocketSession> webSocketSessionHashMap = new HashMap<>();
+    HashMap<String, String> msgMap = new HashMap<>();
+
+    @And("User with username {string} opens a socket to {string} named {string}")
+    public void userWithUsernameOpensASocketToNamed(String username, String endpoint, String websocket) throws ExecutionException, InterruptedException {
+
+        WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
+//        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        String sec = (String) userAuthMap.get(username);
+        if (sec != null) headers.setBearerAuth(sec);
+
+        WebSocketClient webSocketClient = new StandardWebSocketClient();
+
+        // Client Side Handler that handles the message from server, and it is client side code
+        WebSocketSession webSocketSession = webSocketClient.doHandshake(new TextWebSocketHandler() {
+                @Override
+                public void handleTextMessage(WebSocketSession session, TextMessage message) {
+                    LOGGER.info("received message - " + message.getPayload());
+                    msgMap.put(websocket, message.getPayload());
+
+                }
+                @Override
+                public void afterConnectionEstablished(WebSocketSession session) throws InterruptedException {
+                    Thread.sleep(1000); // simulated delay
+                    LOGGER.info("established connection - " + session);
+                }
+            }, headers, URI.create("ws://localhost:8080"+endpoint)
+        ).get();
+
+        webSocketSessionHashMap.put(websocket, webSocketSession);
+    }
+
+    @When("User sends message type {string} message {string} to {string} through socket {string}")
+    public void userSendsMessageTypeMessageToThroughSocket(String messageType, String message, String receiver, String websocket) {
+
+//        newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            try {
+                TextMessage textMessage;
+                if (messageType.equals("ack")) {
+                    String str = msgMap.get(websocket);
+                    int id = JsonPath.read(str, "$.messageId");
+                    textMessage = new TextMessage(String.format("{type: \"%s\", message: \"%s\", messageId: %d}", messageType, message, id));
+                }
+                else textMessage = new TextMessage(String.format("{type: \"%s\", message: \"%s\", receiver: \"%s\"}", messageType, message, receiver));
+
+                webSocketSessionHashMap.get(websocket).sendMessage(textMessage);
+                LOGGER.info("sent message - " + textMessage.getPayload());
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                LOGGER.error("Exception while sending a message", e);
+            }
+//            }
+//        }, 1, 10, TimeUnit.SECONDS);
+    }
+
+
+
+    String message = "";
+    @Then("consume message from websocket {string}")
+    public void consumeMessageFromWebsocket(String websocket) {
+        message = msgMap.get(websocket);
+
+        LOGGER.info("Received from " + websocket + ": " + message);
+    }
+
+    @Autowired
+    MessageService messageService;
+
+    @And("Message Table contains {int} entry")
+    public void messageTableContainsEntry(int count) {
+        Assertions.assertEquals(messageService.findAll().size(), count);
+    }
+
+
+    @Then("message has {string} for {string}")
+    public void websocketReturnsFor(String value, String path) {
+        Assertions.assertEquals(JsonPath.read(message, path), value);
+    }
+
+    @And("{string} disconnects")
+    public void disconnects(String websocket) throws IOException {
+        webSocketSessionHashMap.get(websocket).close();
     }
 }
