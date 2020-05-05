@@ -111,7 +111,7 @@ public class MessageHandler extends TextWebSocketHandler {
                            message.getCreateDateTime()
                            ))
            );
-           Thread.sleep(1000);
+//           Thread.sleep(1000);
        }
     }
 

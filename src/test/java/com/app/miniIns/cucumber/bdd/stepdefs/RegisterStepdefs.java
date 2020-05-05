@@ -34,6 +34,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.WatchEvent;
 import java.util.Iterator;
 
 
@@ -56,6 +57,8 @@ public class RegisterStepdefs {
     @Autowired
     private PhotoRepository photoRepository;
 
+    @Autowired
+    MessageService messageService;
 
     RestTemplate restTemplate;
     ResponseEntity<String> response;
@@ -224,7 +227,7 @@ public class RegisterStepdefs {
 
 
     HashMap<String, WebSocketSession> webSocketSessionHashMap = new HashMap<>();
-    HashMap<String, String> msgMap = new HashMap<>();
+    HashMap<String, List<String>> msgMap = new HashMap<>();
 
     @And("User with username {string} opens a socket to {string} named {string}")
     public void userWithUsernameOpensASocketToNamed(String username, String endpoint, String websocket) throws ExecutionException, InterruptedException {
@@ -241,12 +244,13 @@ public class RegisterStepdefs {
                 @Override
                 public void handleTextMessage(WebSocketSession session, TextMessage message) {
                     LOGGER.info("received message - " + message.getPayload());
-                    msgMap.put(websocket, message.getPayload());
-
+                    List<String> messages = new LinkedList<>();
+                    if (msgMap.containsKey(websocket))  messages = msgMap.get(websocket);
+                    messages.add(message.getPayload());
+                    msgMap.put(websocket, messages);
                 }
                 @Override
                 public void afterConnectionEstablished(WebSocketSession session) throws InterruptedException {
-                    Thread.sleep(1000); // simulated delay
                     LOGGER.info("established connection - " + session);
                 }
             }, headers, URI.create("ws://localhost:8080"+endpoint)
@@ -255,46 +259,39 @@ public class RegisterStepdefs {
         webSocketSessionHashMap.put(websocket, webSocketSession);
     }
 
-    @When("User sends message type {string} message {string} to {string} through socket {string}")
-    public void userSendsMessageTypeMessageToThroughSocket(String messageType, String message, String receiver, String websocket) {
+    @When("User sends message {string} to {string} through socket {string}")
+    public void userSendsMessageTypeMessageToThroughSocket(String message, String receiver, String websocket) {
 
-//        newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            try {
-                TextMessage textMessage;
-                if (messageType.equals("ack")) {
-                    String str = msgMap.get(websocket);
-                    int id = JsonPath.read(str, "$.messageId");
-                    textMessage = new TextMessage(String.format("{type: \"%s\", message: \"%s\", messageId: %d}", messageType, message, id));
-                }
-                else textMessage = new TextMessage(String.format("{type: \"%s\", message: \"%s\", receiver: \"%s\"}", messageType, message, receiver));
-
-                webSocketSessionHashMap.get(websocket).sendMessage(textMessage);
-                LOGGER.info("sent message - " + textMessage.getPayload());
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                LOGGER.error("Exception while sending a message", e);
-            }
-//            }
-//        }, 1, 10, TimeUnit.SECONDS);
+        try {
+            TextMessage textMessage = new TextMessage(String.format("{type: \"message\", message: \"%s\", receiver: \"%s\"}", message, receiver));
+            webSocketSessionHashMap.get(websocket).sendMessage(textMessage);
+            LOGGER.info("sent message - " + textMessage.getPayload());
+        } catch (Exception e) {
+            LOGGER.error("Exception while sending a message", e);
+        }
     }
-
-
 
     String message = "";
     @Then("consume message from websocket {string}")
-    public void consumeMessageFromWebsocket(String websocket) {
-        message = msgMap.get(websocket);
-
+    public void consumeMessageFromWebsocket(String websocket) throws InterruptedException {
+        Thread.sleep(2000);
+        List<String> messages = msgMap.get(websocket);
+        message = messages.remove(0);
         LOGGER.info("Received from " + websocket + ": " + message);
     }
 
-    @Autowired
-    MessageService messageService;
-
-    @And("Message Table contains {int} entry")
-    public void messageTableContainsEntry(int count) {
-        Assertions.assertEquals(messageService.findAll().size(), count);
+    @Then("User sends ack to websocket {string}")
+    public void userSendsAckToWebsocket(String websocket) throws IOException {
+        int id = JsonPath.read(message, "$.messageId");
+        TextMessage textMessage = new TextMessage(String.format("{type: \"ack\", message: \"%s\", messageId: %d}", "Received", id));
+        webSocketSessionHashMap.get(websocket).sendMessage(textMessage);
+        LOGGER.info("send ack message - " + textMessage.getPayload());
     }
+
+
+
+
+
 
 
     @Then("message has {string} for {string}")
