@@ -61,7 +61,7 @@ public class UserService {
     }
 
 
-    public User addUser(@Valid User user) throws Exception {
+    synchronized public User addUser(@Valid User user) throws Exception {
         if (findByEmail(user.getEmail()) != null) throw new DuplicateDataException("Existing Email");
         if (findByUsername(user.getUsername()) != null) throw new DuplicateDataException("Existing Username");
 
