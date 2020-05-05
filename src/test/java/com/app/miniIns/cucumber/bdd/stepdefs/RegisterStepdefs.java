@@ -12,9 +12,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.aspectj.apache.bcel.generic.LOOKUPSWITCH;
 import org.junit.jupiter.api.Assertions;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,19 +28,12 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.WatchEvent;
 import java.util.Iterator;
-
-
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
-import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 public class RegisterStepdefs {
 
@@ -202,6 +193,8 @@ public class RegisterStepdefs {
 
     @When("User with username {string} \\(un)follows {string} through {string}")
     public void userWithUsernameUnfollows(String u1, String u2, String url) {
+
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         String sec = (String)userAuthMap.get(u1);
@@ -233,7 +226,6 @@ public class RegisterStepdefs {
     public void userWithUsernameOpensASocketToNamed(String username, String endpoint, String websocket) throws ExecutionException, InterruptedException {
 
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
-//        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         String sec = (String) userAuthMap.get(username);
         if (sec != null) headers.setBearerAuth(sec);
 
@@ -288,12 +280,6 @@ public class RegisterStepdefs {
         LOGGER.info("send ack message - " + textMessage.getPayload());
     }
 
-
-
-
-
-
-
     @Then("message has {string} for {string}")
     public void websocketReturnsFor(String value, String path) {
         Assertions.assertEquals(JsonPath.read(message, path), value);
@@ -302,5 +288,12 @@ public class RegisterStepdefs {
     @And("{string} disconnects")
     public void disconnects(String websocket) throws IOException {
         webSocketSessionHashMap.get(websocket).close();
+    }
+
+    @And("User with username {string} registers and logs in")
+    public void userWithUsernamePasswordEmailAgeAndGenderRegistersAndLogsIn(String username) throws URISyntaxException {
+        userRegistersWithUsernamePasswordEmailAgeAndGender(username, "password",username+"@server.com", 21, "male");
+        userLoginsWithAnd(username, "password");
+        userWithIsAuthenticated();
     }
 }

@@ -59,15 +59,7 @@ public class MessageHandler extends TextWebSocketHandler {
                 text));
 
 
-        webSocketSenderSession.sendMessage(new TextMessage(
-                String.format("{type: \"%s\", message: \"%s\", messageId: %d, sender: \"%s\", receiver: \"%s\"}",
-                        "ack",
-                        "has been Received on Server",
-                        msg.getId(),
-                        msg.getSender().getUsername(),
-                        msg.getReceiver().getUsername()
-                        ))
-        );
+        webSocketSenderSession.sendMessage(new TextMessage(String.format("{type: \"%s\"}", "ack")));
 
         WebSocketSession webSocketReceiverSession = sessionsByclientName.get(receiver);
 
