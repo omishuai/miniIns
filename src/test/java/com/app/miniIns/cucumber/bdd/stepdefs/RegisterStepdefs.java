@@ -33,6 +33,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 
 public class RegisterStepdefs {
@@ -219,8 +221,8 @@ public class RegisterStepdefs {
     private static final Logger LOGGER = LoggerFactory.getLogger(RegisterStepdefs.class);
 
 
-    HashMap<String, WebSocketSession> webSocketSessionHashMap = new HashMap<>();
-    HashMap<String, List<String>> msgMap = new HashMap<>();
+    Map<String, WebSocketSession> webSocketSessionHashMap = new ConcurrentHashMap<>();
+    Map<String, Queue<String>> msgMap = new Hashtable<>();
 
     @And("User with username {string} opens a socket to {string} named {string}")
     public void userWithUsernameOpensASocketToNamed(String username, String endpoint, String websocket) throws ExecutionException, InterruptedException {
@@ -236,10 +238,8 @@ public class RegisterStepdefs {
                 @Override
                 public void handleTextMessage(WebSocketSession session, TextMessage message) {
                     LOGGER.info("received message - " + message.getPayload());
-                    List<String> messages = new LinkedList<>();
-                    if (msgMap.containsKey(websocket))  messages = msgMap.get(websocket);
+                    Queue<String> messages = msgMap.computeIfAbsent(websocket, key -> new ConcurrentLinkedQueue<String>());
                     messages.add(message.getPayload());
-                    msgMap.put(websocket, messages);
                 }
                 @Override
                 public void afterConnectionEstablished(WebSocketSession session) throws InterruptedException {
@@ -267,8 +267,8 @@ public class RegisterStepdefs {
     @Then("consume message from websocket {string}")
     public void consumeMessageFromWebsocket(String websocket) throws InterruptedException {
         Thread.sleep(2000);
-        List<String> messages = msgMap.get(websocket);
-        message = messages.remove(0);
+        Queue<String> messages = msgMap.get(websocket);
+        message = messages.poll();
         LOGGER.info("Received from " + websocket + ": " + message);
     }
 
