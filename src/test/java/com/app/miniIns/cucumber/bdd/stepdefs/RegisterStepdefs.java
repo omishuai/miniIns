@@ -1,6 +1,7 @@
 package com.app.miniIns.cucumber.bdd.stepdefs;
 
 import com.app.miniIns.cucumber.bdd.*;
+import com.app.miniIns.services.MessageRepository;
 import com.app.miniIns.services.MessageService;
 import com.app.miniIns.services.PhotoRepository;
 import com.app.miniIns.services.UserRepository;
@@ -49,6 +50,9 @@ public class RegisterStepdefs {
 
     @Autowired
     private PhotoRepository photoRepository;
+
+    @Autowired
+    private MessageRepository messageRepository;
 
     @Autowired
     MessageService messageService;
@@ -100,6 +104,10 @@ public class RegisterStepdefs {
 
     @Given("empty database")
     public void emptyDatabase() {
+        messageRepository.deleteAll();
+        Iterator<Message> message= messageRepository.findAll().iterator();
+        Assertions.assertFalse(message.hasNext());
+
         photoRepository.deleteAll();
         Iterator<Photo> photo = photoRepository.findAll().iterator();
         Assertions.assertFalse(photo.hasNext());
@@ -107,6 +115,11 @@ public class RegisterStepdefs {
         userRepository.deleteAll();
         Iterator<User> user = userRepository.findAll().iterator();
         Assertions.assertFalse(user.hasNext());
+
+        userAuthMap.clear();
+        msgMap.clear();
+        webSocketSessionHashMap.clear();
+
     }
 
 
@@ -234,22 +247,27 @@ public class RegisterStepdefs {
         WebSocketClient webSocketClient = new StandardWebSocketClient();
 
         // Client Side Handler that handles the message from server, and it is client side code
-        WebSocketSession webSocketSession = webSocketClient.doHandshake(new TextWebSocketHandler() {
-                @Override
-                public void handleTextMessage(WebSocketSession session, TextMessage message) {
-                    LOGGER.info("received message - " + message.getPayload());
-                    Queue<String> messages = msgMap.computeIfAbsent(websocket, key -> new ConcurrentLinkedQueue<String>());
-                    messages.add(message.getPayload());
-                }
-                @Override
-                public void afterConnectionEstablished(WebSocketSession session) throws InterruptedException {
-                    LOGGER.info("established connection - " + session);
-                }
-            }, headers, URI.create("ws://localhost:8080"+endpoint)
-        ).get();
 
-        webSocketSessionHashMap.put(websocket, webSocketSession);
+            WebSocketSession webSocketSession = webSocketClient.doHandshake(
+                    new TextWebSocketHandler() {
+                        @Override
+                        public void handleTextMessage(WebSocketSession session, TextMessage message) {
+                            LOGGER.info("received message - " + message.getPayload() + " from " + websocket);
+                            Queue<String> messages = msgMap.computeIfAbsent(websocket, key -> new ConcurrentLinkedQueue<String>());
+                            messages.add(message.getPayload());
+                        }
+
+                        @Override
+                        public void afterConnectionEstablished(WebSocketSession session) throws InterruptedException {
+                            LOGGER.info("established connection - " + session);
+                        }
+                        }, headers, URI.create("ws://localhost:8080" + endpoint)
+            ).get();
+
+            webSocketSessionHashMap.put(websocket, webSocketSession);
+
     }
+    Exception exception;
 
     @When("User sends message {string} to {string} through socket {string}")
     public void userSendsMessageTypeMessageToThroughSocket(String message, String receiver, String websocket) {
@@ -257,9 +275,10 @@ public class RegisterStepdefs {
         try {
             TextMessage textMessage = new TextMessage(String.format("{type: \"message\", message: \"%s\", receiver: \"%s\"}", message, receiver));
             webSocketSessionHashMap.get(websocket).sendMessage(textMessage);
-            LOGGER.info("sent message - " + textMessage.getPayload());
+            LOGGER.info("sent message - " + textMessage.getPayload() + " through "+ websocket);
         } catch (Exception e) {
             LOGGER.error("Exception while sending a message", e);
+            exception = e;
         }
     }
 
@@ -268,8 +287,14 @@ public class RegisterStepdefs {
     public void consumeMessageFromWebsocket(String websocket) throws InterruptedException {
         Thread.sleep(2000);
         Queue<String> messages = msgMap.get(websocket);
+
+        if (messages == null || messages.size() == 0) {
+            message = "";
+            return;
+        }
+        LOGGER.info(websocket + "Has " + messages.size() + " Messages");
         message = messages.poll();
-        LOGGER.info("Received from " + websocket + ": " + message);
+        LOGGER.info("polling " + message + " From " + websocket);
     }
 
     @Then("User sends ack to websocket {string}")
@@ -277,7 +302,15 @@ public class RegisterStepdefs {
         int id = JsonPath.read(message, "$.messageId");
         TextMessage textMessage = new TextMessage(String.format("{type: \"ack\", message: \"%s\", messageId: %d}", "Received", id));
         webSocketSessionHashMap.get(websocket).sendMessage(textMessage);
-        LOGGER.info("send ack message - " + textMessage.getPayload());
+        LOGGER.info("send ack message - " + textMessage.getPayload() + " through socket " + websocket);
+    }
+
+
+    @Then("User sends ack to websocket {string} with wrong id {int}")
+    public void userSendsAckToWebsocketWithWrongId(String websocket, int id) throws IOException {
+        TextMessage textMessage = new TextMessage(String.format("{type: \"ack\", message: \"%s\", messageId: %d}", "Received", id));
+        webSocketSessionHashMap.get(websocket).sendMessage(textMessage);
+        LOGGER.info("send ack message - " + textMessage.getPayload() + " through socket " + websocket);
     }
 
     @Then("message has {string} for {string}")
@@ -295,5 +328,29 @@ public class RegisterStepdefs {
         userRegistersWithUsernamePasswordEmailAgeAndGender(username, "password",username+"@server.com", 21, "male");
         userLoginsWithAnd(username, "password");
         userWithIsAuthenticated();
+    }
+
+    @Then("{string} is close")
+    public void isClose(String websocket) {
+        Assertions.assertFalse(webSocketSessionHashMap.get(websocket).isOpen());
+    }
+    @Then("{string} is open")
+    public void isOpen(String websocket) {
+        Assertions.assertTrue(webSocketSessionHashMap.get(websocket).isOpen());
+    }
+
+    @And("wait for message")
+    public void waitForMessage() throws InterruptedException {
+        Thread.sleep(2000);
+    }
+
+    @And("exception has message {string}")
+    public void exceptionHasMessage(String message) {
+        Assertions.assertEquals(exception.getMessage(), message);
+    }
+
+    @Then("there is no message")
+    public void thereIsNoMessage() {
+        Assertions.assertEquals(message, "");
     }
 }

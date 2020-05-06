@@ -34,6 +34,9 @@ public class MessageService {
         return messages;
     }
 
+    public Message findById(int messageId) {
+        return messageRepository.findById(messageId);
+    }
 
     public List<Message> findByReceiverId(int receiverId) {
         List<Message> messages = messageRepository.findByReceiverId(receiverId);
