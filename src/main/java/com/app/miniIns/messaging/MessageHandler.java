@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -62,20 +63,18 @@ public class MessageHandler extends TextWebSocketHandler {
             if (type.equals("ack")) {
                 if (value.get("messageId") == null) throw new Exception(String.format(INVALID_MESSAGE_ID, value.get("messageId")));
                 double messageId = (Double) value.get("messageId");
-                if (messageService.findById((int) messageId) == null) throw new Exception(String.format(INVALID_MESSAGE_ID, (int) messageId));
+                Message msg = messageService.findById((int) messageId);
+                if (msg == null || !msg.getReceiver().getUsername().equals(sender)) throw new Exception(String.format(INVALID_MESSAGE_ID, (int) messageId));
+
+                messageService.deleteById((int)messageId);
+                LOGGER.info("Message " + (int)messageId + " IS deleted from db");
+                return;
             }
             else if (text == null || text.equals("")) throw new Exception (String.format(EMPTY_TEXT, text));
             else if (receiver == null || receiver.equals("") || userService.findByUsername(receiver) == null) throw new Exception(String.format(RECIPIENT_NOT_FOUND, receiver));
             else if (receiver.equals(sender)) throw new Exception(String.format(CANNOT_SEND_TO_SELF, sender, receiver));
         } catch (Exception e ) {
             webSocketSenderSession.sendMessage(new TextMessage(String.format("{type: \"%s\", message: \"%s\"}", "error", e.getMessage())));
-            return;
-        }
-
-        if (type.equals("ack")) {
-            double messageId = (Double) value.get("messageId");
-            messageService.deleteById((int)messageId);
-            LOGGER.info((int)messageId + "  IS deleted from db");
             return;
         }
 
