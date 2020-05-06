@@ -32,6 +32,7 @@ public class MessageHandler extends TextWebSocketHandler {
     private String CANNOT_SEND_TO_SELF = "Sender %s Cannot Send to Recipient %s";
     private String EMPTY_TEXT = "Invalid Text From User. Text: %s";
     private String INVALID_MESSAGE_ID = "Invalid Message ID %s";
+
     @Autowired
     MessageService messageService;
 
@@ -39,50 +40,42 @@ public class MessageHandler extends TextWebSocketHandler {
     UserService userService;
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-
-        String errorMessage = "";
-        Map value = null;
-        try {
-            value = new Gson().fromJson(message.getPayload(), Map.class);
-        } catch (Exception e) {
-            errorMessage = e.getMessage();
-        }
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception{
 
         String sender = session.getPrincipal().getName();
         WebSocketSession webSocketSenderSession = sessionsByclientName.get(sender);
+        if (webSocketSenderSession == null) throw new Exception("WebSocket For " + sender + " Is Not Connected");
 
-        if (value == null) {
-            webSocketSenderSession.sendMessage(new TextMessage(String.format("{type: \"%s\", message: \"%s\"}", "error", errorMessage)));
-            return;
-        }
+        String type;
+        String receiver;
+        String text;
+        Map value;
 
-        String type = (String) value.get("type");
-        String receiver = (String) value.get("receiver");
-        String text = (String) value.get("message");
+        // Error handling while parsing fields from message
+        try {
+            value = new Gson().fromJson(message.getPayload(), Map.class);
+            type = (String) value.get("type");
+            text = (String) value.get("message");
+            receiver = (String) value.get("receiver");
 
-        if (type == null || (!type.equals("ack") && !type.equals("message"))) errorMessage = String.format(MESSAGE_TYPE_NOT_FOUND, type);
-        else if (type.equals("ack")) {
-            if (value.get("messageId") == null) errorMessage = String.format(INVALID_MESSAGE_ID, value.get("messageId"));
-            else {
+            if (type == null || (!type.equals("ack") && !type.equals("message"))) throw new Exception(String.format(MESSAGE_TYPE_NOT_FOUND, type));
+            if (type.equals("ack")) {
+                if (value.get("messageId") == null) throw new Exception(String.format(INVALID_MESSAGE_ID, value.get("messageId")));
                 double messageId = (Double) value.get("messageId");
-                if (messageService.findById((int) messageId) == null) errorMessage = String.format(INVALID_MESSAGE_ID, (int)messageId);
+                if (messageService.findById((int) messageId) == null) throw new Exception(String.format(INVALID_MESSAGE_ID, (int) messageId));
             }
-        }
-        else if (receiver == null || receiver.equals("") || userService.findByUsername(receiver) == null) errorMessage = String.format(RECIPIENT_NOT_FOUND, receiver);
-        else if (receiver.equals(sender)) errorMessage = String.format(CANNOT_SEND_TO_SELF, sender, receiver);
-        else if (text == null || text.equals("")) errorMessage = String.format(EMPTY_TEXT, text);
-
-
-        if (!errorMessage.equals("")) {
-            webSocketSenderSession.sendMessage(new TextMessage(String.format("{type: \"%s\", message: \"%s\"}", "error", errorMessage)));
+            else if (text == null || text.equals("")) throw new Exception (String.format(EMPTY_TEXT, text));
+            else if (receiver == null || receiver.equals("") || userService.findByUsername(receiver) == null) throw new Exception(String.format(RECIPIENT_NOT_FOUND, receiver));
+            else if (receiver.equals(sender)) throw new Exception(String.format(CANNOT_SEND_TO_SELF, sender, receiver));
+        } catch (Exception e ) {
+            webSocketSenderSession.sendMessage(new TextMessage(String.format("{type: \"%s\", message: \"%s\"}", "error", e.getMessage())));
             return;
         }
 
         if (type.equals("ack")) {
             double messageId = (Double) value.get("messageId");
             messageService.deleteById((int)messageId);
-            LOGGER.info(messageId + "  IS deleted from db");
+            LOGGER.info((int)messageId + "  IS deleted from db");
             return;
         }
 
@@ -94,7 +87,6 @@ public class MessageHandler extends TextWebSocketHandler {
         webSocketSenderSession.sendMessage(new TextMessage(String.format("{type: \"%s\"}", "ack")));
 
         WebSocketSession webSocketReceiverSession = sessionsByclientName.get(receiver);
-
         if (webSocketReceiverSession != null) {
             webSocketReceiverSession.sendMessage(new TextMessage(
                     String.format("{type: \"%s\", message: \"%s\", messageId: %d, sender: \"%s\", receiver: \"%s\", time:\"%s\"}",
