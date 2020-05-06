@@ -25,11 +25,12 @@ Feature: Chat
 
 #     Send ack to handler to signify the message has been received
     And User sends ack to websocket "websocket2"
+    And wait
 
 
   Scenario: User1 (Connected) Sends Multiple Messages to User2 (Disconnected, Then Connected)
 
-#    Given empty database
+    Given empty database
     And User with username "username1" registers and logs in
     And User with username "username2" registers and logs in
 

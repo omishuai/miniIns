@@ -339,7 +339,7 @@ public class RegisterStepdefs {
         Assertions.assertTrue(webSocketSessionHashMap.get(websocket).isOpen());
     }
 
-    @And("wait for message")
+    @And("wait")
     public void waitForMessage() throws InterruptedException {
         Thread.sleep(2000);
     }
