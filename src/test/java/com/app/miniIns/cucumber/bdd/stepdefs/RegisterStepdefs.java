@@ -1,7 +1,7 @@
 package com.app.miniIns.cucumber.bdd.stepdefs;
 
 import com.app.miniIns.cucumber.bdd.*;
-import com.app.miniIns.messaging.WebsocketMessages;
+import com.app.miniIns.cucumber.bdd.WebsocketMessages;
 import com.app.miniIns.services.MessageRepository;
 import com.app.miniIns.services.MessageService;
 import com.app.miniIns.services.PhotoRepository;
@@ -36,7 +36,6 @@ import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 
 public class RegisterStepdefs {
@@ -273,6 +272,7 @@ public class RegisterStepdefs {
                     }, headers, URI.create("ws://localhost:8080" + endpoint)
         ).get();
         webSocketSessionHashMap.put(websocket, webSocketSession);
+        websocketMessages.openSocket(websocket);
 
     }
     Exception exception;
