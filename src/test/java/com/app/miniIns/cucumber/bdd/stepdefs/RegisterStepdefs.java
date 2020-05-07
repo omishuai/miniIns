@@ -108,8 +108,8 @@ public class RegisterStepdefs {
     public void emptyDatabase() throws IOException {
         userAuthMap.clear();
 
-        for (Map.Entry websocket : webSocketSessionHashMap.entrySet())
-            ((WebSocketSession)websocket.getValue()).close();
+        for (WebSocketSession webSocketSession : webSocketSessionHashMap.values())
+            webSocketSession.close();
 
         webSocketSessionHashMap.clear();
         websocketMessages.clear();
