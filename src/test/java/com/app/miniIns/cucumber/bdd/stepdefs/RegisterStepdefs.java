@@ -105,11 +105,14 @@ public class RegisterStepdefs {
     }
 
     @Given("empty database")
-    public void emptyDatabase() {
+    public void emptyDatabase() throws IOException {
         userAuthMap.clear();
-//        msgMap.clear();
-        websocketMessages.clear();
+
+        for (Map.Entry websocket : webSocketSessionHashMap.entrySet())
+            ((WebSocketSession)websocket.getValue()).close();
+
         webSocketSessionHashMap.clear();
+        websocketMessages.clear();
 
         messageRepository.deleteAll();
         Iterator<Message> message= messageRepository.findAll().iterator();
@@ -171,7 +174,6 @@ public class RegisterStepdefs {
         String sec = (String)userAuthMap.get(user);
         if (sec != null)
             headers.setBearerAuth(sec);
-
 
         // build the request
         HttpEntity request = new HttpEntity(headers);
@@ -259,10 +261,6 @@ public class RegisterStepdefs {
                     public void handleTextMessage(WebSocketSession session, TextMessage message) throws InterruptedException {
                         LOGGER.info("received message - " + message.getPayload() + " from " + websocket);
                         websocketMessages.addMessage(websocket, message.getPayload());
-
-
-//                        Queue<String> messages = msgMap.computeIfAbsent(websocket, key -> new ConcurrentLinkedQueue<String>());
-//                        messages.add(message.getPayload());
                     }
 
                     @Override
@@ -293,18 +291,7 @@ public class RegisterStepdefs {
 
     @Then("consume message from websocket {string}")
     public void consumeMessageFromWebsocket(String websocket) throws InterruptedException {
-//        Thread.sleep(2000);
-//        Queue<String> messages = msgMap.get(websocket);
-//
-//        if (messages == null || messages.size() == 0) {
-//            currentMessage = "";
-//            return;
-//        }
-//        LOGGER.info(websocket + "Has " + messages.size() + " Messages");
-//        currentMessage = messages.poll();
-//        LOGGER.info("polling " + currentMessage + " From " + websocket);
         currentMessage = websocketMessages.pollMessage(websocket);
-
     }
 
     @Then("User sends ack to websocket {string}")

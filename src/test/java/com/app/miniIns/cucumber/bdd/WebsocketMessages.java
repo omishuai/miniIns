@@ -1,7 +1,5 @@
 package com.app.miniIns.cucumber.bdd;
 
-import com.app.miniIns.entities.Message;
-
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Queue;
@@ -22,8 +20,7 @@ public class WebsocketMessages {
     public String pollMessage(String websocket) throws InterruptedException {
         if (semaphoreMap.get(websocket).tryAcquire(2L, TimeUnit.SECONDS)) {
             Queue<String> messages = queueMap.get(websocket);
-            if (messages != null && messages.size() > 0)
-                return messages.poll();
+            return messages.poll();
         }
         return "";
     }
@@ -41,5 +38,6 @@ public class WebsocketMessages {
 
     public void clear(){
         queueMap.clear();
+        semaphoreMap.clear();
     }
 }
