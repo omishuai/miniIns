@@ -104,6 +104,10 @@ public class RegisterStepdefs {
 
     @Given("empty database")
     public void emptyDatabase() {
+        userAuthMap.clear();
+        msgMap.clear();
+        webSocketSessionHashMap.clear();
+
         messageRepository.deleteAll();
         Iterator<Message> message= messageRepository.findAll().iterator();
         Assertions.assertFalse(message.hasNext());
@@ -116,9 +120,6 @@ public class RegisterStepdefs {
         Iterator<User> user = userRepository.findAll().iterator();
         Assertions.assertFalse(user.hasNext());
 
-        userAuthMap.clear();
-        msgMap.clear();
-        webSocketSessionHashMap.clear();
 
     }
 
@@ -247,24 +248,22 @@ public class RegisterStepdefs {
         WebSocketClient webSocketClient = new StandardWebSocketClient();
 
         // Client Side Handler that handles the message from server, and it is client side code
+        WebSocketSession webSocketSession = webSocketClient.doHandshake(
+                new TextWebSocketHandler() {
+                    @Override
+                    public void handleTextMessage(WebSocketSession session, TextMessage message) {
+                        LOGGER.info("received message - " + message.getPayload() + " from " + websocket);
+                        Queue<String> messages = msgMap.computeIfAbsent(websocket, key -> new ConcurrentLinkedQueue<String>());
+                        messages.add(message.getPayload());
+                    }
 
-            WebSocketSession webSocketSession = webSocketClient.doHandshake(
-                    new TextWebSocketHandler() {
-                        @Override
-                        public void handleTextMessage(WebSocketSession session, TextMessage message) {
-                            LOGGER.info("received message - " + message.getPayload() + " from " + websocket);
-                            Queue<String> messages = msgMap.computeIfAbsent(websocket, key -> new ConcurrentLinkedQueue<String>());
-                            messages.add(message.getPayload());
-                        }
-
-                        @Override
-                        public void afterConnectionEstablished(WebSocketSession session) throws InterruptedException {
-                            LOGGER.info("established connection - " + session);
-                        }
-                        }, headers, URI.create("ws://localhost:8080" + endpoint)
-            ).get();
-
-            webSocketSessionHashMap.put(websocket, webSocketSession);
+                    @Override
+                    public void afterConnectionEstablished(WebSocketSession session) throws InterruptedException {
+                        LOGGER.info("established connection - " + session);
+                    }
+                    }, headers, URI.create("ws://localhost:8080" + endpoint)
+        ).get();
+        webSocketSessionHashMap.put(websocket, webSocketSession);
 
     }
     Exception exception;
@@ -337,11 +336,6 @@ public class RegisterStepdefs {
     @Then("{string} is open")
     public void isOpen(String websocket) {
         Assertions.assertTrue(webSocketSessionHashMap.get(websocket).isOpen());
-    }
-
-    @And("wait")
-    public void waitForMessage() throws InterruptedException {
-        Thread.sleep(2000);
     }
 
     @And("exception has message {string}")
