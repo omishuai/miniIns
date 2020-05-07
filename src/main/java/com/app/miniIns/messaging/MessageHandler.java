@@ -46,9 +46,13 @@ public class MessageHandler extends TextWebSocketHandler {
         try {
             Map value = new Gson().fromJson(message.getPayload(), Map.class);
             String type = (String) value.get("type");
-            if (type.equals("ack")) processAckMessage(sender, value);
-            else if (type.equals("message")) processSendMessage(sender, webSocketSenderSession, value);
-            else throw new Exception(String.format(MESSAGE_TYPE_NOT_FOUND, type));
+            if (type.equals("ack")) {
+                processAckMessage(sender, value);
+            } else if (type.equals("message")) {
+                processSendMessage(sender, webSocketSenderSession, value);
+            } else {
+                throw new Exception(String.format(MESSAGE_TYPE_NOT_FOUND, type));
+            }
         } catch (Exception e) {
             webSocketSenderSession.sendMessage(new TextMessage(String.format("{type: \"%s\", message: \"%s\"}", "error", e.getMessage())));
         }
@@ -59,13 +63,15 @@ public class MessageHandler extends TextWebSocketHandler {
         String receiver = (String) value.get("receiver");
         String text = (String) value.get("message");
 
-        if (StringUtils.isEmpty(text)) throw new Exception (String.format(EMPTY_TEXT, text));
-        else if (StringUtils.isEmpty(receiver) || userService.findByUsername(receiver) == null) throw new Exception(String.format(RECIPIENT_NOT_FOUND, receiver));
-        else if (receiver.equals(sender)) throw new Exception(String.format(CANNOT_SEND_TO_SELF, sender, receiver));
-
+        if (StringUtils.isEmpty(text)) {
+            throw new Exception (String.format(EMPTY_TEXT, text));
+        } else if (receiver.equals(sender)) {
+            throw new Exception(String.format(CANNOT_SEND_TO_SELF, sender, receiver));
+        }
+        User receiverUser =  getRecipient(receiver);
         Message msg = messageService.addMessage(new Message(
                 userService.findByUsername(sender),
-                userService.findByUsername(receiver),
+                receiverUser,
                 text));
 
         session.sendMessage(new TextMessage(String.format("{type: \"%s\"}", "ack")));
@@ -82,7 +88,14 @@ public class MessageHandler extends TextWebSocketHandler {
                             msg.getCreateDateTime()
                     )));
         }
+    }
 
+    private User getRecipient(String username) throws Exception {
+        if (!StringUtils.isEmpty(username))  {
+           User user = userService.findByUsername(username);
+           if (user != null) return user;
+        }
+        throw new Exception(String.format(RECIPIENT_NOT_FOUND, username));
     }
 
     private void processAckMessage(String sender, Map value) throws Exception{

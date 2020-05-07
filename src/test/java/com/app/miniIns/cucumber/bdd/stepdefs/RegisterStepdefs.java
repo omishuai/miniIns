@@ -1,6 +1,7 @@
 package com.app.miniIns.cucumber.bdd.stepdefs;
 
 import com.app.miniIns.cucumber.bdd.*;
+import com.app.miniIns.messaging.WebsocketMessages;
 import com.app.miniIns.services.MessageRepository;
 import com.app.miniIns.services.MessageService;
 import com.app.miniIns.services.PhotoRepository;
@@ -60,6 +61,8 @@ public class RegisterStepdefs {
     RestTemplate restTemplate;
     ResponseEntity<String> response;
 
+    private WebsocketMessages websocketMessages =  new WebsocketMessages();
+
     @And("User with username {string},password {string}, email {string}, age {int} and gender {string} exists")
     @When("User registers with username {string},password {string}, email {string}, age {int} and gender {string}")
     public void userRegistersWithUsernamePasswordEmailAgeAndGender(String username, String password, String email, int age, String gender) throws URISyntaxException {
@@ -105,7 +108,8 @@ public class RegisterStepdefs {
     @Given("empty database")
     public void emptyDatabase() {
         userAuthMap.clear();
-        msgMap.clear();
+//        msgMap.clear();
+        websocketMessages.clear();
         webSocketSessionHashMap.clear();
 
         messageRepository.deleteAll();
@@ -238,6 +242,8 @@ public class RegisterStepdefs {
     Map<String, WebSocketSession> webSocketSessionHashMap = new ConcurrentHashMap<>();
     Map<String, Queue<String>> msgMap = new Hashtable<>();
 
+    String currentMessage = "";
+
     @And("User with username {string} opens a socket to {string} named {string}")
     public void userWithUsernameOpensASocketToNamed(String username, String endpoint, String websocket) throws ExecutionException, InterruptedException {
 
@@ -251,10 +257,13 @@ public class RegisterStepdefs {
         WebSocketSession webSocketSession = webSocketClient.doHandshake(
                 new TextWebSocketHandler() {
                     @Override
-                    public void handleTextMessage(WebSocketSession session, TextMessage message) {
+                    public void handleTextMessage(WebSocketSession session, TextMessage message) throws InterruptedException {
                         LOGGER.info("received message - " + message.getPayload() + " from " + websocket);
-                        Queue<String> messages = msgMap.computeIfAbsent(websocket, key -> new ConcurrentLinkedQueue<String>());
-                        messages.add(message.getPayload());
+                        websocketMessages.addMessage(websocket, message.getPayload());
+
+
+//                        Queue<String> messages = msgMap.computeIfAbsent(websocket, key -> new ConcurrentLinkedQueue<String>());
+//                        messages.add(message.getPayload());
                     }
 
                     @Override
@@ -281,24 +290,26 @@ public class RegisterStepdefs {
         }
     }
 
-    String message = "";
+
     @Then("consume message from websocket {string}")
     public void consumeMessageFromWebsocket(String websocket) throws InterruptedException {
-        Thread.sleep(2000);
-        Queue<String> messages = msgMap.get(websocket);
+//        Thread.sleep(2000);
+//        Queue<String> messages = msgMap.get(websocket);
+//
+//        if (messages == null || messages.size() == 0) {
+//            currentMessage = "";
+//            return;
+//        }
+//        LOGGER.info(websocket + "Has " + messages.size() + " Messages");
+//        currentMessage = messages.poll();
+//        LOGGER.info("polling " + currentMessage + " From " + websocket);
+        currentMessage = websocketMessages.pollMessage(websocket);
 
-        if (messages == null || messages.size() == 0) {
-            message = "";
-            return;
-        }
-        LOGGER.info(websocket + "Has " + messages.size() + " Messages");
-        message = messages.poll();
-        LOGGER.info("polling " + message + " From " + websocket);
     }
 
     @Then("User sends ack to websocket {string}")
     public void userSendsAckToWebsocket(String websocket) throws IOException {
-        int id = JsonPath.read(message, "$.messageId");
+        int id = JsonPath.read(currentMessage, "$.messageId");
         TextMessage textMessage = new TextMessage(String.format("{type: \"ack\", message: \"%s\", messageId: %d}", "Received", id));
         webSocketSessionHashMap.get(websocket).sendMessage(textMessage);
         LOGGER.info("send ack message - " + textMessage.getPayload() + " through socket " + websocket);
@@ -314,7 +325,7 @@ public class RegisterStepdefs {
 
     @Then("message has {string} for {string}")
     public void websocketReturnsFor(String value, String path) {
-        Assertions.assertEquals(JsonPath.read(message, path), value);
+        Assertions.assertEquals(JsonPath.read(currentMessage, path), value);
     }
 
     @And("{string} disconnects")
@@ -345,6 +356,6 @@ public class RegisterStepdefs {
 
     @Then("there is no message")
     public void thereIsNoMessage() {
-        Assertions.assertEquals(message, "");
+        Assertions.assertEquals(currentMessage, "");
     }
 }
