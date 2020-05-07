@@ -11,7 +11,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfig implements WebSocketConfigurer {
 
     @Autowired
-    MessageHandler messageHandler;
+    private MessageHandler messageHandler;
 
     public MessageHandler getMessageHandler() {
         return messageHandler;
