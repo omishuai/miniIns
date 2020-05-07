@@ -5,6 +5,7 @@ import com.app.miniIns.entities.User;
 import com.app.miniIns.services.MessageService;
 import com.app.miniIns.services.UserService;
 import com.google.gson.Gson;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,56 +43,58 @@ public class MessageHandler extends TextWebSocketHandler {
         WebSocketSession webSocketSenderSession = sessionsByclientName.get(sender);
         if (webSocketSenderSession == null) throw new Exception("WebSocket For " + sender + " Is Not Connected");
 
-        String type;
-        String receiver;
-        String text;
-        Map value;
-
-        // Error handling while parsing fields from message
         try {
-            value = new Gson().fromJson(message.getPayload(), Map.class);
-            type = (String) value.get("type");
-            text = (String) value.get("message");
-            receiver = (String) value.get("receiver");
-
-            if (type == null || (!type.equals("ack") && !type.equals("message"))) throw new Exception(String.format(MESSAGE_TYPE_NOT_FOUND, type));
-            if (type.equals("ack")) {
-                if (value.get("messageId") == null) throw new Exception(String.format(INVALID_MESSAGE_ID, value.get("messageId")));
-                double messageId = (Double) value.get("messageId");
-                Message msg = messageService.findById((int) messageId);
-                if (msg == null || !msg.getReceiver().getUsername().equals(sender)) throw new Exception(String.format(INVALID_MESSAGE_ID, (int) messageId));
-
-                messageService.deleteById((int)messageId);
-                LOGGER.info("Message " + (int)messageId + " IS deleted from db");
-                return;
-            }
-            else if (text == null || text.equals("")) throw new Exception (String.format(EMPTY_TEXT, text));
-            else if (receiver == null || receiver.equals("") || userService.findByUsername(receiver) == null) throw new Exception(String.format(RECIPIENT_NOT_FOUND, receiver));
-            else if (receiver.equals(sender)) throw new Exception(String.format(CANNOT_SEND_TO_SELF, sender, receiver));
-        } catch (Exception e ) {
+            Map value = new Gson().fromJson(message.getPayload(), Map.class);
+            String type = (String) value.get("type");
+            if (type.equals("ack")) processAckMessage(sender, value);
+            else if (type.equals("message")) processSendMessage(sender, webSocketSenderSession, value);
+            else throw new Exception(String.format(MESSAGE_TYPE_NOT_FOUND, type));
+        } catch (Exception e) {
             webSocketSenderSession.sendMessage(new TextMessage(String.format("{type: \"%s\", message: \"%s\"}", "error", e.getMessage())));
-            return;
         }
+    }
+
+    private void processSendMessage(String sender, WebSocketSession session, Map value) throws Exception{
+
+        String receiver = (String) value.get("receiver");
+        String text = (String) value.get("message");
+
+        if (StringUtils.isEmpty(text)) throw new Exception (String.format(EMPTY_TEXT, text));
+        else if (StringUtils.isEmpty(receiver) || userService.findByUsername(receiver) == null) throw new Exception(String.format(RECIPIENT_NOT_FOUND, receiver));
+        else if (receiver.equals(sender)) throw new Exception(String.format(CANNOT_SEND_TO_SELF, sender, receiver));
 
         Message msg = messageService.addMessage(new Message(
                 userService.findByUsername(sender),
                 userService.findByUsername(receiver),
                 text));
 
-        webSocketSenderSession.sendMessage(new TextMessage(String.format("{type: \"%s\"}", "ack")));
+        session.sendMessage(new TextMessage(String.format("{type: \"%s\"}", "ack")));
 
         WebSocketSession webSocketReceiverSession = sessionsByclientName.get(receiver);
         if (webSocketReceiverSession != null) {
             webSocketReceiverSession.sendMessage(new TextMessage(
                     String.format("{type: \"%s\", message: \"%s\", messageId: %d, sender: \"%s\", receiver: \"%s\", time:\"%s\"}",
-                    "message",
-                    msg.getText(),
-                    msg.getId(),
-                    msg.getSender().getUsername(),
-                    msg.getReceiver().getUsername(),
-                    msg.getCreateDateTime()
-            )));
+                            "message",
+                            msg.getText(),
+                            msg.getId(),
+                            msg.getSender().getUsername(),
+                            msg.getReceiver().getUsername(),
+                            msg.getCreateDateTime()
+                    )));
         }
+
+    }
+
+    private void processAckMessage(String sender, Map value) throws Exception{
+
+        if (value.get("messageId") == null) throw new Exception(String.format(INVALID_MESSAGE_ID, value.get("messageId")));
+
+        int messageId = ((Double) value.get("messageId")).intValue();
+        Message msg = messageService.findById(messageId);
+        if (msg == null || !msg.getReceiver().getUsername().equals(sender)) throw new Exception(String.format(INVALID_MESSAGE_ID, messageId));
+
+        messageService.deleteById(messageId);
+        LOGGER.info("Message " + messageId + " IS deleted from db");
     }
 
     @Override
@@ -123,7 +126,7 @@ public class MessageHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         sessionsByclientName.remove(session.getPrincipal().getName(), session);
     }
 
