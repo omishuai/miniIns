@@ -37,7 +37,6 @@ public class PhotoService{
         List<User> likedBy = photo.getLikedBy();
         if (likedBy != null && likedBy.contains(user)) {
             likedBy.remove(user);
-            System.out.println(likedBy);
         }
         return photoRepository.save(photo);
     }
