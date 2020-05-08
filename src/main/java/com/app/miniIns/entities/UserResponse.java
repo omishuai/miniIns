@@ -11,6 +11,10 @@ public class UserResponse {
         this.photos = photos;
     }
 
+    public UserResponse(List<ClientPhoto> followedUserPhotos) {
+        this.photos = followedUserPhotos;
+    }
+
     public ClientUser getUser() {
         return user;
     }

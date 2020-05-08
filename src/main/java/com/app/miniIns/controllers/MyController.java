@@ -15,9 +15,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Controller
 public class MyController {
@@ -75,11 +73,11 @@ public class MyController {
         //In case the destination becomes disk, we make controller unaware of s3 bucket
         Photo photo = new Photo(user, file.getOriginalFilename());
 
-        URL url =  fileStorageService.upload(photo.getId().toString(), file);
+        URL url =  fileStorageService.upload(photo.getUuid().toString(), file);
 
-        photoService.addPhoto(photo);
+        photo = photoService.addPhoto(photo);
 
-        ClientPhoto clientPhoto = new ClientPhoto(user.getUsername(), url, photo.getId());
+        ClientPhoto clientPhoto = new ClientPhoto(user.getUsername(), url, photo.getUuid());
         return clientPhoto;
     }
 
@@ -156,7 +154,41 @@ public class MyController {
         return new UserRelation(follower, unfollowed);
     }
 
-    @GetMapping("/user/{user}")
+    @PostMapping("/like")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.CREATED)
+    public ClientPhoto addLike(@RequestParam String pid) throws MalformedURLException {
+        SecurityContext context = SecurityContextHolder.getContext();
+        String username = (String) context.getAuthentication().getPrincipal();
+        User user = userService.findByUsername(username);
+
+        Photo photo = photoService.likedByUser(user, UUID.fromString(pid));
+
+        List<ClientUser> likedBy = new ArrayList<>();
+        for (User u : photo.getLikedBy()) {
+            likedBy.add(new ClientUser(u.getUsername(), u.getEmail(), u.getAge(), u.getGender()));
+        }
+        return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(pid),photo.getUuid(), likedBy);
+    }
+
+    @PostMapping("/unlike")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.CREATED)
+    public ClientPhoto removeLike(@RequestParam String pid) throws MalformedURLException {
+        SecurityContext context = SecurityContextHolder.getContext();
+        String username = (String) context.getAuthentication().getPrincipal();
+        User user = userService.findByUsername(username);
+
+        Photo photo = photoService.likedByUser(user, UUID.fromString(pid));
+
+        List<ClientUser> likedBy = new ArrayList<>();
+        for (User u : photo.getLikedBy()) {
+            likedBy.add(new ClientUser(u.getUsername(), u.getEmail(), u.getAge(), u.getGender()));
+        }
+        return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(pid),photo.getUuid(), likedBy);
+    }
+
+    @GetMapping("/user/{user}/about")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public UserResponse getGreetingPageForUser(@PathVariable  String user) throws MalformedURLException {
@@ -178,7 +210,7 @@ public class MyController {
         List<Photo> serverPhotos = photoService.findByUserId(res.getId());
         List<ClientPhoto>  photos = new ArrayList<>();
         for (Photo p : serverPhotos)
-            photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getId().toString()), p.getId()));
+            photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getUuid().toString()), p.getUuid()));
 
         return new UserResponse(u, photos);
     }
@@ -191,7 +223,9 @@ public class MyController {
         List<ClientPhoto> res = new ArrayList<>();
         List<Photo> ls = photoService.findAllByCreateDateTimeBetween(LocalDateTime.now().minusDays(1), LocalDateTime.now());
         for (Photo p: ls)
-            res.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getId().toString()), p.getId()));
+            res.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getUuid().toString()), p.getUuid()));
         return res;
     }
+
+
 }
