@@ -31,22 +31,31 @@ public class PhotoService{
         return  photoRepository.findByUuid(id);
     }
 
+
+    public Photo unlikedByUser(User user, UUID id) {
+        Photo photo = findById(id);
+        List<User> likedBy = photo.getLikedBy();
+        if (likedBy != null && likedBy.contains(user)) {
+            likedBy.remove(user);
+            System.out.println(likedBy);
+        }
+        return photoRepository.save(photo);
+    }
+
     public Photo likedByUser(User user, UUID id) {
         Photo photo = findById(id);
 
         List<User> likedBy = photo.getLikedBy();
+
         if (likedBy == null) {
             likedBy = new ArrayList<>();
             photo.setLikedBy(likedBy);
-        } else {
-            if (likedBy.contains(user))
-                likedBy.remove(user);
-            else
-                likedBy.add(user);
         }
 
-        photoRepository.save(photo);
-        return photo;
+        if (!likedBy.contains(user))
+                likedBy.add(user);
+
+        return photoRepository.save(photo);
     }
 
     public Photo addPhoto(@Valid Photo photo){

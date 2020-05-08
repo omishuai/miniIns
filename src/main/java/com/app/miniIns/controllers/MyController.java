@@ -179,7 +179,7 @@ public class MyController {
         String username = (String) context.getAuthentication().getPrincipal();
         User user = userService.findByUsername(username);
 
-        Photo photo = photoService.likedByUser(user, UUID.fromString(pid));
+        Photo photo = photoService.unlikedByUser(user, UUID.fromString(pid));
 
         List<ClientUser> likedBy = new ArrayList<>();
         for (User u : photo.getLikedBy()) {
