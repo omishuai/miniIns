@@ -74,4 +74,8 @@ public class PhotoService{
         while (itr.hasNext()) ls.add(itr.next());
         return ls;
     }
+
+    public List<Photo> findRecentPhotosForUser(int userId, LocalDateTime from, LocalDateTime to) {
+        return photoRepository.findByUserIdAndCreatedDateTimeBetween(userId, from, to);
+    }
 }

@@ -2,6 +2,7 @@ package com.app.miniIns.controllers;
 
 import com.app.miniIns.entities.*;
 import com.app.miniIns.services.*;
+import com.mysql.cj.xdevapi.Client;
 import org.apache.catalina.realm.UserDatabaseRealm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -171,6 +172,7 @@ public class MyController {
         return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(pid),photo.getUuid(), likedBy);
     }
 
+
     @PostMapping("/unlike")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
@@ -188,7 +190,42 @@ public class MyController {
         return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(pid),photo.getUuid(), likedBy);
     }
 
-    @GetMapping("/user/{user}/about")
+    @GetMapping("/user/{user}/feeds")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse getFeedsPageForUser(@PathVariable String user) throws MalformedURLException {
+        User currentUser = userService.findByUsername(user);
+        Set<User> users = currentUser.getFollows();
+        users.add(currentUser);
+
+        List<Photo> photos = new ArrayList<>();
+        for (User usr : users) {
+            photos.addAll(photoService.findRecentPhotosForUser(usr.getId(), LocalDateTime.now().minusDays(1), LocalDateTime.now()));
+        }
+
+        Collections.sort(photos);
+
+        List<ClientPhoto> clientPhotos = new ArrayList<>();
+        for (Photo photo : photos) {
+            clientPhotos.add(new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(photo.getUuid().toString()), photo.getUuid()));
+        }
+
+        List<String> following = new ArrayList<>();
+        for (User usr : currentUser.getFollows()) following.add(usr.getUsername());
+        List<String> followedBy = new ArrayList<>();
+        for (User usr : currentUser.getFollowedBy()) followedBy.add(usr.getUsername());
+
+        ClientUser clientUser = new ClientUser(
+                currentUser.getUsername(),
+                currentUser.getEmail(),
+                currentUser.getAge(),
+                currentUser.getGender(),
+                following,
+                followedBy);
+        return new UserResponse(clientUser, clientPhotos);
+    }
+
+    @GetMapping("/user/{user}")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public UserResponse getGreetingPageForUser(@PathVariable  String user) throws MalformedURLException {
@@ -208,9 +245,12 @@ public class MyController {
                 followedBy);
 
         List<Photo> serverPhotos = photoService.findByUserId(res.getId());
+        Collections.sort(serverPhotos);
+
         List<ClientPhoto>  photos = new ArrayList<>();
         for (Photo p : serverPhotos)
             photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getUuid().toString()), p.getUuid()));
+
 
         return new UserResponse(u, photos);
     }

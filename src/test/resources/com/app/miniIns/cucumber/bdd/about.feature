@@ -1,4 +1,4 @@
-@home
+@about
 Feature: User Home
 
   Scenario: User Logs In and See all Photos in User's Home Page

@@ -93,10 +93,10 @@ public class Photo implements  Comparable{
         if (o == null) return -1;
         if (o instanceof Photo) {
             Photo target = (Photo) o;
-            if (this.getCreatedDateTime().isBefore((target.getCreatedDateTime()))) return -1;
+            if (this.getCreatedDateTime().isAfter((target.getCreatedDateTime()))) return -1;
             return 1;
         }
-        return -1;
+        return 1;
     }
 
 }
