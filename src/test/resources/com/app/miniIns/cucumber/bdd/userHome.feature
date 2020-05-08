@@ -21,7 +21,7 @@ Feature: User Home
     And User with username "username" uploads file "MiniIns/img1.png"
     Then Response has status code 201
 
-    When User with username "username" visits page "/user/username"
+    When User with username "username" visits page "/user/username/about"
     Then Response has status code 200
     And Response has value "username" for "$.user.username"
     And Response has value "email@server.com" for "$.user.email"
@@ -32,6 +32,6 @@ Feature: User Home
 
   Scenario: User Does not Log In to See Photos in User's Home Page
     Given empty database
-    When User with username "useme" visits page "/user/useme"
+    When User with username "useme" visits page "/user/useme/about"
     Then Response has status code 403
     And Response has value "Access Denied" for "$.message"

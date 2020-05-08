@@ -187,6 +187,7 @@ public class RegisterStepdefs {
                 String.class);
     }
 
+    String uploadedPhotoId;
     @When("User with username {string} uploads file {string}")
     public void userWithUsernameUploadsFile(String username, String filepath) {
 
@@ -195,6 +196,8 @@ public class RegisterStepdefs {
         String sec = (String)userAuthMap.get(username);
         if (sec != null)
             headers.setBearerAuth(sec);
+
+        log.info(headers);
 
         final String baseUrl = "http://localhost:8080/upload";
         FileSystemResource resource = new FileSystemResource(filepath);
@@ -209,6 +212,7 @@ public class RegisterStepdefs {
                 String.class);
 
         log.info(response.getBody());
+        uploadedPhotoId = JsonPath.read(response.getBody(), "$.uuid");
     }
 
 
@@ -229,7 +233,6 @@ public class RegisterStepdefs {
 
         HttpEntity<MultiValueMap> requestEntity
                 = new HttpEntity<>(body, headers);
-        System.out.println(baseUrl + "\n" + requestEntity);
 
         response = restTemplate.exchange(baseUrl,HttpMethod.POST, requestEntity,
                 String.class);
@@ -344,5 +347,45 @@ public class RegisterStepdefs {
     @Then("there is no message")
     public void thereIsNoMessage() {
         Assertions.assertEquals(currentMessage, "");
+    }
+
+
+
+    @When("User {string} likes a photo")
+    public void userClicksLikeOnAPhoto(String username) {
+        HttpHeaders headers = new HttpHeaders();
+        String sec = (String)userAuthMap.get(username);
+        if (sec != null)
+            headers.setBearerAuth(sec);
+
+        final String baseUrl = "http://localhost:8080/like";
+        MultiValueMap body = new LinkedMultiValueMap<>();
+        body.add("pid", uploadedPhotoId);
+
+        HttpEntity<MultiValueMap> requestEntity
+                = new HttpEntity<>(body, headers);
+
+        response = restTemplate.exchange(baseUrl,HttpMethod.POST, requestEntity,
+                String.class);
+        log.info(response.getBody());
+    }
+
+    @When("User {string} unlikes a photo")
+    public void userUnclicksLikeOnAPhoto(String username) {
+        HttpHeaders headers = new HttpHeaders();
+        String sec = (String)userAuthMap.get(username);
+        if (sec != null)
+            headers.setBearerAuth(sec);
+
+        final String baseUrl = "http://localhost:8080/unlike";
+        MultiValueMap body = new LinkedMultiValueMap<>();
+        body.add("pid", uploadedPhotoId);
+
+        HttpEntity<MultiValueMap> requestEntity
+                = new HttpEntity<>(body, headers);
+
+        response = restTemplate.exchange(baseUrl,HttpMethod.POST, requestEntity,
+                String.class);
+        log.info(response.getBody());
     }
 }

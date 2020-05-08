@@ -1,6 +1,7 @@
 package com.app.miniIns.services;
 
 import com.app.miniIns.entities.Photo;
+import com.app.miniIns.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,35 @@ public class PhotoService{
         return photoRepository.findByUserId(id);
     }
 
+    public Photo findById(UUID id) {
+        return  photoRepository.findByUuid(id);
+    }
+
+
+    public Photo unlikedByUser(User user, UUID id) {
+        Photo photo = findById(id);
+        List<User> likedBy = photo.getLikedBy();
+        if (likedBy != null && likedBy.contains(user)) {
+            likedBy.remove(user);
+        }
+        return photoRepository.save(photo);
+    }
+
+    public Photo likedByUser(User user, UUID id) {
+        Photo photo = findById(id);
+
+        List<User> likedBy = photo.getLikedBy();
+
+        if (likedBy == null) {
+            likedBy = new ArrayList<>();
+            photo.setLikedBy(likedBy);
+        }
+
+        if (!likedBy.contains(user))
+                likedBy.add(user);
+
+        return photoRepository.save(photo);
+    }
 
     public Photo addPhoto(@Valid Photo photo){
         return photoRepository.save(photo);
@@ -40,7 +70,7 @@ public class PhotoService{
 
     public List<Photo> findAllByCreateDateTimeBetween(LocalDateTime from, LocalDateTime to) {
         List<Photo> ls = new ArrayList<>();
-        Iterator<Photo> itr =  photoRepository.findAllByCreateDateTimeBetween(from, to).iterator();
+        Iterator<Photo> itr =  photoRepository.findAllByCreatedDateTimeBetween(from, to).iterator();
         while (itr.hasNext()) ls.add(itr.next());
         return ls;
     }

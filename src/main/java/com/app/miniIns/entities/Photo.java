@@ -1,16 +1,20 @@
 package com.app.miniIns.entities;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
-public class Photo {
+public class Photo implements  Comparable{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id = UUID.randomUUID();
+    @Type(type="org.hibernate.type.UUIDCharType")
+    private UUID uuid = UUID.randomUUID();
 
     @ManyToOne
     @JoinColumn (name="userId", referencedColumnName = "id")
@@ -20,8 +24,31 @@ public class Photo {
     @NotNull
     private String filename;
 
+
+
+    @OneToMany (
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<User> likedBy;
+
+    public LocalDateTime getCreatedDateTime() {
+        return createdDateTime;
+    }
+
+    public List<User> getLikedBy() {
+        return likedBy;
+    }
+
+    public void setLikedBy(List<User> likedBy) {
+        this.likedBy = likedBy;
+    }
+
+    public void setCreatedDateTime(LocalDateTime createdDateTime) {
+        this.createdDateTime = createdDateTime;
+    }
+
     @CreationTimestamp
-    private LocalDateTime createDateTime;
+    private LocalDateTime createdDateTime;
 
     public Photo(){}
 
@@ -32,7 +59,7 @@ public class Photo {
 
 
     public String toString() {
-        return String.format("{id: %s, userId: %d, filename: '%s'}", id, user.getId(), filename);
+        return String.format("{id: %s, userId: %d, filename: '%s'}", uuid, user.getId(), filename);
     }
 
     public String getFilename() {
@@ -43,12 +70,12 @@ public class Photo {
         this.filename = filename;
     }
 
-    public UUID getId() {
-        return id;
+    public UUID getUuid() {
+        return uuid;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public void setUuid(UUID id) {
+        this.uuid = id;
     }
 
     public User getUser() {
@@ -60,5 +87,16 @@ public class Photo {
     }
 
 
+    @Override
+    public int compareTo(Object o) {
+
+        if (o == null) return -1;
+        if (o instanceof Photo) {
+            Photo target = (Photo) o;
+            if (this.getCreatedDateTime().isBefore((target.getCreatedDateTime()))) return -1;
+            return 1;
+        }
+        return -1;
+    }
 
 }
