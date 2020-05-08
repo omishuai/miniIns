@@ -18,7 +18,7 @@ Feature: home
     When User with username "username2" uploads file "MiniIns/img1.png"
     Then Response has status code 201
 
-    When User with username "username1" visits page "/user/username1/feeds"
+    When User with username "username1" visits page "/feed"
     Then Response has status code 200
     And Response has value 1 for "$.photos.size()"
     And Response has value "username1" for "$.photos[0].username"
@@ -30,7 +30,7 @@ Feature: home
     When User with username "username1" (un)follows "username4" through "/follow"
     Then Response has status code 201
 
-    When User with username "username1" visits page "/user/username1/feeds"
+    When User with username "username1" visits page "/feed"
     Then Response has status code 200
     And Response has value 5 for "$.photos.size()"
     And Response has value "username2" for "$.photos[0].username"
@@ -46,7 +46,7 @@ Feature: home
     When User with username "username2" uploads file "MiniIns/img1.png"
     Then Response has status code 201
 
-    When User with username "username1" visits page "/user/username1/feeds"
+    When User with username "username1" visits page "/feed"
     Then Response has status code 200
     And Response has value 5 for "$.photos.size()"
 
@@ -62,7 +62,7 @@ Feature: home
     When User with username "username4" uploads file "MiniIns/img1.png"
     Then Response has status code 201
 
-    When User with username "username1" visits page "/user/username1/feeds"
+    When User with username "username1" visits page "/feed"
     Then Response has status code 200
     And Response has value 3 for "$.photos.size()"
     And Response has value "username4" for "$.photos[0].username"

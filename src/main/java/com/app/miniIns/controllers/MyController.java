@@ -190,11 +190,14 @@ public class MyController {
         return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(pid),photo.getUuid(), likedBy);
     }
 
-    @GetMapping("/user/{user}/feeds")
+    @GetMapping("/feed")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public UserResponse getFeedsPageForUser(@PathVariable String user) throws MalformedURLException {
-        User currentUser = userService.findByUsername(user);
+    public UserResponse getFeedsPageForUser() throws MalformedURLException {
+        SecurityContext context = SecurityContextHolder.getContext();
+        String username = (String) context.getAuthentication().getPrincipal();
+
+        User currentUser = userService.findByUsername(username);
         Set<User> users = currentUser.getFollows();
         users.add(currentUser);
 
