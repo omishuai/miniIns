@@ -350,8 +350,8 @@ public class RegisterStepdefs {
     }
 
 
-    @When("User {string} unlikes a photo")
-    @And("User {string} likes a photo")
+
+    @When("User {string} likes a photo")
     public void userClicksLikeOnAPhoto(String username) {
         HttpHeaders headers = new HttpHeaders();
         String sec = (String)userAuthMap.get(username);
@@ -370,4 +370,22 @@ public class RegisterStepdefs {
         log.info(response.getBody());
     }
 
+    @When("User {string} unlikes a photo")
+    public void userUnclicksLikeOnAPhoto(String username) {
+        HttpHeaders headers = new HttpHeaders();
+        String sec = (String)userAuthMap.get(username);
+        if (sec != null)
+            headers.setBearerAuth(sec);
+
+        final String baseUrl = "http://localhost:8080/unlike";
+        MultiValueMap body = new LinkedMultiValueMap<>();
+        body.add("pid", uploadedPhotoId);
+
+        HttpEntity<MultiValueMap> requestEntity
+                = new HttpEntity<>(body, headers);
+
+        response = restTemplate.exchange(baseUrl,HttpMethod.POST, requestEntity,
+                String.class);
+        log.info(response.getBody());
+    }
 }
