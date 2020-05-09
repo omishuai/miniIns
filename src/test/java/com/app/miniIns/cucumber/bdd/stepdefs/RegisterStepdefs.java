@@ -388,4 +388,44 @@ public class RegisterStepdefs {
                 String.class);
         log.info(response.getBody());
     }
+
+
+    @When("User {string} comments {string} on photo")
+    public void userCommentsOnPhoto(String username, String comment) {
+
+        //post comment
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        String sec = (String)userAuthMap.get(username);
+        if (sec != null)
+            headers.setBearerAuth(sec);
+
+
+        final String baseUrl = "http://localhost:8080"+ "/" + uploadedPhotoId + "/comment";
+        log.info(baseUrl);
+
+        MultiValueMap body = new LinkedMultiValueMap<>();
+        body.add("text", comment);
+
+        HttpEntity<MultiValueMap> requestEntity
+                = new HttpEntity<>(body, headers);
+
+        response = restTemplate.exchange(baseUrl,HttpMethod.POST, requestEntity,
+                String.class);
+
+        log.info(response.getBody());
+    }
+
+    @When("User {string} responds {string} to comment {string} with id {int}")
+    public void userRespondsToCommentWithId(String username, String respondingComment, String comment, int commentId) {
+    }
+
+    @When("User {string} responds {string} to comment")
+    public void userRespondsToComment(String arg0, String arg1) {
+        
+    }
+
+    @And("Response responds to a comment {string}")
+    public void responseRespondsToAComment(String arg0) {
+    }
 }
