@@ -1,6 +1,7 @@
 package com.app.miniIns.controllers;
 
 import com.app.miniIns.entities.*;
+import com.app.miniIns.exceptions.EmptyInputException;
 import com.app.miniIns.services.*;
 import com.mysql.cj.xdevapi.Client;
 import org.apache.catalina.realm.UserDatabaseRealm;
@@ -12,6 +13,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.naming.directory.InvalidAttributesException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -37,6 +40,13 @@ public class MyController {
         return fileStorageService;
     }
     public void setFileStorageService(FileStorageService fileStorageService) { this.fileStorageService = fileStorageService; }
+    public CommentService getCommentService() {
+        return commentService;
+    }
+
+    public void setCommentService(CommentService commentService) {
+        this.commentService = commentService;
+    }
 
     @Autowired
     private PhotoService photoService;
@@ -46,6 +56,9 @@ public class MyController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CommentService commentService;
 
     @PostMapping(path = "/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -169,7 +182,7 @@ public class MyController {
         for (User u : photo.getLikedBy()) {
             likedBy.add(new ClientUser(u.getUsername(), u.getEmail(), u.getAge(), u.getGender()));
         }
-        return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(pid),photo.getUuid(), likedBy);
+        return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(pid),photo.getUuid(), likedBy, photo.getComments());
     }
 
 
@@ -187,8 +200,69 @@ public class MyController {
         for (User u : photo.getLikedBy()) {
             likedBy.add(new ClientUser(u.getUsername(), u.getEmail(), u.getAge(), u.getGender()));
         }
-        return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(pid),photo.getUuid(), likedBy);
+        return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(pid),photo.getUuid(), likedBy, photo.getComments());
     }
+
+
+    @PostMapping("/{photoId}/comment")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.CREATED)
+    public ClientPhoto postComment(@RequestParam  String text, @PathVariable String photoId) throws MalformedURLException, EmptyInputException {
+
+        UUID pid = UUID.fromString(photoId);
+        System.out.println("Photo Id in Controller: " + photoId);
+
+        SecurityContext context = SecurityContextHolder.getContext();
+        String username = (String) context.getAuthentication().getPrincipal();
+
+        //Assume Initialized already in the class fields; the returned photo is updated and saved to db
+        Photo photo = photoService.addCommentToPhoto(text, username, pid);
+
+        List<ClientUser> likedBy = new ArrayList<>();
+        for (User u : photo.getLikedBy()) {
+            likedBy.add(new ClientUser(u.getUsername(), u.getEmail(), u.getAge(), u.getGender()));
+        }
+
+        return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(photo.getUuid().toString()),photo.getUuid(), likedBy, photo.getComments());
+
+    }
+
+//    @PostMapping("/{photoId}/{commentId}/reply")
+//    @ResponseBody
+//    @ResponseStatus(HttpStatus.OK)
+//    public ClientPhoto replyComment(@RequestParam String text, @PathVariable String photoId, @PathVariable  int commentId) throws MalformedURLException, EmptyInputException {
+//
+//        UUID pid = UUID.fromString(photoId);
+//        SecurityContext context = SecurityContextHolder.getContext();
+//        String commentingUsername = (String) context.getAuthentication().getPrincipal();
+//
+//        Photo photo = photoService.findById(pid);
+//
+//        Comment comment = null;
+//        // check if the commentId is posted under the photo photoId
+//        if (commentService.findById(commentId).getPhoto().getUuid().toString().equals(photoId)) {
+//            // check if commenting user is owner of the photo
+//            if (commentingUsername.equals(photoService.findById(pid).getUser().getUsername())) {
+//                // if yes, comment any conmments under the photo
+//                comment = commentService.addReplyingCommentToComment(text, commentingUsername, commentId, photo);
+//            } else {
+//                // if commentId is the comment from photo owner => fine
+//                if (commentService.findById(commentId).getFrom().equals(photoService.findById(pid).getUser().getUsername())) {
+//                    comment = commentService.addReplyingCommentToComment(text, commentingUsername, commentId, photo);
+//                }
+//            }
+//        }
+//
+//        //Assume Initialized already in the class fields; the returned photo is updated and saved to db, unless comment is null
+//        photo = photoService.addCommentToPhoto(comment, pid);
+//
+//        List<ClientUser> likedBy = new ArrayList<>();
+//        for (User u : photo.getLikedBy()) {
+//            likedBy.add(new ClientUser(u.getUsername(), u.getEmail(), u.getAge(), u.getGender()));
+//        }
+//        return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(photo.getUuid().toString()),photo.getUuid(),  likedBy, photo.getComments());
+//
+//    }
 
     @GetMapping("/feed")
     @ResponseBody

@@ -6,6 +6,7 @@ import org.hibernate.annotations.Type;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,12 +25,27 @@ public class Photo implements  Comparable{
     @NotNull
     private String filename;
 
-
+    @OneToMany(mappedBy = "photo")
+    private List<Comment> comments = new ArrayList<>();
 
     @OneToMany (
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<User> likedBy;
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void addComment(Comment comment) {
+        comments.add(comment);
+        comment.setPhoto(this);
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
 
     public LocalDateTime getCreatedDateTime() {
         return createdDateTime;
