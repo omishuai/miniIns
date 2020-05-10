@@ -2,10 +2,7 @@ package com.app.miniIns.cucumber.bdd.stepdefs;
 
 import com.app.miniIns.cucumber.bdd.*;
 import com.app.miniIns.cucumber.bdd.WebsocketMessages;
-import com.app.miniIns.services.MessageRepository;
-import com.app.miniIns.services.MessageService;
-import com.app.miniIns.services.PhotoRepository;
-import com.app.miniIns.services.UserRepository;
+import com.app.miniIns.services.*;
 import com.app.miniIns.entities.*;
 import com.jayway.jsonpath.JsonPath;
 import io.cucumber.java.en.And;
@@ -47,6 +44,9 @@ public class RegisterStepdefs {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Autowired
     private PhotoRepository photoRepository;
@@ -117,6 +117,11 @@ public class RegisterStepdefs {
         messageRepository.deleteAll();
         Iterator<Message> message= messageRepository.findAll().iterator();
         Assertions.assertFalse(message.hasNext());
+
+
+        commentRepository.deleteAll();
+        Iterator<PhotoComment> comment = commentRepository.findAll().iterator();
+        Assertions.assertFalse(comment.hasNext());
 
         photoRepository.deleteAll();
         Iterator<Photo> photo = photoRepository.findAll().iterator();
@@ -415,42 +420,70 @@ public class RegisterStepdefs {
                 String.class);
 
         log.info(response.getBody());
-        commentId = JsonPath.read(response.getBody(), "$.photoComments[0].id");
+        if (response.getStatusCodeValue() == 201)
+            commentId = JsonPath.read(response.getBody(), "$.photoComments[0].id");
     }
-
-//    @When("User {string} responds {string} to comment {string} with id {int}")
-//    public void userRespondsToCommentWithId(String username, String respondingComment, String comment, int commentId) {
-//
-//        //post comment
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-//        String sec = (String)userAuthMap.get(username);
-//        if (sec != null)
-//            headers.setBearerAuth(sec);
-//
-//
-//        final String baseUrl = "http://localhost:8080"+ "/" + uploadedPhotoId + "/comment";
-//        log.info(baseUrl);
-//
-//        MultiValueMap body = new LinkedMultiValueMap<>();
-//        body.add("text", comment);
-//
-//        HttpEntity<MultiValueMap> requestEntity
-//                = new HttpEntity<>(body, headers);
-//
-//        response = restTemplate.exchange(baseUrl,HttpMethod.POST, requestEntity,
-//                String.class);
-//
-//        log.info(response.getBody());
-//
-//    }
 
     @When("User {string} responds {string} to comment")
-    public void userRespondsToComment(String arg0, String arg1) {
-        
+    public void userRespondsToComment(String username, String respondingComment) {
+
+        //Reply to a comment
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        String sec = (String)userAuthMap.get(username);
+        if (sec != null)
+            headers.setBearerAuth(sec);
+
+
+        final String baseUrl = "http://localhost:8080"+ "/" + uploadedPhotoId + "/" + commentId+"/reply";
+        log.info(baseUrl);
+
+        MultiValueMap body = new LinkedMultiValueMap<>();
+        body.add("text", respondingComment);
+
+        HttpEntity<MultiValueMap> requestEntity
+                = new HttpEntity<>(body, headers);
+
+        response = restTemplate.exchange(baseUrl,HttpMethod.POST, requestEntity,
+                String.class);
+
+        log.info(response.getBody());
+
     }
 
-    @And("Response responds to a comment {string}")
-    public void responseRespondsToAComment(String arg0) {
+    @When("User {string} responds {string} to comment with id {int}")
+    public void userRespondsToCommentWithWrongId(String username, String respondingComment, int id) {
+
+        //Reply to a comment
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        String sec = (String)userAuthMap.get(username);
+        if (sec != null)
+            headers.setBearerAuth(sec);
+
+
+        final String baseUrl = "http://localhost:8080"+ "/" + uploadedPhotoId + "/" + id+"/reply";
+        log.info(baseUrl);
+
+        MultiValueMap body = new LinkedMultiValueMap<>();
+        body.add("text", respondingComment);
+
+        HttpEntity<MultiValueMap> requestEntity
+                = new HttpEntity<>(body, headers);
+
+        response = restTemplate.exchange(baseUrl,HttpMethod.POST, requestEntity,
+                String.class);
+
+        log.info(response.getBody());
+
+    }
+
+    @And("Response responds to a comment with id for {string}")
+    public void responseRespondsToAComment(String path) {
+        Assertions.assertEquals((int)JsonPath.read(response.getBody(), path), commentId);
+        if (response.getStatusCodeValue() == 201) {
+            int len = JsonPath.read(response.getBody(), "$.photoComments.size()");
+            commentId = JsonPath.read(response.getBody(), "$.photoComments["+(len-1)+"].id");
+        }
     }
 }

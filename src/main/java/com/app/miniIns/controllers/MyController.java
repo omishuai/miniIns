@@ -265,42 +265,69 @@ public class MyController {
 
     }
 
-//    @PostMapping("/{photoId}/{commentId}/reply")
-//    @ResponseBody
-//    @ResponseStatus(HttpStatus.OK)
-//    public ClientPhoto replyComment(@RequestParam String text, @PathVariable String photoId, @PathVariable  int commentId) throws MalformedURLException, EmptyInputException {
-//
-//        UUID pid = UUID.fromString(photoId);
-//        SecurityContext context = SecurityContextHolder.getContext();
-//        String commentingUsername = (String) context.getAuthentication().getPrincipal();
-//
-//        Photo photo = photoService.findById(pid);
-//
-//        Comment comment = null;
-//        // check if the commentId is posted under the photo photoId
-//        if (commentService.findById(commentId).getPhoto().getUuid().toString().equals(photoId)) {
-//            // check if commenting user is owner of the photo
-//            if (commentingUsername.equals(photoService.findById(pid).getUser().getUsername())) {
-//                // if yes, comment any conmments under the photo
-//                comment = commentService.addReplyingCommentToComment(text, commentingUsername, commentId, photo);
-//            } else {
-//                // if commentId is the comment from photo owner => fine
-//                if (commentService.findById(commentId).getFrom().equals(photoService.findById(pid).getUser().getUsername())) {
-//                    comment = commentService.addReplyingCommentToComment(text, commentingUsername, commentId, photo);
-//                }
-//            }
-//        }
-//
+    @PostMapping("/{photoId}/{commentId}/reply")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.CREATED)
+    public ClientPhoto replyComment(@RequestParam String text, @PathVariable String photoId, @PathVariable  int commentId) throws MalformedURLException, EmptyInputException {
+
+        UUID pid = UUID.fromString(photoId);
+        SecurityContext context = SecurityContextHolder.getContext();
+        String commentingUsername = (String) context.getAuthentication().getPrincipal();
+
+        Photo photo = photoService.findById(pid);
+
+
+        // check if the commentId is posted under the photo photoId
+        try {
+            if (commentService.findById(commentId).getPhoto().getUuid().toString().equals(photoId)) {
+                // check if commenting user is owner of the photo
+                if (commentingUsername.equals(photoService.findById(pid).getUser().getUsername())) {
+                    // if yes, comment any conmments under the photo
+
+                    System.out.println(commentService.addReplyingCommentToComment(text, commentingUsername, commentId, photo));
+                } else {
+                    // if commentId is the comment from photo owner => fine
+                    PhotoComment photoComment = commentService.findById(commentId);
+                    if (photoComment != null) {
+                        int prevComentId = photoComment.getToId();
+                        String username = commentService.findById(prevComentId).getFromUser();
+                        if (commentingUsername.equals(username)) {
+                            System.out.println(commentService.addReplyingCommentToComment(text, commentingUsername, commentId, photo));
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+
+
 //        //Assume Initialized already in the class fields; the returned photo is updated and saved to db, unless comment is null
 //        photo = photoService.addCommentToPhoto(comment, pid);
-//
-//        List<ClientUser> likedBy = new ArrayList<>();
-//        for (User u : photo.getLikedBy()) {
-//            likedBy.add(new ClientUser(u.getUsername(), u.getEmail(), u.getAge(), u.getGender()));
-//        }
-//        return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(photo.getUuid().toString()),photo.getUuid(),  likedBy, photo.getComments());
-//
-//    }
+
+        List<PhotoComment> comments = commentService.findByPhotoIdByOrderByTime(pid);
+
+        List<ClientUser> likedBy = new ArrayList<>();
+        for (User u : photo.getLikedBy()) {
+            likedBy.add(new ClientUser(u.getUsername(), u.getEmail(), u.getAge(), u.getGender()));
+        }
+
+        List<ClientComment> clientComments = new ArrayList<>();
+        for (PhotoComment photoComment : comments) {
+            clientComments.add(new ClientComment(
+                    photoComment.getId(),
+                    photoComment.getText(),
+                    photoComment.getCreateDateTime(),
+                    photoComment.getFromUser(),
+                    photoComment.getPhoto().getUuid(),
+                    photoComment.getToId()
+            ));
+        }
+
+        return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(photo.getUuid().toString()),photo.getUuid(), likedBy, clientComments);
+
+    }
 
     @GetMapping("/feed")
     @ResponseBody

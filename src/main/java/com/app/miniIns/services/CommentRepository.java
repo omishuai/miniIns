@@ -6,7 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 import java.util.UUID;
 
-interface CommentRepository extends CrudRepository<PhotoComment, Integer> {
+public interface CommentRepository extends CrudRepository<PhotoComment, Integer> {
     PhotoComment findById(int id);
 
     List<PhotoComment> findByPhotoUuidOrderByCreateDateTime(UUID uuid);

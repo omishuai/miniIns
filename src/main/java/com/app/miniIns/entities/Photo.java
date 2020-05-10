@@ -50,8 +50,8 @@ public class Photo implements  Comparable{
 //    }
 
 
-    public LocalDateTime getCreatedDateTime() {
-        return createdDateTime;
+    public LocalDateTime getCreateDateTime() {
+        return createDateTime;
     }
 
     public List<User> getLikedBy() {
@@ -62,12 +62,12 @@ public class Photo implements  Comparable{
         this.likedBy = likedBy;
     }
 
-    public void setCreatedDateTime(LocalDateTime createdDateTime) {
-        this.createdDateTime = createdDateTime;
+    public void setCreateDateTime(LocalDateTime createdDateTime) {
+        this.createDateTime = createdDateTime;
     }
 
     @CreationTimestamp
-    private LocalDateTime createdDateTime;
+    private LocalDateTime createDateTime;
 
     public Photo(){}
 
@@ -112,7 +112,7 @@ public class Photo implements  Comparable{
         if (o == null) return -1;
         if (o instanceof Photo) {
             Photo target = (Photo) o;
-            if (this.getCreatedDateTime().isAfter((target.getCreatedDateTime()))) return -1;
+            if (this.getCreateDateTime().isAfter((target.getCreateDateTime()))) return -1;
             return 1;
         }
         return 1;

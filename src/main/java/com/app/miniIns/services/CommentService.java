@@ -31,6 +31,7 @@ public class CommentService {
     public PhotoComment addCommentToPhoto(String text,String fromUser, Photo photo) throws EmptyInputException {
 
         //comment that has to have a message
+        if (StringUtils.isEmpty(text)) throw new EmptyInputException("Text Is Empty");
 
 //        return commentRepository.save(comment);
         PhotoComment photoComment = new PhotoComment(text, fromUser);
