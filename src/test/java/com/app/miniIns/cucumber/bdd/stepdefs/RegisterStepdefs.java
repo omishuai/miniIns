@@ -217,7 +217,10 @@ public class RegisterStepdefs {
                 String.class);
 
         log.info(response.getBody());
-        uploadedPhotoId = JsonPath.read(response.getBody(), "$.uuid");
+        if (response.getStatusCodeValue() == 201) {
+            uploadedPhotoId = JsonPath.read(response.getBody(), "$.uuid");
+        }
+
     }
 
 
