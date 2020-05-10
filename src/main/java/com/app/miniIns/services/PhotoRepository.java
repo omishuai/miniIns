@@ -10,8 +10,8 @@ import java.util.UUID;
 public interface PhotoRepository extends CrudRepository<Photo, UUID> {
 
     List<Photo> findByUserId (int userId);
-    List<Photo> findAllByCreatedDateTimeBetween(LocalDateTime from, LocalDateTime end);
+    List<Photo> findAllByCreateDateTimeBetween(LocalDateTime from, LocalDateTime end);
     Photo findByUuid(UUID uuid);
-    List<Photo> findByUserIdAndCreatedDateTimeBetween(int userId, LocalDateTime from, LocalDateTime end);
+    List<Photo> findByUserIdAndCreateDateTimeBetween(int userId, LocalDateTime from, LocalDateTime end);
 
 }
