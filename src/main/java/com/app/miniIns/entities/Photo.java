@@ -25,26 +25,29 @@ public class Photo implements  Comparable{
     @NotNull
     private String filename;
 
-    @OneToMany(mappedBy = "photo")
-    private List<Comment> comments = new ArrayList<>();
+////    @OneToMany(mappedBy = "photo")
+//    @OneToMany
+//    @JoinColumn (name = "photo_id")
+//    private List<PhotoComment> photoComments = new ArrayList<>();
 
     @OneToMany (
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<User> likedBy;
 
-    public List<Comment> getComments() {
-        return comments;
-    }
+//    public List<PhotoComment> getPhotoComments() {
+//        return photoComments;
+//    }
 
-    public void addComment(Comment comment) {
-        comments.add(comment);
-        comment.setPhoto(this);
-    }
+//    public void addComment(PhotoComment photoComment) {
+//        photoComment.setPhoto(this);
+//        photoComments.add(photoComment);
+//
+//    }
 
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
+//    public void setPhotoComments(List<PhotoComment> photoComments) {
+//        this.photoComments = photoComments;
+//    }
 
 
     public LocalDateTime getCreatedDateTime() {
@@ -75,7 +78,7 @@ public class Photo implements  Comparable{
 
 
     public String toString() {
-        return String.format("{id: %s, userId: %d, filename: '%s'}", uuid, user.getId(), filename);
+        return String.format("{uuid: %s, userId: %d, filename: '%s'}", uuid, user.getId(), filename);
     }
 
     public String getFilename() {

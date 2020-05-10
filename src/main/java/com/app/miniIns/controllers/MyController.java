@@ -3,8 +3,6 @@ package com.app.miniIns.controllers;
 import com.app.miniIns.entities.*;
 import com.app.miniIns.exceptions.EmptyInputException;
 import com.app.miniIns.services.*;
-import com.mysql.cj.xdevapi.Client;
-import org.apache.catalina.realm.UserDatabaseRealm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -14,7 +12,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.naming.directory.InvalidAttributesException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -182,7 +179,19 @@ public class MyController {
         for (User u : photo.getLikedBy()) {
             likedBy.add(new ClientUser(u.getUsername(), u.getEmail(), u.getAge(), u.getGender()));
         }
-        return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(pid),photo.getUuid(), likedBy, photo.getComments());
+        List<PhotoComment> comments = commentService.findByPhotoIdByOrderByTime(photo.getUuid());
+        List<ClientComment> clientComments = new ArrayList<>();
+        for (PhotoComment comment : comments) {
+            clientComments.add(new ClientComment(
+                    comment.getId(),
+                    comment.getText(),
+                    comment.getCreateDateTime(),
+                    comment.getFromUser(),
+                    comment.getPhoto().getUuid(),
+                    comment.getToId()
+            ));
+        }
+        return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(pid),photo.getUuid(), likedBy, clientComments);
     }
 
 
@@ -200,14 +209,27 @@ public class MyController {
         for (User u : photo.getLikedBy()) {
             likedBy.add(new ClientUser(u.getUsername(), u.getEmail(), u.getAge(), u.getGender()));
         }
-        return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(pid),photo.getUuid(), likedBy, photo.getComments());
+
+        List<PhotoComment> comments = commentService.findByPhotoIdByOrderByTime(photo.getUuid());
+        List<ClientComment> clientComments = new ArrayList<>();
+        for (PhotoComment comment : comments) {
+            clientComments.add(new ClientComment(
+                    comment.getId(),
+                    comment.getText(),
+                    comment.getCreateDateTime(),
+                    comment.getFromUser(),
+                    comment.getPhoto().getUuid(),
+                    comment.getToId()
+            ));
+        }
+        return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(pid),photo.getUuid(), likedBy, clientComments);
     }
 
 
     @PostMapping("/{photoId}/comment")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public ClientPhoto postComment(@RequestParam  String text, @PathVariable String photoId) throws MalformedURLException, EmptyInputException {
+    public ClientPhoto postComment(@RequestParam String text, @PathVariable String photoId) throws MalformedURLException, EmptyInputException {
 
         UUID pid = UUID.fromString(photoId);
         System.out.println("Photo Id in Controller: " + photoId);
@@ -216,14 +238,30 @@ public class MyController {
         String username = (String) context.getAuthentication().getPrincipal();
 
         //Assume Initialized already in the class fields; the returned photo is updated and saved to db
-        Photo photo = photoService.addCommentToPhoto(text, username, pid);
+        Photo photo = photoService.findById(pid);
+        commentService.addCommentToPhoto(text, username, photo);
+
+        List<PhotoComment> comments = commentService.findByPhotoIdByOrderByTime(pid);
+
 
         List<ClientUser> likedBy = new ArrayList<>();
         for (User u : photo.getLikedBy()) {
             likedBy.add(new ClientUser(u.getUsername(), u.getEmail(), u.getAge(), u.getGender()));
         }
 
-        return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(photo.getUuid().toString()),photo.getUuid(), likedBy, photo.getComments());
+        List<ClientComment> clientComments = new ArrayList<>();
+        for (PhotoComment comment : comments) {
+            clientComments.add(new ClientComment(
+                    comment.getId(),
+                    comment.getText(),
+                    comment.getCreateDateTime(),
+                    comment.getFromUser(),
+                    comment.getPhoto().getUuid(),
+                    comment.getToId()
+                    ));
+        }
+
+        return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(photo.getUuid().toString()),photo.getUuid(), likedBy, clientComments);
 
     }
 

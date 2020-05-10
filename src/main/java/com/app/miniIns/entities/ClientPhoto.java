@@ -1,7 +1,5 @@
 package com.app.miniIns.entities;
 
-import org.springframework.boot.autoconfigure.amqp.AbstractRabbitListenerContainerFactoryConfigurer;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +12,7 @@ public class ClientPhoto {
     private UUID uuid;
     private List<ClientUser> likedBy = new ArrayList<>();
 
-    private List<Comment> comments = new ArrayList<>();
+    private List<ClientComment> photoComments = new ArrayList<>();
 
     public List<ClientUser> getLikedBy() {
         return likedBy;
@@ -28,19 +26,20 @@ public class ClientPhoto {
         this.uuid = uuid;
     }
 
-    public List<Comment> getComments() {
-        return comments;
+    public List<ClientComment> getPhotoComments() {
+        return photoComments;
     }
 
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
+    public void setPhotoComments(List<ClientComment> photoComments) {
+        this.photoComments = photoComments;
     }
 
-    public ClientPhoto(String username, URL url, UUID uuid, List<ClientUser> likedBy, List<Comment> comments) {
+    public ClientPhoto(String username, URL url, UUID uuid, List<ClientUser> likedBy, List<ClientComment> comments) {
         this.username = username;
         this.url = url;
         this.uuid = uuid;
         this.likedBy = likedBy;
+        this.photoComments = comments;
     }
 
 
@@ -72,14 +71,24 @@ public class ClientPhoto {
         this.uuid = uuid;
     }
 
-    @Override
+//    @Override
+//    public String toString() {
+//        return "ClientPhoto{" +
+//                "username='" + username + '\'' +
+//                ", url=" + url +
+//                ", uuid=" + uuid +
+//                ", likedBy=" + likedBy +
+//                '}';
+//    }
+
+        @Override
     public String toString() {
         return "ClientPhoto{" +
                 "username='" + username + '\'' +
                 ", url=" + url +
                 ", uuid=" + uuid +
                 ", likedBy=" + likedBy +
-                ", comments=" + comments +
+                ", comments=" + photoComments +
                 '}';
     }
 }
