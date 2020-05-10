@@ -9,5 +9,5 @@ import java.util.UUID;
 interface CommentRepository extends CrudRepository<PhotoComment, Integer> {
     PhotoComment findById(int id);
 
-    List<PhotoComment> findByPhotoUuid(UUID uuid);
+    List<PhotoComment> findByPhotoUuidOrderByCreateDateTime(UUID uuid);
 }

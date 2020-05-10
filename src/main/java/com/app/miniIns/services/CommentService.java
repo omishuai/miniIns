@@ -25,7 +25,7 @@ public class CommentService {
     }
 
     public List<PhotoComment> findByPhotoIdByOrderByTime(UUID photoId) {
-        return commentRepository.findByPhotoUuid(photoId);
+        return commentRepository.findByPhotoUuidOrderByCreateDateTime(photoId);
     }
 
     public PhotoComment addCommentToPhoto(String text,String fromUser, Photo photo) throws EmptyInputException {

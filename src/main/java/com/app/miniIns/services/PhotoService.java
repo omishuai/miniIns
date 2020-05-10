@@ -73,13 +73,13 @@ public class PhotoService{
 
     public List<Photo> findAllByCreateDateTimeBetween(LocalDateTime from, LocalDateTime to) {
         List<Photo> ls = new ArrayList<>();
-        Iterator<Photo> itr =  photoRepository.findAllByCreatedDateTimeBetween(from, to).iterator();
+        Iterator<Photo> itr =  photoRepository.findAllByCreateDateTimeBetween(from, to).iterator();
         while (itr.hasNext()) ls.add(itr.next());
         return ls;
     }
 
     public List<Photo> findRecentPhotosForUser(int userId, LocalDateTime from, LocalDateTime to) {
-        return photoRepository.findByUserIdAndCreatedDateTimeBetween(userId, from, to);
+        return photoRepository.findByUserIdAndCreateDateTimeBetween(userId, from, to);
     }
 
     public Photo addCommentToPhoto(String text, String commentingUsername ,UUID photoId) throws EmptyInputException {
