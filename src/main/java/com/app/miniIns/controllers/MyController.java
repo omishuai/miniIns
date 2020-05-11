@@ -60,17 +60,18 @@ public class MyController {
     @PostMapping(path = "/register")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public ClientUser register(@RequestParam("username") String username,
-                               @RequestParam("email") String email,
-                               @RequestParam("password") String password,
-                               @RequestParam("age") int age,
-                               @RequestParam("gender") String gender) throws Exception {
+    public ClientUser register(
+            @RequestParam("username") String username,
+            @RequestParam("email") String email,
+            @RequestParam("password") String password,
+            @RequestParam("age") int age,
+            @RequestParam("gender") String gender) throws Exception {
 
         User res = userService.addUser(new User(username, email, password, age, gender));
         return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
     }
 
-    @PostMapping(path="/upload")
+    @PostMapping(path="/photo/upload")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public ClientPhoto uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
@@ -102,10 +103,10 @@ public class MyController {
     }
 
     //follow user
-    @PostMapping(path = "/follow")
+    @PostMapping(path = "/user/{username}/follow")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public UserRelation follow(@RequestParam("username") String followedUsername) throws Exception {
+    public UserRelation follow(@PathVariable("username") String followedUsername) throws Exception {
 
         // Get the current user in context
         SecurityContext context = SecurityContextHolder.getContext();
@@ -137,10 +138,10 @@ public class MyController {
                 followedBy);
     }
 
-    @PostMapping(path = "/unfollow")
+    @PostMapping(path = "/user/{username}/unfollow")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public UserRelation unfollow(@RequestParam("username") String unfollowedUsername) {
+    public UserRelation unfollow(@PathVariable("username") String unfollowedUsername) {
         
         // Get the current user in context
         SecurityContext context = SecurityContextHolder.getContext();
@@ -178,7 +179,7 @@ public class MyController {
     }
 
 
-    @PostMapping("/{photoId}/comment")
+    @PostMapping("/photo/{photoId}/comment")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     public ClientPhoto postComment(@RequestParam String text, @PathVariable String photoId) throws EmptyInputException, MalformedURLException {

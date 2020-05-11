@@ -204,7 +204,7 @@ public class RegisterStepdefs {
 
         log.info(headers);
 
-        final String baseUrl = "http://localhost:8080/upload";
+        final String baseUrl = "http://localhost:8080/photo/upload";
         FileSystemResource resource = new FileSystemResource(filepath);
 
         MultiValueMap body = new LinkedMultiValueMap<>();
@@ -410,7 +410,7 @@ public class RegisterStepdefs {
             headers.setBearerAuth(sec);
 
 
-        final String baseUrl = "http://localhost:8080"+ "/" + uploadedPhotoId + "/comment";
+        final String baseUrl = "http://localhost:8080/photo/" + uploadedPhotoId + "/comment";
         log.info(baseUrl);
 
         MultiValueMap body = new LinkedMultiValueMap<>();
@@ -438,7 +438,7 @@ public class RegisterStepdefs {
             headers.setBearerAuth(sec);
 
 
-        final String baseUrl = "http://localhost:8080/comment/"+ commentId+"/reply";
+        final String baseUrl = "http://localhost:8080/comment/"+ commentId +"/reply";
         log.info(baseUrl);
 
         MultiValueMap body = new LinkedMultiValueMap<>();

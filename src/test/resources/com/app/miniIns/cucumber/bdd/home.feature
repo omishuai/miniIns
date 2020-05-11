@@ -23,11 +23,11 @@ Feature: home
     And Response has value 1 for "$.photos.size()"
     And Response has value "username1" for "$.photos[0].username"
 
-    When User with username "username1" (un)follows "username3" through "/follow"
+    When User with username "username1" (un)follows "username3" through "/user/username3/follow"
     Then Response has status code 201
-    When User with username "username1" (un)follows "username2" through "/follow"
+    When User with username "username1" (un)follows "username2" through "/user/username2/follow"
     Then Response has status code 201
-    When User with username "username1" (un)follows "username4" through "/follow"
+    When User with username "username1" (un)follows "username4" through "/user/username4/follow"
     Then Response has status code 201
 
     When User with username "username1" visits page "/feed"
@@ -40,7 +40,7 @@ Feature: home
     And Response has value "username1" for "$.photos[4].username"
 
 
-    When User with username "username1" (un)follows "username3" through "/unfollow"
+    When User with username "username1" (un)follows "username3" through "/user/username3/unfollow"
     Then Response has status code 201
 
     When User with username "username2" uploads file "MiniIns/img1.png"
@@ -56,7 +56,7 @@ Feature: home
     And Response has value "username2" for "$.photos[3].username"
     And Response has value "username1" for "$.photos[4].username"
 
-    When User with username "username1" (un)follows "username2" through "/unfollow"
+    When User with username "username1" (un)follows "username2" through "/user/username2/unfollow"
     Then Response has status code 201
 
     When User with username "username4" uploads file "MiniIns/img1.png"
