@@ -232,7 +232,7 @@ public class MyController {
         return constructClientPhoto(photoComment.getPhoto());
     }
 
-    @GetMapping("/user/feed")
+    @GetMapping("/feed")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public UserResponse getFeedsPageForUser() throws MalformedURLException {
