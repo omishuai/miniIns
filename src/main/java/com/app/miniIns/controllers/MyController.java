@@ -260,7 +260,7 @@ public class MyController {
         return constructClientPhoto(photo);
     }
 
-    @GetMapping("/feed")
+    @GetMapping("/user/feed")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public UserResponse getFeedsPageForUser() throws MalformedURLException {
@@ -283,18 +283,8 @@ public class MyController {
             clientPhotos.add(new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(photo.getUuid().toString()), photo.getUuid()));
         }
 
-        List<String> following = new ArrayList<>();
-        for (User usr : currentUser.getFollows()) following.add(usr.getUsername());
-        List<String> followedBy = new ArrayList<>();
-        for (User usr : currentUser.getFollowedBy()) followedBy.add(usr.getUsername());
+        ClientUser clientUser = constructClientUserWithFollowingList(currentUser);
 
-        ClientUser clientUser = new ClientUser(
-                currentUser.getUsername(),
-                currentUser.getEmail(),
-                currentUser.getAge(),
-                currentUser.getGender(),
-                following,
-                followedBy);
         return new UserResponse(clientUser, clientPhotos);
     }
 
