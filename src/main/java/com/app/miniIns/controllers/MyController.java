@@ -155,10 +155,10 @@ public class MyController {
         return new UserRelation(follower, unfollowed);
     }
 
-    @PostMapping("/like")
+    @PostMapping("/photo/{photoId}/like")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public ClientPhoto addLike(@RequestParam String pid) throws MalformedURLException {
+    public ClientPhoto addLike(@PathVariable("photoId") String pid) throws MalformedURLException {
         SecurityContext context = SecurityContextHolder.getContext();
         String username = (String) context.getAuthentication().getPrincipal();
         User user = userService.findByUsername(username);
@@ -167,10 +167,10 @@ public class MyController {
     }
 
 
-    @PostMapping("/unlike")
+    @PostMapping("/photo/{photoId}/unlike")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public ClientPhoto removeLike(@RequestParam String pid) throws MalformedURLException {
+    public ClientPhoto removeLike(@PathVariable("photoId")  String pid) throws MalformedURLException {
         SecurityContext context = SecurityContextHolder.getContext();
         String username = (String) context.getAuthentication().getPrincipal();
         User user = userService.findByUsername(username);
@@ -182,7 +182,7 @@ public class MyController {
     @PostMapping("/photo/{photoId}/comment")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public ClientPhoto postComment(@RequestParam String text, @PathVariable String photoId) throws EmptyInputException, MalformedURLException {
+    public ClientPhoto postComment(@RequestParam String text, @PathVariable("photoId")  String photoId) throws EmptyInputException, MalformedURLException {
 
         UUID pid = UUID.fromString(photoId);
         System.out.println("Photo Id in Controller: " + photoId);
@@ -223,7 +223,7 @@ public class MyController {
     @PostMapping("/comment/{commentId}/reply")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public ClientPhoto replyComment(@RequestParam String text, @RequestParam String photoId, @PathVariable  int commentId) throws MalformedURLException, EmptyInputException {
+    public ClientPhoto replyComment(@RequestParam String text, @RequestParam String photoId, @PathVariable("commentId")  int commentId) throws MalformedURLException, EmptyInputException {
 
         UUID pid = UUID.fromString(photoId);
         SecurityContext context = SecurityContextHolder.getContext();

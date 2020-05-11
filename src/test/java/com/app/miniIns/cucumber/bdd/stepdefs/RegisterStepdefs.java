@@ -366,7 +366,7 @@ public class RegisterStepdefs {
         if (sec != null)
             headers.setBearerAuth(sec);
 
-        final String baseUrl = "http://localhost:8080/like";
+        final String baseUrl = "http://localhost:8080/photo/"+uploadedPhotoId+"/like";
         MultiValueMap body = new LinkedMultiValueMap<>();
         body.add("pid", uploadedPhotoId);
 
@@ -385,7 +385,7 @@ public class RegisterStepdefs {
         if (sec != null)
             headers.setBearerAuth(sec);
 
-        final String baseUrl = "http://localhost:8080/unlike";
+        final String baseUrl = "http://localhost:8080/photo/"+uploadedPhotoId+"/unlike";
         MultiValueMap body = new LinkedMultiValueMap<>();
         body.add("pid", uploadedPhotoId);
 
