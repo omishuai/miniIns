@@ -443,7 +443,6 @@ public class RegisterStepdefs {
 
         MultiValueMap body = new LinkedMultiValueMap<>();
         body.add("text", respondingComment);
-        body.add("photoId", uploadedPhotoId);
 
         HttpEntity<MultiValueMap> requestEntity
                 = new HttpEntity<>(body, headers);
@@ -471,7 +470,6 @@ public class RegisterStepdefs {
 
         MultiValueMap body = new LinkedMultiValueMap<>();
         body.add("text", respondingComment);
-        body.add("photoId", uploadedPhotoId);
 
         HttpEntity<MultiValueMap> requestEntity
                 = new HttpEntity<>(body, headers);

@@ -223,41 +223,13 @@ public class MyController {
     @PostMapping("/comment/{commentId}/reply")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public ClientPhoto replyComment(@RequestParam String text, @RequestParam String photoId, @PathVariable("commentId")  int commentId) throws MalformedURLException, EmptyInputException {
+    public ClientPhoto replyComment(@RequestParam String text, @PathVariable("commentId") int commentId) throws Exception {
 
-        UUID pid = UUID.fromString(photoId);
         SecurityContext context = SecurityContextHolder.getContext();
         String commentingUsername = (String) context.getAuthentication().getPrincipal();
 
-        Photo photo = photoService.findById(pid);
-
-        PhotoComment photoComment = commentService.findById(commentId);
-
-        // Assuming that the photo itself is valid
-        // Make sure the photoComment to be commented on exists, and it belongs to the desired photo
-        if (photoComment != null && photoComment.getPhoto().getUuid().toString().equals(photoId)) {
-
-            // check if commenting user is owner of the photo
-            if (commentingUsername.equals(photoService.findById(pid).getUser().getUsername())) {
-
-                // if yes, comment any under the photo
-                commentService.addReplyingCommentToComment(text, commentingUsername, commentId, photo);
-            } else {
-
-                // If commenting user is not the owner, then can only respond to the comment on commenter's comment.
-                //Meaning, A writes commentA on commentB from B, then only B can write a comment on commentA
-
-                // Check if B, the commenting user comments on correct message
-                // commentA is what this current message is commenting on
-                int prevCommentId = photoComment.getToId(); //the comment that commentA comments on, which is commentB
-                String username = commentService.findById(prevCommentId).getFromUser(); //commentB is from user B
-                if (commentingUsername.equals(username)) {
-                    // B is who writes commentB, so B can comment back A on commentA
-                    commentService.addReplyingCommentToComment(text, commentingUsername, commentId, photo);
-                }
-            }
-        }
-        return constructClientPhoto(photo);
+        PhotoComment photoComment = commentService.replyToComment(commentId, commentingUsername, text);
+        return constructClientPhoto(photoComment.getPhoto());
     }
 
     @GetMapping("/user/feed")
