@@ -438,11 +438,12 @@ public class RegisterStepdefs {
             headers.setBearerAuth(sec);
 
 
-        final String baseUrl = "http://localhost:8080"+ "/" + uploadedPhotoId + "/" + commentId+"/reply";
+        final String baseUrl = "http://localhost:8080/comment/"+ commentId+"/reply";
         log.info(baseUrl);
 
         MultiValueMap body = new LinkedMultiValueMap<>();
         body.add("text", respondingComment);
+        body.add("photoId", uploadedPhotoId);
 
         HttpEntity<MultiValueMap> requestEntity
                 = new HttpEntity<>(body, headers);
@@ -465,11 +466,12 @@ public class RegisterStepdefs {
             headers.setBearerAuth(sec);
 
 
-        final String baseUrl = "http://localhost:8080"+ "/" + uploadedPhotoId + "/" + id+"/reply";
+        final String baseUrl = "http://localhost:8080"+ "/comment/" + id+"/reply";
         log.info(baseUrl);
 
         MultiValueMap body = new LinkedMultiValueMap<>();
         body.add("text", respondingComment);
+        body.add("photoId", uploadedPhotoId);
 
         HttpEntity<MultiValueMap> requestEntity
                 = new HttpEntity<>(body, headers);

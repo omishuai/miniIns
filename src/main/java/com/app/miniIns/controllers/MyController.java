@@ -219,10 +219,10 @@ public class MyController {
         return new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(photo.getUuid().toString()),photo.getUuid(), likedBy, clientComments);
     }
 
-    @PostMapping("/{photoId}/{commentId}/reply")
+    @PostMapping("/comment/{commentId}/reply")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public ClientPhoto replyComment(@RequestParam String text, @PathVariable String photoId, @PathVariable  int commentId) throws MalformedURLException, EmptyInputException {
+    public ClientPhoto replyComment(@RequestParam String text, @RequestParam String photoId, @PathVariable  int commentId) throws MalformedURLException, EmptyInputException {
 
         UUID pid = UUID.fromString(photoId);
         SecurityContext context = SecurityContextHolder.getContext();
