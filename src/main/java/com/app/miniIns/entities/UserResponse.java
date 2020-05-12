@@ -11,8 +11,8 @@ public class UserResponse {
         this.photos = photos;
     }
 
-    public UserResponse(List<ClientPhoto> followedUserPhotos) {
-        this.photos = followedUserPhotos;
+    public String toString() {
+        return  String.format("{user: %s, photos: %s}", user, photos);
     }
 
     public ClientUser getUser() {
@@ -23,7 +23,5 @@ public class UserResponse {
         return photos;
     }
 
-    public String toString() {
-        return  String.format("{user: %s, photos: %s}", user, photos);
-    }
+
 }

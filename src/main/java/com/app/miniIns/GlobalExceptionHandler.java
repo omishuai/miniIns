@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import javax.management.InvalidAttributeValueException;
 import javax.validation.ConstraintViolationException;
 
 @ControllerAdvice
@@ -21,7 +23,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 
-    @ExceptionHandler(value = {EmptyInputException.class})
+    @ExceptionHandler(value = {EmptyInputException.class, InvalidAttributeValueException.class})
     protected ResponseEntity<Object> handleBadRequest(
             Exception ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorResponse(ex.getMessage()),

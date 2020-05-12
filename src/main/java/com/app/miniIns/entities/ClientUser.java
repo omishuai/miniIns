@@ -25,16 +25,19 @@ public class ClientUser {
         this.follows = follows;
     }
 
+    public String toString() {
+        return  String.format("{username: '%s', email: '%s', age: %d, gender: '%s', follows: %s, followedBy: %s}",
+                username,
+                email,
+                age,
+                gender,
+                follows,
+                followedBy
+        );
+    }
+
     public List<String> getFollows() {
         return follows;
-    }
-
-    public void setFollows(List<String> follows) {
-        this.follows = follows;
-    }
-
-    public void setFollowedBy(List<String> followedBy) {
-        this.followedBy = followedBy;
     }
 
     public List<String> getFollowedBy() {
@@ -57,14 +60,5 @@ public class ClientUser {
         return gender;
     }
 
-    public String toString() {
-        return  String.format("{username: '%s', email: '%s', age: %d, gender: '%s', follows: %s, followedBy: %s}",
-                username,
-                email,
-                age,
-                gender,
-                follows,
-                followedBy
-                );
-    }
+
 }

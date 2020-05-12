@@ -1,7 +1,10 @@
 package com.app.miniIns.services;
 
+import com.app.miniIns.entities.PhotoComment;
 import com.app.miniIns.entities.Photo;
 import com.app.miniIns.entities.User;
+import com.app.miniIns.exceptions.EmptyInputException;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -70,8 +73,26 @@ public class PhotoService{
 
     public List<Photo> findAllByCreateDateTimeBetween(LocalDateTime from, LocalDateTime to) {
         List<Photo> ls = new ArrayList<>();
-        Iterator<Photo> itr =  photoRepository.findAllByCreatedDateTimeBetween(from, to).iterator();
+        Iterator<Photo> itr =  photoRepository.findAllByCreateDateTimeBetween(from, to).iterator();
         while (itr.hasNext()) ls.add(itr.next());
         return ls;
+    }
+
+    public List<Photo> findRecentPhotosForUser(int userId, LocalDateTime from, LocalDateTime to) {
+        return photoRepository.findByUserIdAndCreateDateTimeBetween(userId, from, to);
+    }
+
+    public Photo addCommentToPhoto(String text, String commentingUsername ,UUID photoId) throws EmptyInputException {
+
+        if (StringUtils.isEmpty(text)) throw new EmptyInputException("Text Is Empty");
+        PhotoComment photoComment = new PhotoComment(text, commentingUsername);
+
+        Photo photo = photoRepository.findByUuid(photoId);
+
+//        photo.addComment(photoComment);
+//
+//        System.out.print(photoComment);
+
+        return photoRepository.save(photo);
     }
 }

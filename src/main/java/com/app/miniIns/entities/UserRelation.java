@@ -10,23 +10,17 @@ public class UserRelation {
         this.user2 = user2;
     }
 
-    public ClientUser getUser1() {
-        return user1;
+    public String toString() {
+        return  String.format("{user1: %s, user2: %s}", user1, user2);
     }
 
-    public void setUser1(ClientUser user1) {
-        this.user1 = user1;
+    public ClientUser getUser1() {
+        return user1;
     }
 
     public ClientUser getUser2() {
         return user2;
     }
 
-    public void setUser2(ClientUser user2) {
-        this.user2 = user2;
-    }
 
-    public String toString() {
-        return  String.format("{user1: %s, user2: %s}", user1, user2);
-    }
 }

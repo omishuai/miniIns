@@ -1,10 +1,9 @@
-# miniIns
-backend system of mini instagram
+# Mini-Instagram Backend Features
 
 
-* Add mysql db config in properties to run the program
-/src/main/resources/application.properties
+#### Diagram for Components
+https://app.lucidchart.com/invitations/accept/cc243a85-5493-4c11-9105-d95a1b4f80b5
 
 
-#### /register
-to register new user. a user entry is inserted to db, and the page will be redirected to user's home page upon success
+
+

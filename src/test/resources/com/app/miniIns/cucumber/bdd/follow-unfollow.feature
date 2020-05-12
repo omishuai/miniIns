@@ -9,7 +9,7 @@ Feature: follow and unfollow
     And User logins with "email1@server.com" and "password"
     And User is authenticated
 
-    When User with username "username1" (un)follows "username2" through "/follow"
+    When User with username "username1" (un)follows "username2" through "/user/username2/follow"
     Then Response has status code 201
     And Response has value "username2" for "$.user2.username"
     And Response has value "email2@server.com" for "$.user2.email"
@@ -27,7 +27,7 @@ Feature: follow and unfollow
 #==================================================================
     And User logins with "email2@server.com" and "password"
     And User is authenticated
-    When User with username "username2" (un)follows "username1" through "/follow"
+    When User with username "username2" (un)follows "username1" through "/user/username1/follow"
     Then Response has status code 201
 
     And Response has value "username1" for "$.user2.username"
@@ -45,7 +45,7 @@ Feature: follow and unfollow
     And Response has value 1 for "$.user1.followedBy.length()"
 
 #==================================================================
-    When User with username "username2" (un)follows "username1" through "/unfollow"
+    When User with username "username2" (un)follows "username1" through "/user/username1/unfollow"
     Then Response has status code 201
 
     And Response has value "username1" for "$.user2.username"
@@ -71,7 +71,7 @@ Feature: follow and unfollow
     And User logins with "email1@server.com" and "password"
     And User is authenticated
 
-    When User with username "username1" (un)follows "username2" through "/follow"
+    When User with username "username1" (un)follows "username2" through "/user/username2/follow"
     Then Response has status code 201
     And Response has value "username2" for "$.user2.username"
     And Response has value "email2@server.com" for "$.user2.email"
@@ -87,7 +87,7 @@ Feature: follow and unfollow
     And Response has value 1 for "$.user1.follows.length()"
     And Response has value 0 for "$.user1.followedBy.length()"
 
-    When User with username "username1" (un)follows "username2" through "/follow"
+    When User with username "username1" (un)follows "username2" through "/user/username2/follow"
     Then Response has status code 201
     And Response has value "username2" for "$.user2.username"
     And Response has value "email2@server.com" for "$.user2.email"
@@ -112,7 +112,7 @@ Feature: follow and unfollow
     And User logins with "email1@server.com" and "password"
     And User is authenticated
 
-    When User with username "username1" (un)follows "username3" through "/follow"
+    When User with username "username1" (un)follows "username3" through "/user/username3/follow"
     Then Response has status code 201
     And Response has value "username3" for "$.user2.username"
     And Response has value "email3@server.com" for "$.user2.email"
@@ -130,7 +130,7 @@ Feature: follow and unfollow
 
     And User logins with "email2@server.com" and "password"
     And User is authenticated
-    When User with username "username2" (un)follows "username3" through "/unfollow"
+    When User with username "username2" (un)follows "username3" through "/user/username3/unfollow"
     Then Response has status code 201
     And Response has value "username3" for "$.user2.username"
     And Response has value "email3@server.com" for "$.user2.email"
@@ -149,9 +149,9 @@ Feature: follow and unfollow
 
   Scenario: User does not log in to follow/unfollow user
     Given empty database
-    When User with username "usr" (un)follows "userna" through "/unfollow"
+    When User with username "usr" (un)follows "userna" through "/user/userna/unfollow"
     Then Response has status code 403
     And Response has value "Access Denied" for "$.message"
-    When User with username "usere1" (un)follows "usere2" through "/follow"
+    When User with username "usere1" (un)follows "usere2" through "/user/usere2/follow"
     Then Response has status code 403
     And Response has value "Access Denied" for "$.message"

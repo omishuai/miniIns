@@ -9,11 +9,11 @@ import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.*;
 
 public class MyControllerTest {
-    MyController controller;
+    UserController controller;
     UserService userService;
     @BeforeEach
     public void setUp(){
-        controller = new MyController();
+        controller = new UserController();
         userService = mock(UserService.class);
         controller.setUserService(userService);
     }

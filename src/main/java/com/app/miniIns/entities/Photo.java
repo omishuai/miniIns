@@ -6,6 +6,7 @@ import org.hibernate.annotations.Type;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,15 +25,17 @@ public class Photo implements  Comparable{
     @NotNull
     private String filename;
 
-
+    @CreationTimestamp
+    private LocalDateTime createDateTime;
 
     @OneToMany (
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<User> likedBy;
 
-    public LocalDateTime getCreatedDateTime() {
-        return createdDateTime;
+
+    public LocalDateTime getCreateDateTime() {
+        return createDateTime;
     }
 
     public List<User> getLikedBy() {
@@ -43,12 +46,11 @@ public class Photo implements  Comparable{
         this.likedBy = likedBy;
     }
 
-    public void setCreatedDateTime(LocalDateTime createdDateTime) {
-        this.createdDateTime = createdDateTime;
-    }
+//    public void setCreateDateTime(LocalDateTime createdDateTime) {
+//        this.createDateTime = createdDateTime;
+//    }
 
-    @CreationTimestamp
-    private LocalDateTime createdDateTime;
+
 
     public Photo(){}
 
@@ -57,46 +59,28 @@ public class Photo implements  Comparable{
         this.filename = filename;
     }
 
-
-    public String toString() {
-        return String.format("{id: %s, userId: %d, filename: '%s'}", uuid, user.getId(), filename);
-    }
-
-    public String getFilename() {
-        return filename;
-    }
-
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID id) {
-        this.uuid = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-
     @Override
     public int compareTo(Object o) {
 
         if (o == null) return -1;
         if (o instanceof Photo) {
             Photo target = (Photo) o;
-            if (this.getCreatedDateTime().isBefore((target.getCreatedDateTime()))) return -1;
+            if (this.getCreateDateTime().isAfter((target.getCreateDateTime()))) return -1;
             return 1;
         }
-        return -1;
+        return 1;
+    }
+    public String toString() {
+        return String.format("{uuid: %s, userId: %d, filename: '%s'}", uuid, user.getId(), filename);
+    }
+
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public User getUser() {
+        return user;
     }
 
 }

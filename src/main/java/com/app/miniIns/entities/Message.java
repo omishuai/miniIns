@@ -58,41 +58,19 @@ public class Message implements Comparable{
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public User getSender() {
         return sender;
-    }
-
-    public void setSender(User sender) {
-        this.sender = sender;
     }
 
     public User getReceiver() {
         return receiver;
     }
 
-    public void setReceiver(User receiver) {
-        this.receiver = receiver;
-    }
-
     public LocalDateTime getCreateDateTime() {
         return createDateTime;
-    }
-
-    public void setCreateDateTime(LocalDateTime createDateTime) {
-        this.createDateTime = createDateTime;
     }
 
     public String getText() {
         return text;
     }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-
 }
