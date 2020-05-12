@@ -20,22 +20,6 @@ public class PhotoReformatter {
     @Autowired
     private CommentService commentService;
 
-    public FileStorageService getFileStorageService() {
-        return fileStorageService;
-    }
-
-    public void setFileStorageService(FileStorageService fileStorageService) {
-        this.fileStorageService = fileStorageService;
-    }
-
-    public CommentService getCommentService() {
-        return commentService;
-    }
-
-    public void setCommentService(CommentService commentService) {
-        this.commentService = commentService;
-    }
-
     public ClientPhoto constructClientPhoto(Photo photo) throws MalformedURLException {
 
         List<PhotoComment> comments = commentService.findByPhotoIdByOrderByTime(photo.getUuid());

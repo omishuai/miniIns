@@ -15,23 +15,6 @@ import java.util.*;
 @Controller
 public class UserController {
 
-    public UserService getUserService() {
-        return userService;
-    }
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-    public PhotoService getPhotoService() {
-        return photoService;
-    }
-    public void setPhotoService(PhotoService photoService) {
-        this.photoService = photoService;
-    }
-    public FileStorageService getFileStorageService() {
-        return fileStorageService;
-    }
-    public void setFileStorageService(FileStorageService fileStorageService) { this.fileStorageService = fileStorageService; }
-
     @Autowired
     private PhotoService photoService;
 
@@ -40,6 +23,14 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    public UserService getUserService() {
+        return userService;
+    }
+
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping(path = "/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -68,7 +59,7 @@ public class UserController {
     @PostMapping(path = "/user/{username}/follow")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public UserRelation follow(@PathVariable("username") String followedUsername) throws Exception {
+    public UserRelation follow(@PathVariable("username") String followedUsername) {
 
         // Get the current user in context
         SecurityContext context = SecurityContextHolder.getContext();

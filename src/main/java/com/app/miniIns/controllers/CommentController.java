@@ -3,7 +3,6 @@ package com.app.miniIns.controllers;
 import com.app.miniIns.entities.*;
 import com.app.miniIns.exceptions.EmptyInputException;
 import com.app.miniIns.services.CommentService;
-import com.app.miniIns.services.FileStorageService;
 import com.app.miniIns.services.PhotoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,18 +18,9 @@ public class CommentController {
 
     @Autowired
     private CommentService commentService;
+
     @Autowired
     private PhotoService photoService;
-    @Autowired
-    private FileStorageService fileStorageService;
-
-    public PhotoReformatter getPhotoReformatter() {
-        return photoReformatter;
-    }
-
-    public void setPhotoReformatter(PhotoReformatter photoReformatter) {
-        this.photoReformatter = photoReformatter;
-    }
 
     @Autowired
     private PhotoReformatter photoReformatter;
@@ -62,29 +52,5 @@ public class CommentController {
 
         PhotoComment photoComment = commentService.replyToComment(commentId, commentingUsername, text);
         return photoReformatter.constructClientPhoto(photoComment.getPhoto());
-    }
-
-    public CommentService getCommentService() {
-        return commentService;
-    }
-
-    public void setCommentService(CommentService commentService) {
-        this.commentService = commentService;
-    }
-
-    public PhotoService getPhotoService() {
-        return photoService;
-    }
-
-    public void setPhotoService(PhotoService photoService) {
-        this.photoService = photoService;
-    }
-
-    public FileStorageService getFileStorageService() {
-        return fileStorageService;
-    }
-
-    public void setFileStorageService(FileStorageService fileStorageService) {
-        this.fileStorageService = fileStorageService;
     }
 }

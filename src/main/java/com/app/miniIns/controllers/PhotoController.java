@@ -30,40 +30,8 @@ public class PhotoController {
     @Autowired
     private UserService userService;
 
-    public PhotoReformatter getPhotoReformatter() {
-        return photoReformatter;
-    }
-
-    public void setPhotoReformatter(PhotoReformatter photoReformatter) {
-        this.photoReformatter = photoReformatter;
-    }
-
     @Autowired
     private PhotoReformatter photoReformatter;
-
-    public UserService getUserService() {
-        return userService;
-    }
-
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    public PhotoService getPhotoService() {
-        return photoService;
-    }
-
-    public void setPhotoService(PhotoService photoService) {
-        this.photoService = photoService;
-    }
-
-    public FileStorageService getFileStorageService() {
-        return fileStorageService;
-    }
-
-    public void setFileStorageService(FileStorageService fileStorageService) {
-        this.fileStorageService = fileStorageService;
-    }
 
     @PostMapping("/photo/{photoId}/like")
     @ResponseBody
