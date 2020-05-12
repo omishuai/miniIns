@@ -25,6 +25,9 @@ public class Photo implements  Comparable{
     @NotNull
     private String filename;
 
+    @CreationTimestamp
+    private LocalDateTime createDateTime;
+
     @OneToMany (
             cascade = CascadeType.ALL,
             orphanRemoval = true)
@@ -43,12 +46,11 @@ public class Photo implements  Comparable{
         this.likedBy = likedBy;
     }
 
-    public void setCreateDateTime(LocalDateTime createdDateTime) {
-        this.createDateTime = createdDateTime;
-    }
+//    public void setCreateDateTime(LocalDateTime createdDateTime) {
+//        this.createDateTime = createdDateTime;
+//    }
 
-    @CreationTimestamp
-    private LocalDateTime createDateTime;
+
 
     public Photo(){}
 
@@ -56,36 +58,6 @@ public class Photo implements  Comparable{
         this.user = user;
         this.filename = filename;
     }
-
-
-    public String toString() {
-        return String.format("{uuid: %s, userId: %d, filename: '%s'}", uuid, user.getId(), filename);
-    }
-
-    public String getFilename() {
-        return filename;
-    }
-
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID id) {
-        this.uuid = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
 
     @Override
     public int compareTo(Object o) {
@@ -97,6 +69,18 @@ public class Photo implements  Comparable{
             return 1;
         }
         return 1;
+    }
+    public String toString() {
+        return String.format("{uuid: %s, userId: %d, filename: '%s'}", uuid, user.getId(), filename);
+    }
+
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public User getUser() {
+        return user;
     }
 
 }

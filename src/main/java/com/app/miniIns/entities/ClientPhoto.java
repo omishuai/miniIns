@@ -14,24 +14,11 @@ public class ClientPhoto {
 
     private List<ClientComment> photoComments = new ArrayList<>();
 
-    public List<ClientUser> getLikedBy() {
-        return likedBy;
-    }
-
-
 
     public ClientPhoto(String username, URL url, UUID uuid) {
         this.username = username;
         this.url = url;
         this.uuid = uuid;
-    }
-
-    public List<ClientComment> getPhotoComments() {
-        return photoComments;
-    }
-
-    public void setPhotoComments(List<ClientComment> photoComments) {
-        this.photoComments = photoComments;
     }
 
     public ClientPhoto(String username, URL url, UUID uuid, List<ClientUser> likedBy, List<ClientComment> comments) {
@@ -42,17 +29,28 @@ public class ClientPhoto {
         this.photoComments = comments;
     }
 
+    @Override
+    public String toString() {
+        return "ClientPhoto{" +
+                "username='" + username + '\'' +
+                ", url=" + url +
+                ", uuid=" + uuid +
+                ", likedBy=" + likedBy +
+                ", comments=" + photoComments +
+                '}';
+    }
 
-    public void setLikedBy(List<ClientUser> likedBy) {
-        this.likedBy = likedBy;
+
+    public List<ClientUser> getLikedBy() {
+        return likedBy;
+    }
+
+    public List<ClientComment> getPhotoComments() {
+        return photoComments;
     }
 
     public String getUsername() {
         return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public URL getUrl() {
@@ -67,28 +65,4 @@ public class ClientPhoto {
         return uuid;
     }
 
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
-    }
-
-//    @Override
-//    public String toString() {
-//        return "ClientPhoto{" +
-//                "username='" + username + '\'' +
-//                ", url=" + url +
-//                ", uuid=" + uuid +
-//                ", likedBy=" + likedBy +
-//                '}';
-//    }
-
-        @Override
-    public String toString() {
-        return "ClientPhoto{" +
-                "username='" + username + '\'' +
-                ", url=" + url +
-                ", uuid=" + uuid +
-                ", likedBy=" + likedBy +
-                ", comments=" + photoComments +
-                '}';
-    }
 }

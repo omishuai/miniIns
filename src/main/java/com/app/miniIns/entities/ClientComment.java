@@ -27,54 +27,6 @@ public class ClientComment {
         this.toId = toId;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public LocalDateTime getCreateDateTime() {
-        return createDateTime;
-    }
-
-    public void setCreateDateTime(LocalDateTime createDateTime) {
-        this.createDateTime = createDateTime;
-    }
-
-    public String getFromUser() {
-        return fromUser;
-    }
-
-    public void setFromUser(String fromUser) {
-        this.fromUser = fromUser;
-    }
-
-    public UUID getPhotoId() {
-        return photoId;
-    }
-
-    public void setPhotoId(UUID photoId) {
-        this.photoId = photoId;
-    }
-
-    public int getToId() {
-        return toId;
-    }
-
-    public void setToId(int toId) {
-        this.toId = toId;
-    }
-
     @Override
     public String toString() {
         return "ClientComment{" +
@@ -85,5 +37,32 @@ public class ClientComment {
                 ", photoId=" + photoId +
                 ", toId=" + toId +
                 '}';
+    }
+
+
+    public int getId() {
+        return id;
+    }
+
+
+    public String getText() {
+        return text;
+    }
+
+
+    public LocalDateTime getCreateDateTime() {
+        return createDateTime;
+    }
+
+    public String getFromUser() {
+        return fromUser;
+    }
+
+    public UUID getPhotoId() {
+        return photoId;
+    }
+
+    public int getToId() {
+        return toId;
     }
 }

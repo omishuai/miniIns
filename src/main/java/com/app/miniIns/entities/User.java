@@ -42,22 +42,6 @@ public class User {
     @ManyToMany(mappedBy = "follows")
     private Set<User> followedBy = new HashSet<>();
 
-    public Set<User> getFollows() {
-        return follows;
-    }
-
-    public void setFollows(Set<User> follows) {
-        this.follows = follows;
-    }
-
-    public Set<User> getFollowedBy() {
-        return followedBy;
-    }
-
-    public void setFollowedBy(Set<User> followedBy) {
-        this.followedBy = followedBy;
-    }
-
 
 
     public User(String username, String email, String password, int age, String gender) {
@@ -69,43 +53,6 @@ public class User {
     }
 
     public User() { }
-
-
-    public String getSalt() {
-        return salt;
-    }
-
-    public void setSalt(String salt) {
-        this.salt = salt;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
 
     @Override
     public String toString() {
@@ -121,12 +68,38 @@ public class User {
 
     @Override
     public boolean equals(Object o) {
-            if (o == this) return true;
-            if (!(o instanceof User)) return false;
-            User u = (User)o;
-            return username.equals(u.username) && email.equals(u.email);
+        if (o == this) return true;
+        if (!(o instanceof User)) return false;
+        User u = (User)o;
+        return username.equals(u.username) && email.equals(u.email);
     }
 
+
+
+    public Set<User> getFollows() {
+        return follows;
+    }
+
+    public Set<User> getFollowedBy() {
+        return followedBy;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public int getId() {
         return id;

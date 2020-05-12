@@ -50,45 +50,6 @@ public class PhotoComment  implements  Comparable{
         this.fromUser = from;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public LocalDateTime getCreateDateTime() {
-        return createDateTime;
-    }
-
-    public void setCreateDateTime(LocalDateTime createDateTime) {
-        this.createDateTime = createDateTime;
-    }
-
-    public String getFromUser() {
-        return fromUser;
-    }
-
-    public void setFromUser(String from) {
-        this.fromUser = from;
-    }
-
-    public int getToId() {
-        return toId;
-    }
-
-    public void setToId(int toId) {
-        this.toId = toId;
-    }
 
     @Override
     public int compareTo(Object o) {
@@ -112,4 +73,27 @@ public class PhotoComment  implements  Comparable{
                 ", toId=" + toId +
                 '}';
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public LocalDateTime getCreateDateTime() {
+        return createDateTime;
+    }
+
+    public String getFromUser() {
+        return fromUser;
+    }
+
+    public int getToId() {
+        return toId;
+    }
+
+
+
 }
