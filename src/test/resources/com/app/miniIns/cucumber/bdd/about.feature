@@ -23,11 +23,12 @@ Feature: User Home
 
     When User with username "username" visits page "/user/username"
     Then Response has status code 200
-    And Response has value "username" for "$.user.username"
-    And Response has value "email@server.com" for "$.user.email"
-    And Response has value 21 for "$.user.age"
-    And Response has value "male" for "$.user.gender"
+    And Response has value "username" for "$.username"
     And Response has value 7 for "$.photos.length()"
+    And Response has value 0 for "$.followingCount"
+    And Response has value 0 for "$.followerCount"
+    And Response has value 7 for "$.postCount"
+
 
 
   Scenario: User Does not Log In to See Photos in User's Home Page
