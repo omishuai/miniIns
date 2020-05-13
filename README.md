@@ -7,9 +7,9 @@ https://app.lucidchart.com/invitations/accept/cc243a85-5493-4c11-9105-d95a1b4f80
 
 APIs
 ----------
-#####-User
-GET /login: return login page<br>
-GET /register: returns sign-up page<br>
+#####-User <br>
+GET /login: return account and password placeholders<br>
+GET /register: returns username, email, password, age, gender placeholders<br>
 POST /register: returns nothing <br>
 
 POST /user/{username}/follow: returns nothing <br>
@@ -19,16 +19,16 @@ GET /user/{user}: returns clientUser including username, intro, profile photo, p
 GET /feed: returns all photos of the following people and user-self's photos<br> 
 
 
-#####-Photo
+#####-Photo <br>
 POST /photo/{photoId}/like: returns nothing<br> 
 POST /photo/{photoId}/unlike: return nothing<br> 
 POST /photo/upload: returns the photo<br> 
 GET /explore: return photo url, photoId, number of likes, and number of comments made<br>
 
-####-Comment 
-POST /photo/{photoId}/comment returns the photo <br>
-POST /comment/{commentId}/reply returns the photo <br>
+####-Comment <br>
+POST /photo/{photoId}/comment returns nothing <br>
+POST /comment/{commentId}/reply returns nothing <br>
 
 
-####-Message
+####-Message <br>
 /message returns message only
