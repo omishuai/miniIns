@@ -424,7 +424,7 @@ public class RegisterStepdefs {
 
         log.info(response.getBody());
         if (response.getStatusCodeValue() == 201)
-            commentId = JsonPath.read(response.getBody(), "$.photoComments[0].id");
+            commentId = JsonPath.read(response.getBody(), "$.id");
     }
 
     @When("User {string} responds {string} to comment")
@@ -485,8 +485,7 @@ public class RegisterStepdefs {
     public void responseRespondsToAComment(String path) {
         Assertions.assertEquals((int)JsonPath.read(response.getBody(), path), commentId);
         if (response.getStatusCodeValue() == 201) {
-            int len = JsonPath.read(response.getBody(), "$.photoComments.size()");
-            commentId = JsonPath.read(response.getBody(), "$.photoComments["+(len-1)+"].id");
+            commentId = JsonPath.read(response.getBody(), "$.id");
         }
     }
 }
