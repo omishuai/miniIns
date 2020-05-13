@@ -11,10 +11,8 @@ APIs
 GET /login: return account and password placeholders<br>
 GET /register: returns username, email, password, age, gender placeholders<br>
 POST /register: returns nothing <br>
-
 POST /user/{username}/follow: returns nothing <br>
 POST /user/{username}/unfollow: returns nothing <br>
-
 GET /user/{user}: returns clientUser including username, intro, profile photo, posts, following count, follower count, and posts count <br> 
 GET /feed: returns all photos of the following people and user-self's photos<br> 
 
@@ -28,7 +26,6 @@ GET /explore: return photo url, photoId, number of likes, and number of comments
 ####-Comment <br>
 POST /photo/{photoId}/comment returns nothing <br>
 POST /comment/{commentId}/reply returns nothing <br>
-
 
 ####-Message <br>
 /message returns message only
