@@ -15,6 +15,8 @@ public class User {
     @Pattern(regexp = "^[A-Z0-9a-z]+$", message = "Username Only Allows Alphanumeric Characters")
     private String username;
 
+    private String intro;
+
     @NotNull (message = "Please Enter Email")
     @Email (message = "Invalid Email")
     private String email;
@@ -31,6 +33,8 @@ public class User {
     private String gender;
 
     private String salt;
+
+    private String profilePhotoKey;
 
     @ManyToMany
     @JoinTable(
@@ -119,5 +123,21 @@ public class User {
 
     public int getAge() {
         return age;
+    }
+
+    public String getIntro() {
+        return intro;
+    }
+
+    public void setIntro(String intro) {
+        this.intro = intro;
+    }
+
+    public String getProfilePhotoKey() {
+        return profilePhotoKey;
+    }
+
+    public void setProfilePhotoKey(String profilePhotoKey) {
+        this.profilePhotoKey = profilePhotoKey;
     }
 }
