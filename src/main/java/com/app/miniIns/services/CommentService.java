@@ -43,6 +43,7 @@ public class CommentService {
 
         PhotoComment photoComment = findById(commentId);
 
+        PhotoComment resPhoto;
         // Assuming that the photo itself is valid
         // Make sure the photoComment to be commented on exists
         if (photoComment == null) {
@@ -52,7 +53,7 @@ public class CommentService {
 
         // check if commenting user is owner of the photo
         if (commentingUsername.equals(photo.getUser().getUsername())) {
-            addReplyingCommentToComment(text, commentingUsername, commentId, photo);
+            return  addReplyingCommentToComment(text, commentingUsername, commentId, photo);
         } else {
 
             // If commenting user is not the owner, then can only respond to the comment on commenter's comment.
@@ -64,20 +65,19 @@ public class CommentService {
             if (commentingUsername.equals(username)) {
 
                 // B is who writes commentB, so B can comment back A on commentA
-                addReplyingCommentToComment(text, commentingUsername, commentId, photo);
+                return addReplyingCommentToComment(text, commentingUsername, commentId, photo);
             } else {
                 throw new InvalidAttributeValueException(commentingUsername + " Cannot Comment on comment: " + photoComment.getText() + " from " + photoComment.getFromUser());
             }
         }
-        return photoComment;
     }
 
-    public void addReplyingCommentToComment(String text, String fromUser, int commentId, Photo photo) throws EmptyInputException {
+    public PhotoComment addReplyingCommentToComment(String text, String fromUser, int commentId, Photo photo) throws EmptyInputException {
         //comment that has to have a message
         if (StringUtils.isEmpty(text)) throw new EmptyInputException("Text Is Empty");
         PhotoComment photoComment = new PhotoComment(text, fromUser, commentId);
         photoComment.setPhoto(photo);
-        commentRepository.save(photoComment);
+        return commentRepository.save(photoComment);
     }
 
     public PhotoComment findById(int id) {
