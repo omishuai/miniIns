@@ -24,11 +24,6 @@ Feature: Photo Pool
     When User with username "username4" visits page "/explore"
     Then Response has status code 200
     And Response has value 3 for "$.length()"
-    And Response has value "username" for "$[0].username"
-    And Response has value "username2" for "$[1].username"
-    And Response has value "username3" for "$[2].username"
-
-
 
   Scenario: User Does not Log In to See Photos in Explore
     Given empty database
