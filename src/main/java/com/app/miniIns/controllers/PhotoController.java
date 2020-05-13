@@ -1,6 +1,7 @@
 package com.app.miniIns.controllers;
 
 import com.app.miniIns.entities.*;
+import com.app.miniIns.services.CommentService;
 import com.app.miniIns.services.FileStorageService;
 import com.app.miniIns.services.PhotoService;
 import com.app.miniIns.services.UserService;
@@ -31,29 +32,30 @@ public class PhotoController {
     private UserService userService;
 
     @Autowired
+    private CommentService commentService;
+
+    @Autowired
     private PhotoReformatter photoReformatter;
 
     @PostMapping("/photo/{photoId}/like")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public ClientPhoto addLike(@PathVariable("photoId") String pid) throws MalformedURLException {
+    public void addLike(@PathVariable("photoId") String pid) throws MalformedURLException {
         SecurityContext context = SecurityContextHolder.getContext();
         String username = (String) context.getAuthentication().getPrincipal();
         User user = userService.findByUsername(username);
-        Photo photo = photoService.likedByUser(user, UUID.fromString(pid));
-        return photoReformatter.constructClientPhoto(photo);
+        photoService.likedByUser(user, UUID.fromString(pid));
     }
 
 
     @PostMapping("/photo/{photoId}/unlike")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public ClientPhoto removeLike(@PathVariable("photoId")  String pid) throws MalformedURLException {
+    public void removeLike(@PathVariable("photoId")  String pid) throws MalformedURLException {
         SecurityContext context = SecurityContextHolder.getContext();
         String username = (String) context.getAuthentication().getPrincipal();
         User user = userService.findByUsername(username);
-        Photo photo = photoService.unlikedByUser(user, UUID.fromString(pid));
-        return photoReformatter.constructClientPhoto(photo);
+        photoService.unlikedByUser(user, UUID.fromString(pid));
     }
 
 
@@ -70,12 +72,9 @@ public class PhotoController {
 
         //In case the destination becomes disk, we make controller unaware of s3 bucket
         Photo photo = new Photo(user, file.getOriginalFilename());
-
         URL url =  fileStorageService.upload(photo.getUuid().toString(), file);
-
         photo = photoService.addPhoto(photo);
 
-        // Return client photo without likedBy and comments  (new)
         return  new ClientPhoto(user.getUsername(), url, photo.getUuid());
     }
 
@@ -86,8 +85,11 @@ public class PhotoController {
 
         List<ClientPhoto> res = new ArrayList<>();
         List<Photo> ls = photoService.findAllByCreateDateTimeBetween(LocalDateTime.now().minusDays(1), LocalDateTime.now());
-        for (Photo p: ls)
-            res.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getUuid().toString()), p.getUuid()));
+
+        for (Photo p: ls) {
+            List<PhotoComment> comments = commentService.findByPhotoIdByOrderByTime(p.getUuid());
+            res.add(new ClientPhoto(fileStorageService.getUrl(p.getUuid().toString()), p.getUuid(), p.getLikedBy().size(), comments.size()));
+        }
         return res;
     }
 
