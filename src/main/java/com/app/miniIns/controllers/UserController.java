@@ -32,62 +32,51 @@ public class UserController {
         this.userService = userService;
     }
 
+
     @PostMapping(path = "/register")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public ClientUser register(
+    public void register(
             @RequestParam("username") String username,
             @RequestParam("email") String email,
             @RequestParam("password") String password,
             @RequestParam("age") int age,
             @RequestParam("gender") String gender) throws Exception {
 
-        User res = userService.addUser(new User(username, email, password, age, gender));
-        return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
+        userService.addUser(new User(username, email, password, age, gender));
     }
 
 
     @PostMapping(path = "/login")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ClientUser login(@RequestParam("user") String accountName, String password) throws Exception {
-        User res = userService.verifyInfo(accountName, password);
-        return constructClientUserWithFollowingList(res);
+    public void login(@RequestParam("user") String accountName, String password) throws Exception {
+        userService.verifyInfo(accountName, password);
     }
 
     //follow user
     @PostMapping(path = "/user/{username}/follow")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public UserRelation follow(@PathVariable("username") String followedUsername) {
+    public void follow(@PathVariable("username") String followedUsername) {
 
         // Get the current user in context
         SecurityContext context = SecurityContextHolder.getContext();
         String followerUsername = (String) context.getAuthentication().getPrincipal();
 
         userService.followUser(followerUsername, followedUsername);
-
-        ClientUser follower = constructClientUserWithFollowingList(userService.findByUsername(followerUsername));
-        ClientUser followed = constructClientUserWithFollowingList(userService.findByUsername(followedUsername));
-
-        return new UserRelation(follower, followed);
     }
 
     @PostMapping(path = "/user/{username}/unfollow")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public UserRelation unfollow(@PathVariable("username") String unfollowedUsername) {
+    public void unfollow(@PathVariable("username") String unfollowedUsername) {
         
         // Get the current user in context
         SecurityContext context = SecurityContextHolder.getContext();
         String followerUsername = (String) context.getAuthentication().getPrincipal();
 
         userService.stopFollowUser(followerUsername, unfollowedUsername);
-
-        ClientUser follower = constructClientUserWithFollowingList(userService.findByUsername(followerUsername));
-        ClientUser unfollowed = constructClientUserWithFollowingList(userService.findByUsername(unfollowedUsername));
-
-        return new UserRelation(follower, unfollowed);
     }
 
     @GetMapping("/user/{user}")
@@ -101,14 +90,6 @@ public class UserController {
         List<String> followedBy = new ArrayList<>();
         for (User usr : res.getFollowedBy()) followedBy.add(usr.getUsername());
 
-        ClientUser u =  new ClientUser(
-                res.getUsername(),
-                res.getEmail(),
-                res.getAge(),
-                res.getGender(),
-                following,
-                followedBy);
-
         List<Photo> serverPhotos = photoService.findByUserId(res.getId());
         Collections.sort(serverPhotos);
 
@@ -117,13 +98,21 @@ public class UserController {
             photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getUuid().toString()), p.getUuid()));
 
 
-        return new UserResponse(u, photos);
+        return new UserResponse(
+                res.getUsername(),
+                res.getIntro(),
+                res.getProfilePhotoKey(),
+                photos,
+                res.getFollowedBy().size(),
+                res.getFollows().size(),
+                photos.size()
+                );
     }
 
     @GetMapping("/feed")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public UserResponse getFeedsPageForUser() throws MalformedURLException {
+    public List<ClientPhoto> getFeedsPageForUser() throws MalformedURLException {
         SecurityContext context = SecurityContextHolder.getContext();
         String username = (String) context.getAuthentication().getPrincipal();
 
@@ -142,27 +131,8 @@ public class UserController {
         for (Photo photo : photos) {
             clientPhotos.add(new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(photo.getUuid().toString()), photo.getUuid()));
         }
-
-        ClientUser clientUser = constructClientUserWithFollowingList(currentUser);
-
-        return new UserResponse(clientUser, clientPhotos);
+        return clientPhotos;
     }
 
-    public  ClientUser constructClientUserWithFollowingList(User user) {
-
-        List<String> following = new ArrayList<>();
-        for (User usr : user.getFollows()) following.add(usr.getUsername());
-
-        List<String> followedBy = new ArrayList<>();
-        for (User usr : user.getFollowedBy()) followedBy.add(usr.getUsername());
-
-        return new ClientUser(
-                user.getUsername(),
-                user.getEmail(),
-                user.getAge(),
-                user.getGender(),
-                following,
-                followedBy);
-    }
 
 }
