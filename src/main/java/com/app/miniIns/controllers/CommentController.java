@@ -22,9 +22,6 @@ public class CommentController {
     @Autowired
     private PhotoService photoService;
 
-    @Autowired
-    private PhotoReformatter photoReformatter;
-
     @PostMapping("/photo/{photoId}/comment")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)

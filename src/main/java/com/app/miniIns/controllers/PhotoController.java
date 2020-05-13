@@ -34,9 +34,6 @@ public class PhotoController {
     @Autowired
     private CommentService commentService;
 
-    @Autowired
-    private PhotoReformatter photoReformatter;
-
     @PostMapping("/photo/{photoId}/like")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
