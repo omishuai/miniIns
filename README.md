@@ -8,8 +8,7 @@ https://app.lucidchart.com/invitations/accept/cc243a85-5493-4c11-9105-d95a1b4f80
 APIs
 ----------
 #####-User <br>
-GET /login: return account and password placeholders<br>
-GET /register: returns username, email, password, age, gender placeholders<br>
+POST /login: return account and password placeholders<br>
 POST /register: returns nothing <br>
 POST /user/{username}/follow: returns nothing <br>
 POST /user/{username}/unfollow: returns nothing <br>
