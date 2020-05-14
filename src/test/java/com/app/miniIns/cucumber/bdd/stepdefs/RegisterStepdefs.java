@@ -190,6 +190,8 @@ public class RegisterStepdefs {
                 HttpMethod.GET,
                 request,
                 String.class);
+
+        log.info(response.getBody());
     }
 
     String uploadedPhotoId;

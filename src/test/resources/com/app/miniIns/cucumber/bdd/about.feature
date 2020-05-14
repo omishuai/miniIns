@@ -27,7 +27,7 @@ Feature: User Home
     And Response has value 7 for "$.photos.length()"
     And Response has value 0 for "$.followsCount"
     And Response has value 0 for "$.followedByCount"
-    And Response has value 7 for "$./photosCount"
+    And Response has value 7 for "$.photosCount"
 
 
 

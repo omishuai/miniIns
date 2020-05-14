@@ -82,12 +82,48 @@ public class UserController {
     @GetMapping("/user/{user}")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public UserByProjection getGreetingPageForUser(@PathVariable  String user) throws MalformedURLException {
+    public ClientUserForHome getGreetingPageForUser(@PathVariable  String user) throws MalformedURLException {
 
         System.out.println(user  + " loading about data");
-        UserByProjection res = userService.findByUsernameProjection(user);
+        UserForHome res = userService.findByUsernameProjection(user);
         System.out.println(res);
-        return res;
+//        User res = userService.findByUsername(user);
+        //int id, String gender, String username, int age, String intro, int followsCount, int followedByCount, int photosCount, List<ClientPhoto> photos, String profilePhotoKey
+
+//        List<Photo> serverPhotos = res.getPhotos();
+        List<Photo> serverPhotos = photoService.findByUserId(res.getId());
+        Collections.sort(serverPhotos);
+        List<ClientPhoto>  photos = new ArrayList<>();
+        for (Photo p : serverPhotos)
+            photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getUuid().toString()), p.getUuid()));
+
+//        System.out.printf("%s \n%s \n%s \n%s \n%s \n%s \n%s \n%s \n%s \n%s \n",                res.getId(),
+//                res.getGender(),
+//                res.getUsername(),
+//                res.getAge(),
+//                res.getIntro(),
+//                res.getFollowsCount(),
+//                res.getFollowedByCount(),
+//                res.getPhotosCount(),
+//                photos,
+//                res.getProfilePhotoKey());
+
+        ClientUserForHome userForHome = new ClientUserForHome(
+                res.getId(),
+                res.getGender(),
+                res.getUsername(),
+                res.getAge(),
+                res.getIntro(),
+//                res.getFollows().size(),
+//                res.getFollowedBy().size(),
+                res.getFollowsCount(),
+                res.getFollowedByCount(),
+                res.getPhotosCount(),
+                photos,
+                res.getProfilePhotoKey());
+        System.out.println(userForHome);
+        return userForHome;
+
 //        List<String> following = new ArrayList<>();
 //        for (User usr : res.getFollows()) following.add(usr.getUsername());
 //        List<String> followedBy = new ArrayList<>();
