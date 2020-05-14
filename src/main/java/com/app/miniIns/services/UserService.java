@@ -77,7 +77,7 @@ public class UserService {
         return userRepo.save(user);
     }
 
-    public User verifyInfo(String account, String password) throws Exception {
+    public UserTemplate verifyInfo(String account, String password) throws Exception {
         if (account == null || (account.equals(""))) throw new EmptyInputException("Please Enter Username or Email");
 
         String email = account.contains("@") ? account : "";
@@ -85,16 +85,16 @@ public class UserService {
 
         if (password == null || password.equals("")) throw new EmptyInputException("Please Enter Password");
 
-        User savedUser;
+        UserTemplate userTemplate;
         if (!email.equals("")) {
-            savedUser = findByEmail(email);
-            if (savedUser == null) throw new VerificationFailureException("Unregistered " + email);
+            userTemplate = userRepo.findByEmailByProjection(email);
+            if (userTemplate == null) throw new VerificationFailureException("Unregistered " + email);
         } else {
-            savedUser = findByUsername(username);
-            if (savedUser == null) throw new VerificationFailureException("Unregistered " + username);
+            userTemplate = userRepo.findByUsernameByProjection(username);
+            if (userTemplate == null) throw new VerificationFailureException("Unregistered " + username);
         }
 
-        if (savedUser.getPassword().equals(BCrypt.hashpw(password, savedUser.getSalt()))) return savedUser;
+        if (userTemplate.getPassword().equals(BCrypt.hashpw(password, userTemplate.getSalt()))) return userTemplate;
         throw new VerificationFailureException("Incorrect Password");
     }
 
