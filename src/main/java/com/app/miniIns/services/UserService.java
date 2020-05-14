@@ -56,8 +56,8 @@ public class UserService {
         return res;
     }
 
-    public UserByProjection findByUsernameProjection(String username) {
-        return userRepo.findByUsername(username,UserByProjection.class);
+    public UserForHome findByUsernameProjection(String username) {
+        return userRepo.findByUsernameProjection(username);
     }
 
     public User findByUsername(String username) {
