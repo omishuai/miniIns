@@ -95,7 +95,7 @@ public class UserController {
         Collections.sort(serverPhotos);
         List<ClientPhoto>  photos = new ArrayList<>();
         for (Photo p : serverPhotos)
-            photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getUuid().toString()), p.getUuid()));
+            photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getS3Key()), p.getUuid()));
 
 //        System.out.printf("%s \n%s \n%s \n%s \n%s \n%s \n%s \n%s \n%s \n%s \n",                res.getId(),
 //                res.getGender(),
@@ -167,7 +167,7 @@ public class UserController {
 
         List<ClientPhoto> clientPhotos = new ArrayList<>();
         for (Photo photo : photos) {
-            clientPhotos.add(new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(photo.getUuid().toString()), photo.getUuid()));
+            clientPhotos.add(new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(photo.getS3Key()), photo.getUuid()));
         }
         return clientPhotos;
     }

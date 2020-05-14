@@ -12,10 +12,14 @@ import java.util.UUID;
 
 @Entity
 public class Photo implements  Comparable{
+
+    // To avoid checking the existence before inserting to table
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Type(type="org.hibernate.type.UUIDCharType")
-    private UUID uuid = UUID.randomUUID();
+    private UUID uuid;
+
+    private String s3Key = UUID.randomUUID().toString();
 
     @ManyToOne
     @JoinColumn (name="userId", referencedColumnName = "id")
@@ -81,6 +85,9 @@ public class Photo implements  Comparable{
         return String.format("{uuid: %s, userId: %d, filename: '%s'}", uuid, user.getId(), filename);
     }
 
+    public String getS3Key() {
+        return s3Key;
+    }
 
     public UUID getUuid() {
         return uuid;

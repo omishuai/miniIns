@@ -67,9 +67,13 @@ public class PhotoController {
         String u = (String) auth.getPrincipal();
         User user = userService.findByUsername(u);
 
+        System.out.println(user);
+
         //In case the destination becomes disk, we make controller unaware of s3 bucket
         Photo photo = new Photo(user, file.getOriginalFilename());
-        URL url =  fileStorageService.upload(photo.getUuid().toString(), file);
+
+        URL url =  fileStorageService.upload(photo.getS3Key(), file);
+        System.out.println(photo);
         photo = photoService.addPhoto(photo);
 
         return  new ClientPhoto(user.getUsername(), url, photo.getUuid());
@@ -85,7 +89,7 @@ public class PhotoController {
 
         for (Photo p: ls) {
             List<PhotoComment> comments = commentService.findByPhotoIdByOrderByTime(p.getUuid());
-            res.add(new ClientPhoto(fileStorageService.getUrl(p.getUuid().toString()), p.getUuid(), p.getLikedBy().size(), comments.size()));
+            res.add(new ClientPhoto(fileStorageService.getUrl(p.getS3Key()), p.getUuid(), p.getLikedBy().size(), comments.size()));
         }
         return res;
     }
