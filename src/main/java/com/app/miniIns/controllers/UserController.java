@@ -91,9 +91,11 @@ public class UserController {
         //int id, String gender, String username, int age, String intro, int followsCount, int followedByCount, int photosCount, List<ClientPhoto> photos, String profilePhotoKey
 
 //        List<Photo> serverPhotos = res.getPhotos();
+        List<Photo> serverPhotos = photoService.findByUserId(res.getId());
+        Collections.sort(serverPhotos);
         List<ClientPhoto>  photos = new ArrayList<>();
-//        for (Photo p : serverPhotos)
-//            photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getUuid().toString()), p.getUuid()));
+        for (Photo p : serverPhotos)
+            photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getUuid().toString()), p.getUuid()));
 
 //        System.out.printf("%s \n%s \n%s \n%s \n%s \n%s \n%s \n%s \n%s \n%s \n",                res.getId(),
 //                res.getGender(),
@@ -116,7 +118,7 @@ public class UserController {
 //                res.getFollowedBy().size(),
                 res.getFollowsCount(),
                 res.getFollowedByCount(),
-                res.getPhotos().size(),
+                res.getPhotosCount(),
                 photos,
                 res.getProfilePhotoKey());
         System.out.println(userForHome);

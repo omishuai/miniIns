@@ -20,12 +20,16 @@ public interface UserRepository extends CrudRepository<User, Integer> {
             "user.username," +
             "user.age," +
             "user.intro," +
-            "size(user.follows)," +
-            "size(user.followedBy)," +
-            "size(user.photos)," +
+            "count(follows)," +
+            "count(followedBy)," +
+            "count(photos)," +
 //            "user.photos," +
-            "user.profilePhotoKey)" +
-            " from User user where user.username = ?1 group by user.id")
+            "user.profilePhotoKey) " +
+            "from User user " +
+            "left join user.follows follows " +
+            "left join user.followedBy followedBy " +
+            "left join user.photos photos " +
+            "where user.username = :username group by user.id")
     UserForHome findByUsernameProjection(String username);
 
     <T> T findByUsername(String username, Class<T> tclass);

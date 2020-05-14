@@ -10,13 +10,12 @@ public class UserForHome implements Serializable {
     private String username;
     private int age;
     private String intro;
-    private int followsCount;
-    private int followedByCount;
-    private int photosCount;
-    private List<Photo> photos;
+    private long followsCount;
+    private long followedByCount;
+    private long photosCount;
     private String ProfilePhotoKey;
 
-    public UserForHome(int id, String gender, String username, int age, String intro, int followsCount, int followedByCount, int photosCount,  String profilePhotoKey) {
+    public UserForHome(int id, String gender, String username, int age, String intro, long followsCount, long followedByCount, long photosCount,  String profilePhotoKey) {
         this.id = id;
         this.gender = gender;
         this.username = username;
@@ -25,7 +24,6 @@ public class UserForHome implements Serializable {
         this.followsCount = followsCount;
         this.followedByCount = followedByCount;
         this.photosCount = photosCount;
-//        this.photos = photos;
         ProfilePhotoKey = profilePhotoKey;
     }
 
@@ -78,9 +76,9 @@ public class UserForHome implements Serializable {
         return photosCount;
     }
 
-    public List<Photo> getPhotos() {
-        return photos;
-    }
+//    public List<Photo> getPhotos() {
+//        return photos;
+//    }
 
     public String getProfilePhotoKey() {
         return ProfilePhotoKey;
