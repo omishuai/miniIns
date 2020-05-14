@@ -84,29 +84,15 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public ClientUserForHome getGreetingPageForUser(@PathVariable  String user) throws MalformedURLException {
 
-        System.out.println(user  + " loading about data");
+        System.out.println("\n userService.findByUsernameProjection:");
         UserForHome res = userService.findByUsernameProjection(user);
-        System.out.println(res);
-//        User res = userService.findByUsername(user);
-        //int id, String gender, String username, int age, String intro, int followsCount, int followedByCount, int photosCount, List<ClientPhoto> photos, String profilePhotoKey
 
-//        List<Photo> serverPhotos = res.getPhotos();
-        List<Photo> serverPhotos = photoService.findByUserId(res.getId());
+        System.out.println("\n photoService.findByUserIdForHome:");
+        List<PhotoForHome> serverPhotos = photoService.findByUserIdForHome(res.getId());
         Collections.sort(serverPhotos);
         List<ClientPhoto>  photos = new ArrayList<>();
-        for (Photo p : serverPhotos)
-            photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getS3Key()), p.getUuid()));
-
-//        System.out.printf("%s \n%s \n%s \n%s \n%s \n%s \n%s \n%s \n%s \n%s \n",                res.getId(),
-//                res.getGender(),
-//                res.getUsername(),
-//                res.getAge(),
-//                res.getIntro(),
-//                res.getFollowsCount(),
-//                res.getFollowedByCount(),
-//                res.getPhotosCount(),
-//                photos,
-//                res.getProfilePhotoKey());
+        for (PhotoForHome p : serverPhotos)
+            photos.add(new ClientPhoto(p.getUsername(), fileStorageService.getUrl(p.getS3Key()), p.getUuid()));
 
         ClientUserForHome userForHome = new ClientUserForHome(
                 res.getId(),
@@ -114,8 +100,6 @@ public class UserController {
                 res.getUsername(),
                 res.getAge(),
                 res.getIntro(),
-//                res.getFollows().size(),
-//                res.getFollowedBy().size(),
                 res.getFollowsCount(),
                 res.getFollowedByCount(),
                 res.getPhotosCount(),
@@ -123,28 +107,6 @@ public class UserController {
                 res.getProfilePhotoKey());
         System.out.println(userForHome);
         return userForHome;
-
-//        List<String> following = new ArrayList<>();
-//        for (User usr : res.getFollows()) following.add(usr.getUsername());
-//        List<String> followedBy = new ArrayList<>();
-//        for (User usr : res.getFollowedBy()) followedBy.add(usr.getUsername());
-//
-//
-//        List<Photo> serverPhotos = res.getPhotos();
-//        List<ClientPhoto>  photos = new ArrayList<>();
-//        for (Photo p : serverPhotos)
-//            photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getUuid().toString()), p.getUuid()));
-//
-//
-//        return new UserResponse(
-//                res.getUsername(),
-//                res.getIntro(),
-//                res.getProfilePhotoKey(),
-//                photos,
-//                res.getFollowedBy().size(),
-//                res.getFollows().size(),
-//                photos.size()
-//                );
     }
 
     @GetMapping("/feed")

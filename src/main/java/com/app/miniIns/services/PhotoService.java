@@ -2,6 +2,7 @@ package com.app.miniIns.services;
 
 import com.app.miniIns.entities.PhotoComment;
 import com.app.miniIns.entities.Photo;
+import com.app.miniIns.entities.PhotoForHome;
 import com.app.miniIns.entities.User;
 import com.app.miniIns.exceptions.EmptyInputException;
 import org.apache.commons.lang.StringUtils;
@@ -34,6 +35,9 @@ public class PhotoService{
         return  photoRepository.findByUuid(id);
     }
 
+    public List<PhotoForHome> findByUserIdForHome(int id) {
+        return photoRepository.findByUserIdForHome(id);
+    }
 
     public Photo unlikedByUser(User user, UUID id) {
         Photo photo = findById(id);

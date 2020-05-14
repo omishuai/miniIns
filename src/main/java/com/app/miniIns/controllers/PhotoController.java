@@ -65,15 +65,20 @@ public class PhotoController {
         Authentication auth = context.getAuthentication();
 
         String u = (String) auth.getPrincipal();
-        User user = userService.findByUsername(u);
 
-        System.out.println(user);
+        // This will make the join with photo, since photos in User is OneToMany with Lazy fetch, meaning
+        // photos will not be loaded unless calling the method as following:
+        // System.out.println(user.getPhotos());
+
+        // findByUsername by default has the fetch: LAZY, so mapping that tagged lazy will not be queried
+        System.out.println("\n userService.findByUsername");
+        User user = userService.findByUsername(u);
 
         //In case the destination becomes disk, we make controller unaware of s3 bucket
         Photo photo = new Photo(user, file.getOriginalFilename());
 
         URL url =  fileStorageService.upload(photo.getS3Key(), file);
-        System.out.println(photo);
+        System.out.println("\n photoService.addPhoto");
         photo = photoService.addPhoto(photo);
 
         return  new ClientPhoto(user.getUsername(), url, photo.getUuid());
