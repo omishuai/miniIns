@@ -82,31 +82,33 @@ public class UserController {
     @GetMapping("/user/{user}")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public UserResponse getGreetingPageForUser(@PathVariable  String user) throws MalformedURLException {
+    public UserByProjection getGreetingPageForUser(@PathVariable  String user) throws MalformedURLException {
 
-        User res = userService.findByUsername(user);
-        List<String> following = new ArrayList<>();
-        for (User usr : res.getFollows()) following.add(usr.getUsername());
-        List<String> followedBy = new ArrayList<>();
-        for (User usr : res.getFollowedBy()) followedBy.add(usr.getUsername());
-
-        List<Photo> serverPhotos = photoService.findByUserId(res.getId());
-        Collections.sort(serverPhotos);
-
-        List<ClientPhoto>  photos = new ArrayList<>();
-        for (Photo p : serverPhotos)
-            photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getUuid().toString()), p.getUuid()));
-
-
-        return new UserResponse(
-                res.getUsername(),
-                res.getIntro(),
-                res.getProfilePhotoKey(),
-                photos,
-                res.getFollowedBy().size(),
-                res.getFollows().size(),
-                photos.size()
-                );
+        System.out.println(user  + " loading about data");
+        UserByProjection res = userService.findByUsernameProjection(user);
+        System.out.println(res);
+        return res;
+//        List<String> following = new ArrayList<>();
+//        for (User usr : res.getFollows()) following.add(usr.getUsername());
+//        List<String> followedBy = new ArrayList<>();
+//        for (User usr : res.getFollowedBy()) followedBy.add(usr.getUsername());
+//
+//
+//        List<Photo> serverPhotos = res.getPhotos();
+//        List<ClientPhoto>  photos = new ArrayList<>();
+//        for (Photo p : serverPhotos)
+//            photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getUuid().toString()), p.getUuid()));
+//
+//
+//        return new UserResponse(
+//                res.getUsername(),
+//                res.getIntro(),
+//                res.getProfilePhotoKey(),
+//                photos,
+//                res.getFollowedBy().size(),
+//                res.getFollows().size(),
+//                photos.size()
+//                );
     }
 
     @GetMapping("/feed")

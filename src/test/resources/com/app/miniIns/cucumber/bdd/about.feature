@@ -25,9 +25,9 @@ Feature: User Home
     Then Response has status code 200
     And Response has value "username" for "$.username"
     And Response has value 7 for "$.photos.length()"
-    And Response has value 0 for "$.followingCount"
-    And Response has value 0 for "$.followerCount"
-    And Response has value 7 for "$.postCount"
+    And Response has value 0 for "$.followsCount"
+    And Response has value 0 for "$.followedByCount"
+    And Response has value 7 for "$./photosCount"
 
 
 

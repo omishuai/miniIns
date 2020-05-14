@@ -30,16 +30,16 @@ public class UserService {
 
 
     public void followUser(String follower, String followed) {
-        User user1 = userRepo.findByUsername(follower);
-        User user2 = userRepo.findByUsername(followed);
+        User user1 = userRepo.findByUsername(follower, User.class);
+        User user2 = userRepo.findByUsername(followed, User.class);
         user1.getFollows().add(user2);
 
         userRepo.save(user1);
     }
 
     public void stopFollowUser(String follower, String followed) {
-        User user1 = userRepo.findByUsername(follower);
-        User user2 = userRepo.findByUsername(followed);
+        User user1 = userRepo.findByUsername(follower, User.class);
+        User user2 = userRepo.findByUsername(followed, User.class);
         user1.getFollows().remove(user2);
 
         userRepo.save(user1);
@@ -56,8 +56,12 @@ public class UserService {
         return res;
     }
 
+    public UserByProjection findByUsernameProjection(String username) {
+        return userRepo.findByUsername(username,UserByProjection.class);
+    }
+
     public User findByUsername(String username) {
-        return userRepo.findByUsername(username);
+        return userRepo.findByUsername(username, User.class);
     }
 
 

@@ -33,6 +33,13 @@ public class Photo implements  Comparable{
             orphanRemoval = true)
     private List<User> likedBy;
 
+    @OneToMany (
+            mappedBy = "photo",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<PhotoComment> comments = new ArrayList<>();
+
 
     public LocalDateTime getCreateDateTime() {
         return createDateTime;

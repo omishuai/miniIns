@@ -46,6 +46,12 @@ public class User {
     @ManyToMany(mappedBy = "follows")
     private Set<User> followedBy = new HashSet<>();
 
+    @OneToMany (
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<Photo> photos = new ArrayList<>();
+
 
 
     public User(String username, String email, String password, int age, String gender) {
@@ -78,6 +84,9 @@ public class User {
         return username.equals(u.username) && email.equals(u.email);
     }
 
+    public List<Photo> getPhotos() {
+        return photos;
+    }
 
 
     public Set<User> getFollows() {
