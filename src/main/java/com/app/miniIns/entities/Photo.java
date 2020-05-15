@@ -37,6 +37,8 @@ public class Photo implements  Comparable{
             orphanRemoval = true)
     private List<User> likedBy;
 
+
+
     @OneToMany (
             mappedBy = "photo",
             cascade = CascadeType.ALL,
@@ -51,6 +53,10 @@ public class Photo implements  Comparable{
 
     public List<User> getLikedBy() {
         return likedBy;
+    }
+
+    public List<PhotoComment> getComments() {
+        return comments;
     }
 
     public void setLikedBy(List<User> likedBy) {

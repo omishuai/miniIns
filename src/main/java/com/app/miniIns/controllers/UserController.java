@@ -54,31 +54,6 @@ public class UserController {
         userService.verifyInfo(accountName, password);
     }
 
-    //follow user
-    @PostMapping(path = "/user/{username}/follow")
-    @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
-    public void follow(@PathVariable("username") String followedUsername) {
-
-        // Get the current user in context
-        SecurityContext context = SecurityContextHolder.getContext();
-        String followerUsername = (String) context.getAuthentication().getPrincipal();
-
-        userService.followUser(followerUsername, followedUsername);
-    }
-
-    @PostMapping(path = "/user/{username}/unfollow")
-    @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
-    public void unfollow(@PathVariable("username") String unfollowedUsername) {
-        
-        // Get the current user in context
-        SecurityContext context = SecurityContextHolder.getContext();
-        String followerUsername = (String) context.getAuthentication().getPrincipal();
-
-        userService.stopFollowUser(followerUsername, unfollowedUsername);
-    }
-
     @GetMapping("/user/{user}")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
@@ -109,27 +84,92 @@ public class UserController {
         return userForHome;
     }
 
+
+    //////////////////////////////////////////////////////////////////////////////
+
+    //follow user
+    @PostMapping(path = "/user/{username}/follow")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public void follow(@PathVariable("username") String followedUsername) {
+
+        // Get the current user in context
+        SecurityContext context = SecurityContextHolder.getContext();
+        String followerUsername = (String) context.getAuthentication().getPrincipal();
+
+        userService.followUser(followerUsername, followedUsername);
+    }
+
+    @PostMapping(path = "/user/{username}/unfollow")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public void unfollow(@PathVariable("username") String unfollowedUsername) {
+        
+        // Get the current user in context
+        SecurityContext context = SecurityContextHolder.getContext();
+        String followerUsername = (String) context.getAuthentication().getPrincipal();
+
+        userService.stopFollowUser(followerUsername, unfollowedUsername);
+    }
+
+
+
     @GetMapping("/feed")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public List<ClientPhoto> getFeedsPageForUser() throws MalformedURLException {
+    public List<PhotoForFeed> getFeedsPageForUser() throws MalformedURLException {
         SecurityContext context = SecurityContextHolder.getContext();
         String username = (String) context.getAuthentication().getPrincipal();
 
+        System.out.println("\n FEED: user.findByUsername()");
         User currentUser = userService.findByUsername(username);
+
+        System.out.println("\n FEED: user.getFollows()");
         Set<User> users = currentUser.getFollows();
         users.add(currentUser);
 
         List<Photo> photos = new ArrayList<>();
         for (User usr : users) {
+            System.out.println("\n FEED: photoService.findRecentPhotosForSUser");
             photos.addAll(photoService.findRecentPhotosForUser(usr.getId(), LocalDateTime.now().minusDays(1), LocalDateTime.now()));
         }
 
         Collections.sort(photos);
 
-        List<ClientPhoto> clientPhotos = new ArrayList<>();
+        List<PhotoForFeed> clientPhotos = new ArrayList<>();
         for (Photo photo : photos) {
-            clientPhotos.add(new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(photo.getS3Key()), photo.getUuid()));
+            System.out.println("\n FEED: photo.getLikedBy() photo.getComments():");
+            List<User> likedBy = photo.getLikedBy();
+            List<PhotoComment> comments = photo.getComments();
+
+            List<ClientComment> sample = new ArrayList<>();
+            for (PhotoComment photoComment : comments.subList(0,comments.size() > 5 ? 5 : comments.size())) {
+                sample.add(new ClientComment(
+                        photoComment.getId(),
+                        photoComment.getText(),
+                        photoComment.getCreateDateTime(),
+                        photoComment.getFromUser(),
+                        photoComment.getPhoto().getUuid(),
+                        photoComment.getToId()));
+            }
+
+
+            List<String> likedByFollows = new ArrayList<>();
+            for (User user : likedBy) {
+                if (users.contains(user)) {
+                    likedByFollows.add(user.getUsername());
+                }
+            }
+
+
+            clientPhotos.add(
+                    new PhotoForFeed(
+                            photo.getUser().getUsername(),
+                            fileStorageService.getUrl(photo.getS3Key()),
+                            photo.getUuid(),
+                            likedBy.size(),
+                            comments.size(),
+                            likedByFollows, sample));
         }
         return clientPhotos;
     }

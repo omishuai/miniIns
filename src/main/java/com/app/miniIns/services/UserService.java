@@ -30,23 +30,26 @@ public class UserService {
 
 
     public void followUser(String follower, String followed) {
-        User user1 = userRepo.findByUsername(follower, User.class);
-        User user2 = userRepo.findByUsername(followed, User.class);
+        User user1 = findByUsername(follower);
+        User user2 = findByUsername(followed);
+        System.out.println("\n Follow: user1.getFollows()");
         user1.getFollows().add(user2);
-
+        System.out.println("\n userRepo.save");
         userRepo.save(user1);
     }
 
     public void stopFollowUser(String follower, String followed) {
-        User user1 = userRepo.findByUsername(follower, User.class);
-        User user2 = userRepo.findByUsername(followed, User.class);
+        User user1 = findByUsername(follower);
+        User user2 = findByUsername(followed);
+        System.out.println("\n Follow: user1.getFollows()");
         user1.getFollows().remove(user2);
-
+        System.out.println("\n userRepo.save");
         userRepo.save(user1);
     }
 
 
     public User findByEmail(String email) {
+        System.out.println("\n userRepo.findByEmail");
         return userRepo.findByEmail(email);
     }
     public List<User> findAll() {
@@ -61,6 +64,7 @@ public class UserService {
     }
 
     public User findByUsername(String username) {
+        System.out.println("\n userRepo.findByUsername");
         return userRepo.findByUsername(username, User.class);
     }
 
@@ -74,6 +78,7 @@ public class UserService {
 
         String hashedPassword = BCrypt.hashpw(user.getPassword(), salt);
         user.setPassword(hashedPassword);
+        System.out.println("\n userRepo.save");
         return userRepo.save(user);
     }
 
@@ -87,9 +92,11 @@ public class UserService {
 
         UserTemplate userTemplate;
         if (!email.equals("")) {
+            System.out.println("\n userRepo.findByEmailByProjection");
             userTemplate = userRepo.findByEmailByProjection(email);
             if (userTemplate == null) throw new VerificationFailureException("Unregistered " + email);
         } else {
+            System.out.println("\n userRepo.findByUsernameByProjection");
             userTemplate = userRepo.findByUsernameByProjection(username);
             if (userTemplate == null) throw new VerificationFailureException("Unregistered " + username);
         }
