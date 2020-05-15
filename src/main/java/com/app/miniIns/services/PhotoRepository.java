@@ -1,7 +1,8 @@
 package com.app.miniIns.services;
 
 import com.app.miniIns.entities.Photo;
-import com.app.miniIns.entities.PhotoForHome;
+import com.app.miniIns.entities.PhotoForHomeExplore;
+import com.app.miniIns.entities.PhotoForHomeExplore;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -17,15 +18,42 @@ public interface PhotoRepository extends CrudRepository<Photo, UUID> {
     Photo findByUuid(UUID uuid);
     List<Photo> findByUserIdAndCreateDateTimeBetween(int userId, LocalDateTime from, LocalDateTime end);
 
-    @Query("select new com.app.miniIns.entities.PhotoForHome(" +
+    // Get recent photos for user home
+    @Query("select new com.app.miniIns.entities.PhotoForHomeExplore(" +
             "user.username," +
             "photo.s3Key," +
             "photo.uuid," +
-            "photo.createDateTime) " +
+            "photo.createDateTime," +
+            "count(comments)," +
+            "count(likedBy)) " +
             "from Photo photo " +
-            "left join photo.user user "+
-            "where user.id = :userId")
-    List<PhotoForHome> findByUserIdForHome(int userId);
+            "left join photo.user user " +
+            "left join photo.comments comments " +
+            "left join photo.likedBy likedBy "+
+            "where user.id = :userId group by user.id, photo.s3Key order by photo.createDateTime")
+    List<PhotoForHomeExplore> findByUserIdForHome(int userId);
+
+    //Just to get a reference without getting related unnecessary entities
+    @Query(
+            "select new com.app.miniIns.entities.Photo(photo.uuid)" +
+                    "from Photo photo where photo.uuid = :id"
+    )
+    Photo findByUuidSimple(UUID id);
+
+    // Get recent photos for explore
+    @Query("select new com.app.miniIns.entities.PhotoForHomeExplore(" +
+            "user.username," +
+            "photo.s3Key," +
+            "photo.uuid," +
+            "photo.createDateTime," +
+            "count(comments)," +
+            "count(likedBy)) " +
+            "from Photo photo " +
+            "left join photo.user user " +
+            "left join photo.comments comments " +
+            "left join photo.likedBy likedBy "+
+            "where photo.createDateTime >= :from and photo.createDateTime <= :end group by user.id order by photo.createDateTime")
+    List<PhotoForHomeExplore> findByCreateDateTimeBetweenForExplore(LocalDateTime from, LocalDateTime end);
 
 
 }

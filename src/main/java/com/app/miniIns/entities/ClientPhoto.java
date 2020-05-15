@@ -10,8 +10,8 @@ public class ClientPhoto {
     private String username;
     private URL url;
     private UUID uuid;
-    private int likedByCount;
-    private int commnetsCount;
+    private long likedByCount;
+    private long commnetsCount;
     private List<ClientUser> likedBy = new ArrayList<>();
 
     private List<ClientComment> photoComments = new ArrayList<>();
@@ -24,7 +24,7 @@ public class ClientPhoto {
     }
 
 
-    public ClientPhoto(URL url, UUID uuid, int likedByCount, int commnetsCount) {
+    public ClientPhoto(URL url, UUID uuid, long likedByCount, long commnetsCount) {
         this.url = url;
         this.uuid = uuid;
         this.likedByCount = likedByCount;
@@ -75,11 +75,11 @@ public class ClientPhoto {
         return uuid;
     }
 
-    public int getLikedByCount() {
+    public long getLikedByCount() {
         return likedByCount;
     }
 
-    public int getCommnetsCount() {
+    public long getCommnetsCount() {
         return commnetsCount;
     }
 

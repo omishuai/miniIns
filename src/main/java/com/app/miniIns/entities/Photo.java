@@ -1,6 +1,7 @@
 package com.app.miniIns.entities;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -21,7 +22,7 @@ public class Photo implements  Comparable{
 
     private String s3Key = UUID.randomUUID().toString();
 
-    @ManyToOne
+    @ManyToOne (fetch = FetchType.LAZY)
     @JoinColumn (name="userId", referencedColumnName = "id")
     @NotNull
     private User user;
@@ -68,8 +69,10 @@ public class Photo implements  Comparable{
 //    }
 
 
+    public Photo() {
+    }
 
-    public Photo(){}
+    public Photo(UUID uuid){this.uuid = uuid;}
 
     public Photo(User user, String filename) {
         this.user = user;

@@ -11,10 +11,10 @@ public class ClientUserForHome {
     private long followsCount;
     private long followedByCount;
     private long photosCount;
-    private List<ClientPhoto> photos;
+    private List<PhotoForHomeExplore> photos;
     private String ProfilePhotoKey;
 
-    public ClientUserForHome(int id, String gender, String username, int age, String intro, long followsCount, long followedByCount, long photosCount, List<ClientPhoto> photos, String profilePhotoKey) {
+    public ClientUserForHome(int id, String gender, String username, int age, String intro, long followsCount, long followedByCount, long photosCount, List<PhotoForHomeExplore> photos, String profilePhotoKey) {
         this.id = id;
         this.gender = gender;
         this.username = username;
@@ -76,7 +76,7 @@ public class ClientUserForHome {
         return photosCount;
     }
 
-    public List<ClientPhoto> getPhotos() {
+    public List<PhotoForHomeExplore> getPhotos() {
         return photos;
     }
 

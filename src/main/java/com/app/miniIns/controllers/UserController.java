@@ -63,11 +63,9 @@ public class UserController {
         UserForHome res = userService.findByUsernameProjection(user);
 
         System.out.println("\n photoService.findByUserIdForHome:");
-        List<PhotoForHome> serverPhotos = photoService.findByUserIdForHome(res.getId());
-        Collections.sort(serverPhotos);
-        List<ClientPhoto>  photos = new ArrayList<>();
-        for (PhotoForHome p : serverPhotos)
-            photos.add(new ClientPhoto(p.getUsername(), fileStorageService.getUrl(p.getS3Key()), p.getUuid()));
+        List<PhotoForHomeExplore> serverPhotos = photoService.findByUserIdForHome(res.getId());
+        for (PhotoForHomeExplore p : serverPhotos)
+            p.setS3Url(fileStorageService.getUrl(p.getS3Key()));
 
         ClientUserForHome userForHome = new ClientUserForHome(
                 res.getId(),
@@ -78,9 +76,8 @@ public class UserController {
                 res.getFollowsCount(),
                 res.getFollowedByCount(),
                 res.getPhotosCount(),
-                photos,
+                serverPhotos,
                 res.getProfilePhotoKey());
-        System.out.println(userForHome);
         return userForHome;
     }
 

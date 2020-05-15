@@ -87,16 +87,12 @@ public class PhotoController {
     @GetMapping("/explore")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public List<ClientPhoto> getPhotoPool() throws MalformedURLException {
-
-        List<ClientPhoto> res = new ArrayList<>();
-        List<Photo> ls = photoService.findAllByCreateDateTimeBetween(LocalDateTime.now().minusDays(1), LocalDateTime.now());
-
-        for (Photo p: ls) {
-            List<PhotoComment> comments = commentService.findByPhotoIdByOrderByTime(p.getUuid());
-            res.add(new ClientPhoto(fileStorageService.getUrl(p.getS3Key()), p.getUuid(), p.getLikedBy().size(), comments.size()));
+    public List<PhotoForHomeExplore> getPhotoPool() throws MalformedURLException {
+        List<PhotoForHomeExplore> ls = photoService.findAllByCreateDateTimeBetweenForExplore(LocalDateTime.now().minusDays(1), LocalDateTime.now());
+        for (PhotoForHomeExplore p: ls) {
+            p.setS3Url(fileStorageService.getUrl(p.getS3Key()));
         }
-        return res;
+        return ls;
     }
 
 }

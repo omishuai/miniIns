@@ -52,6 +52,7 @@ public class UserForHome implements Serializable {
         return gender;
     }
 
+
     public String getUsername() {
         return username;
     }

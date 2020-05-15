@@ -2,7 +2,7 @@ package com.app.miniIns.services;
 
 import com.app.miniIns.entities.PhotoComment;
 import com.app.miniIns.entities.Photo;
-import com.app.miniIns.entities.PhotoForHome;
+import com.app.miniIns.entities.PhotoForHomeExplore;
 import com.app.miniIns.entities.User;
 import com.app.miniIns.exceptions.EmptyInputException;
 import org.apache.commons.lang.StringUtils;
@@ -35,22 +35,34 @@ public class PhotoService{
         return  photoRepository.findByUuid(id);
     }
 
-    public List<PhotoForHome> findByUserIdForHome(int id) {
+    public Photo findByIdSimple(UUID id) {
+        return  photoRepository.findByUuidSimple(id);
+    }
+
+    public List<PhotoForHomeExplore> findByUserIdForHome(int id) {
         return photoRepository.findByUserIdForHome(id);
     }
 
+    public List<PhotoForHomeExplore> findAllByCreateDateTimeBetweenForExplore(LocalDateTime from, LocalDateTime to) {
+        return photoRepository.findByCreateDateTimeBetweenForExplore(from, to);
+    }
+
     public Photo unlikedByUser(User user, UUID id) {
+        System.out.println("\nunlike: findPhotoById:");
         Photo photo = findById(id);
+        System.out.println("\nunlike: photo.getLikedBy():");
         List<User> likedBy = photo.getLikedBy();
         if (likedBy != null && likedBy.contains(user)) {
             likedBy.remove(user);
         }
+        System.out.println("\nunlike: photo.save:");
         return photoRepository.save(photo);
     }
 
     public Photo likedByUser(User user, UUID id) {
+        System.out.println("\nlike: findPhotoById:");
         Photo photo = findById(id);
-
+        System.out.println("\nlike: photo.getLikedBy():");
         List<User> likedBy = photo.getLikedBy();
 
         if (likedBy == null) {
@@ -61,6 +73,7 @@ public class PhotoService{
         if (!likedBy.contains(user))
                 likedBy.add(user);
 
+        System.out.println("\nlike: photo.save:");
         return photoRepository.save(photo);
     }
 
@@ -71,13 +84,6 @@ public class PhotoService{
     public List<Photo> findAll() {
         List<Photo> ls = new ArrayList<>();
         Iterator<Photo> itr =  photoRepository.findAll().iterator();
-        while (itr.hasNext()) ls.add(itr.next());
-        return ls;
-    }
-
-    public List<Photo> findAllByCreateDateTimeBetween(LocalDateTime from, LocalDateTime to) {
-        List<Photo> ls = new ArrayList<>();
-        Iterator<Photo> itr =  photoRepository.findAllByCreateDateTimeBetween(from, to).iterator();
         while (itr.hasNext()) ls.add(itr.next());
         return ls;
     }
