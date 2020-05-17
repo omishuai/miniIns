@@ -17,7 +17,8 @@ public class Photo implements  Comparable{
     // To avoid checking the existence before inserting to table
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Type(type="org.hibernate.type.UUIDCharType")
+//    @Type(type="org.hibernate.type.UUIDCharType")
+//    @Type(type="uuid-char")
     private UUID uuid;
 
     private String s3Key = UUID.randomUUID().toString();
@@ -34,7 +35,7 @@ public class Photo implements  Comparable{
     private LocalDateTime createDateTime;
 
     @ManyToMany
-    @JoinTable(name="photo_likedBy_user",
+    @JoinTable(name="photo_likeed_user",
             joinColumns=@JoinColumn(name = "photo_id"),
             inverseJoinColumns=@JoinColumn(name = "user_id"))
     private List<User> likedBy;

@@ -47,34 +47,12 @@ public class PhotoService{
         return photoRepository.findByCreateDateTimeBetweenForExplore(from, to);
     }
 
-    public Photo unlikedByUser(User user, UUID id) {
-        System.out.println("\nunlike: findPhotoById:");
-        Photo photo = findById(id);
-        System.out.println("\nunlike: photo.getLikedBy():");
-        List<User> likedBy = photo.getLikedBy();
-        if (likedBy != null && likedBy.contains(user)) {
-            likedBy.remove(user);
-        }
-        System.out.println("\nunlike: photo.save:");
-        return photoRepository.save(photo);
+    public void unlikedByUser(User user, UUID id) {
+        photoRepository.removeLike(user.getId(), id);
     }
 
-    public Photo likedByUser(User user, UUID id) {
-        System.out.println("\nlike: findPhotoById:");
-        Photo photo = findById(id);
-        System.out.println("\nlike: photo.getLikedBy():");
-        List<User> likedBy = photo.getLikedBy();
-
-        if (likedBy == null) {
-            likedBy = new ArrayList<>();
-            photo.setLikedBy(likedBy);
-        }
-
-        if (!likedBy.contains(user))
-                likedBy.add(user);
-
-        System.out.println("\nlike: photo.save:");
-        return photoRepository.save(photo);
+    public void likedByUser(User user, UUID id) {
+        photoRepository.addlLike(user.getId(), id);
     }
 
     public Photo addPhoto(@Valid Photo photo){

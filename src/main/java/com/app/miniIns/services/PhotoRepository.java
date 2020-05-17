@@ -3,9 +3,11 @@ package com.app.miniIns.services;
 import com.app.miniIns.entities.Photo;
 import com.app.miniIns.entities.PhotoForHomeExplore;
 import com.app.miniIns.entities.PhotoForHomeExplore;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -55,9 +57,23 @@ public interface PhotoRepository extends CrudRepository<Photo, UUID> {
             "where photo.createDateTime >= :from and photo.createDateTime <= :end group by user.id order by photo.createDateTime")
     List<PhotoForHomeExplore> findByCreateDateTimeBetweenForExplore(LocalDateTime from, LocalDateTime end);
 
+    // Directly accessing the joined table without entity
+    @Transactional
+    @Modifying
     @Query(
-            "delete from photo_likedBy_user where photo_id = :uuid and user_id = :id"
+            value = "delete from photo_likeed_user where photo_id = :uuid and user_id = :id",
+            nativeQuery = true
     )
     void removeLike(int id, UUID uuid);
+
+
+    // Directly accessing the joined table without entity
+    @Transactional
+    @Modifying
+    @Query(
+            value = "INSERT INTO  photo_likeed_user (photo_id, user_id) VALUES(:uuid, :id)",
+            nativeQuery = true
+    )
+    void addlLike(int id, UUID uuid);
 
 }
