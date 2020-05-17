@@ -33,8 +33,10 @@ public class Photo implements  Comparable{
     @CreationTimestamp
     private LocalDateTime createDateTime;
 
-    @OneToMany (
-            cascade = CascadeType.ALL)
+    @ManyToMany
+    @JoinTable(name="photo_likedBy_user",
+            joinColumns=@JoinColumn(name = "photo_id"),
+            inverseJoinColumns=@JoinColumn(name = "user_id"))
     private List<User> likedBy;
 
     @OneToMany (

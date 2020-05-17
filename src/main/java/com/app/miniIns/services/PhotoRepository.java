@@ -55,5 +55,9 @@ public interface PhotoRepository extends CrudRepository<Photo, UUID> {
             "where photo.createDateTime >= :from and photo.createDateTime <= :end group by user.id order by photo.createDateTime")
     List<PhotoForHomeExplore> findByCreateDateTimeBetweenForExplore(LocalDateTime from, LocalDateTime end);
 
+    @Query(
+            "delete from photo_likedBy_user where photo_id = :uuid and user_id = :id"
+    )
+    void removeLike(int id, UUID uuid);
 
 }
