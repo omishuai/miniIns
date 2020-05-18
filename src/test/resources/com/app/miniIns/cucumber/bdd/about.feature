@@ -21,18 +21,33 @@ Feature: User Home
     And User with username "username" uploads file "MiniIns/img1.png"
     Then Response has status code 201
 
-    When User with username "username" visits page "/user/username"
+    When User with username "username" visits page "/user/username" with page 0 size 2
     Then Response has status code 200
     And Response has value "username" for "$.username"
-    And Response has value 7 for "$.photos.length()"
+    And Response has value 2 for "$.photos.length()"
+    And Response has value 0 for "$.followsCount"
+    And Response has value 0 for "$.followedByCount"
+    And Response has value 7 for "$.photosCount"
+
+    When User with username "username" visits page "/user/username" with page 1 size 2
+    Then Response has status code 200
+    And Response has value "username" for "$.username"
+    And Response has value 2 for "$.photos.length()"
+    And Response has value 0 for "$.followsCount"
+    And Response has value 0 for "$.followedByCount"
+    And Response has value 7 for "$.photosCount"
+
+    When User with username "username" visits page "/user/username" with page 1 size 4
+    Then Response has status code 200
+    And Response has value "username" for "$.username"
+    And Response has value 3 for "$.photos.length()"
     And Response has value 0 for "$.followsCount"
     And Response has value 0 for "$.followedByCount"
     And Response has value 7 for "$.photosCount"
 
 
-
   Scenario: User Does not Log In to See Photos in User's Home Page
     Given empty database
-    When User with username "useme" visits page "/user/useme"
+    When User with username "useme" visits page "/user/useme" with page 0 size 2
     Then Response has status code 403
     And Response has value "Access Denied" for "$.message"

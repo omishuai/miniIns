@@ -1,19 +1,13 @@
 package com.app.miniIns.services;
 
-import com.app.miniIns.entities.PhotoComment;
 import com.app.miniIns.entities.Photo;
 import com.app.miniIns.entities.PhotoForHomeExplore;
 import com.app.miniIns.entities.User;
-import com.app.miniIns.exceptions.EmptyInputException;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import javax.validation.Valid;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -34,12 +28,12 @@ public class PhotoService{
         return  photoRepository.findByUuid(id);
     }
 
-    public List<PhotoForHomeExplore> findByUserIdForHome(int id) {
-        return photoRepository.findByUserIdForHome(id);
+    public List<PhotoForHomeExplore> findByUserIdForHomePageable(int id, int page, int size) {
+        return photoRepository.findByUserIdForHomePageable(id, PageRequest.of(page, size, Sort.by("createDateTime").descending()));
     }
 
-    public List<PhotoForHomeExplore> findAllByCreateDateTimeBetweenForExplore(LocalDateTime from, LocalDateTime to) {
-        return photoRepository.findByCreateDateTimeBetweenForExplore(from, to);
+    public List<PhotoForHomeExplore> findAllByCreateDateTimeForExplore(int page, int limit) {
+        return photoRepository.findAllByCreateDateTimeForExplore(PageRequest.of(page, limit, Sort.by("createDateTime").descending()));
     }
 
     public void unlikedByUser(User user, UUID id) {
@@ -61,11 +55,7 @@ public class PhotoService{
         return ls;
     }
 
-    public List<Photo> findRecentPhotosForUser(int userId, LocalDateTime from, LocalDateTime to) {
-        return photoRepository.findByUserIdAndCreateDateTimeBetween(userId, from, to);
-    }
-
     public List<Photo> findRecentPhotosByTime(List<Integer> ids, int pageNumber, int pageLimit) {
-        return photoRepository.findByUserIdIn(ids, (Pageable) PageRequest.of(pageNumber, pageLimit, Sort.by("createDateTime").descending()));
+        return photoRepository.findByUserIdIn(ids, PageRequest.of(pageNumber, pageLimit, Sort.by("createDateTime").descending()));
     }
 }

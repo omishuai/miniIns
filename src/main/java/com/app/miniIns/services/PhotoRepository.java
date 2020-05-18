@@ -2,29 +2,19 @@ package com.app.miniIns.services;
 
 import com.app.miniIns.entities.Photo;
 import com.app.miniIns.entities.PhotoForHomeExplore;
-import com.app.miniIns.entities.PhotoForHomeExplore;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-
 import javax.transaction.Transactional;
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 public interface PhotoRepository extends CrudRepository<Photo, UUID> {
 
 
-    List<Photo> findByUserId (int userId);
-    List<Photo> findAllByCreateDateTimeBetween(LocalDateTime from, LocalDateTime end);
     Photo findByUuid(UUID uuid);
-    List<Photo> findByUserIdAndCreateDateTimeBetween(int userId, LocalDateTime from, LocalDateTime end);
 
-    // Get recent photos for user home
     @Query("select new com.app.miniIns.entities.PhotoForHomeExplore(" +
             "user.username," +
             "photo.s3Key," +
@@ -36,17 +26,9 @@ public interface PhotoRepository extends CrudRepository<Photo, UUID> {
             "left join photo.user user " +
             "left join photo.comments comments " +
             "left join photo.likedBy likedBy "+
-            "where user.id = :userId group by user.id, photo.s3Key order by photo.createDateTime")
-    List<PhotoForHomeExplore> findByUserIdForHome(int userId);
+            "group by user.id, photo.s3Key order by photo.createDateTime")
+    List<PhotoForHomeExplore> findAllByCreateDateTimeForExplore(Pageable pageable);
 
-    //Just to get a reference without getting related unnecessary entities
-    @Query(
-            "select new com.app.miniIns.entities.Photo(photo.uuid)" +
-                    "from Photo photo where photo.uuid = :id"
-    )
-    Photo findByUuidSimple(UUID id);
-
-    // Get recent photos for explore
     @Query("select new com.app.miniIns.entities.PhotoForHomeExplore(" +
             "user.username," +
             "photo.s3Key," +
@@ -58,8 +40,8 @@ public interface PhotoRepository extends CrudRepository<Photo, UUID> {
             "left join photo.user user " +
             "left join photo.comments comments " +
             "left join photo.likedBy likedBy "+
-            "where photo.createDateTime >= :from and photo.createDateTime <= :end group by user.id order by photo.createDateTime")
-    List<PhotoForHomeExplore> findByCreateDateTimeBetweenForExplore(LocalDateTime from, LocalDateTime end);
+            "where user.id = :userId group by user.id, photo.s3Key")
+    List<PhotoForHomeExplore> findByUserIdForHomePageable(int userId, Pageable pageable);
 
     // Directly accessing the joined table without entity
     @Transactional
@@ -80,13 +62,6 @@ public interface PhotoRepository extends CrudRepository<Photo, UUID> {
     )
     void addlLike(int id, UUID uuid);
 
-//    @Query (
-//            "select new com.app.miniIns.entities.Photo(" +
-//                    "photo.uuid," +
-//                    "photo.s3Key," +
-//                    "photo.createDateTime) " +
-//                    "from Photo photo " +
-//                    "where photo.userId in :ids ")
     List<Photo> findByUserIdIn(List<Integer> ids, Pageable pageable);
 
 }

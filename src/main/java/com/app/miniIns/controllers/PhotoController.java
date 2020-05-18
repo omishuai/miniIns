@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Controller
@@ -71,14 +70,12 @@ public class PhotoController {
         // System.out.println(user.getPhotos());
 
         // findByUsername by default has the fetch: LAZY, so mapping that tagged lazy will not be queried
-        System.out.println("\n userService.findByUsername");
         User user = userService.findByUsername(u);
 
         //In case the destination becomes disk, we make controller unaware of s3 bucket
         Photo photo = new Photo(user, file.getOriginalFilename());
 
         URL url =  fileStorageService.upload(photo.getS3Key(), file);
-        System.out.println("\n photoService.addPhoto");
         photo = photoService.addPhoto(photo);
 
         return  new ClientPhoto(user.getUsername(), url, photo.getUuid());
@@ -87,8 +84,8 @@ public class PhotoController {
     @GetMapping("/explore")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public List<PhotoForHomeExplore> getPhotoPool() throws MalformedURLException {
-        List<PhotoForHomeExplore> ls = photoService.findAllByCreateDateTimeBetweenForExplore(LocalDateTime.now().minusDays(1), LocalDateTime.now());
+    public List<PhotoForHomeExplore> getPhotoPool(@RequestParam("page") int page, @RequestParam("limit") int limit) throws MalformedURLException {
+        List<PhotoForHomeExplore> ls = photoService.findAllByCreateDateTimeForExplore(page, limit);
         for (PhotoForHomeExplore p: ls) {
             p.setS3Url(fileStorageService.getUrl(p.getS3Key()));
         }

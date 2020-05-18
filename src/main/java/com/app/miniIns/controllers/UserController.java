@@ -9,7 +9,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.net.MalformedURLException;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Controller
@@ -57,13 +56,13 @@ public class UserController {
     @GetMapping("/user/{user}")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public ClientUserForHome getGreetingPageForUser(@PathVariable  String user) throws MalformedURLException {
+    public ClientUserForHome getGreetingPageForUser(@PathVariable  String user, @RequestParam("page") int page, @RequestParam("limit") int limit ) throws MalformedURLException {
 
         System.out.println("\n userService.findByUsernameProjection:");
         UserForHome res = userService.findByUsernameProjection(user);
 
-        System.out.println("\n photoService.findByUserIdForHome:");
-        List<PhotoForHomeExplore> serverPhotos = photoService.findByUserIdForHome(res.getId());
+        System.out.println("\n photoService.findByUserIdForHome:" + page + " "+ limit);
+        List<PhotoForHomeExplore> serverPhotos = photoService.findByUserIdForHomePageable(res.getId(), page, limit);
         for (PhotoForHomeExplore p : serverPhotos)
             p.setS3Url(fileStorageService.getUrl(p.getS3Key()));
 
@@ -126,12 +125,10 @@ public class UserController {
         List<Integer> ids = new ArrayList<>();
         for (User usr : users) {
             ids.add(usr.getId());
-            // Find Photos for Users where user names should be passed in as a list
-            //photos.addAll(photoService.findRecentPhotosForUser(usr.getId(), LocalDateTime.now().minusDays(1), LocalDateTime.now()));
         }
-        List<Photo> photos = photoService.findRecentPhotosByTime(ids, pageNumber, pageLimit);
 
-        //Collections.sort(photos);
+        // Find Photos for Users where user names should be passed in as a list
+        List<Photo> photos = photoService.findRecentPhotosByTime(ids, pageNumber, pageLimit);
 
         List<PhotoForFeed> clientPhotos = new ArrayList<>();
         for (Photo photo : photos) {
@@ -156,7 +153,6 @@ public class UserController {
                     likedByFollows.add(user.getUsername());
                 }
             }
-
 
             clientPhotos.add(
                     new PhotoForFeed(

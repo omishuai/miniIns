@@ -510,6 +510,7 @@ public class RegisterStepdefs {
         // build the request
         final String baseUrl = "http://localhost:8080" + page+ "?page="+pageNumber+"&limit="+pageLimit;
         URI uri = new URI(baseUrl);
+        log.info(uri);
         //make an HTTP GET request with headers
         response = restTemplate.exchange(
                 uri,
