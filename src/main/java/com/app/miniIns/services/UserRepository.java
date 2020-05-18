@@ -1,15 +1,12 @@
 package com.app.miniIns.services;
 
 import com.app.miniIns.entities.User;
-import com.app.miniIns.entities.UserByProjection;
 import com.app.miniIns.entities.UserForHome;
 import com.app.miniIns.entities.UserTemplate;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 
 @Repository
 public interface UserRepository extends CrudRepository<User, Integer> {
@@ -24,7 +21,6 @@ public interface UserRepository extends CrudRepository<User, Integer> {
             "count(follows)," +
             "count(followedBy)," +
             "count(photos)," +
-//            "user.photos," +
             "user.profilePhotoKey) " +
             "from User user " +
             "left join user.follows follows " +
@@ -53,8 +49,5 @@ public interface UserRepository extends CrudRepository<User, Integer> {
             "user.email)" +
             " from User user where user.email = :email")
     UserTemplate findByEmailByProjection(String email);
-
-//    User findByUsername(String username);
-//    UserByProjection findByUsername(String username);
 
 }

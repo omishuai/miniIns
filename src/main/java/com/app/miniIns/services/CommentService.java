@@ -43,7 +43,6 @@ public class CommentService {
 
         PhotoComment photoComment = findById(commentId);
 
-        PhotoComment resPhoto;
         // Assuming that the photo itself is valid
         // Make sure the photoComment to be commented on exists
         if (photoComment == null) {

@@ -1,7 +1,6 @@
 package com.app.miniIns.services;
 
 import com.app.miniIns.entities.Message;
-import com.app.miniIns.entities.User;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
