@@ -7,6 +7,9 @@ import com.app.miniIns.entities.User;
 import com.app.miniIns.exceptions.EmptyInputException;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
@@ -27,16 +30,8 @@ public class PhotoService{
     @Autowired
     private PhotoRepository photoRepository;
 
-    public List<Photo> findByUserId(int id) {
-        return photoRepository.findByUserId(id);
-    }
-
     public Photo findById(UUID id) {
         return  photoRepository.findByUuid(id);
-    }
-
-    public Photo findByIdSimple(UUID id) {
-        return  photoRepository.findByUuidSimple(id);
     }
 
     public List<PhotoForHomeExplore> findByUserIdForHome(int id) {
@@ -70,17 +65,7 @@ public class PhotoService{
         return photoRepository.findByUserIdAndCreateDateTimeBetween(userId, from, to);
     }
 
-    public Photo addCommentToPhoto(String text, String commentingUsername ,UUID photoId) throws EmptyInputException {
-
-        if (StringUtils.isEmpty(text)) throw new EmptyInputException("Text Is Empty");
-        PhotoComment photoComment = new PhotoComment(text, commentingUsername);
-
-        Photo photo = photoRepository.findByUuid(photoId);
-
-//        photo.addComment(photoComment);
-//
-//        System.out.print(photoComment);
-
-        return photoRepository.save(photo);
+    public List<Photo> findRecentPhotosByTime(List<Integer> ids, int pageNumber, int pageLimit) {
+        return photoRepository.findByUserIdIn(ids, (Pageable) PageRequest.of(pageNumber, pageLimit, Sort.by("createDateTime").descending()));
     }
 }

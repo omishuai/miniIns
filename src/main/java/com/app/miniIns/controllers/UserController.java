@@ -50,7 +50,7 @@ public class UserController {
     @PostMapping(path = "/login")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void login(@RequestParam("user") String accountName, String password) throws Exception {
+    public void login(@RequestParam("username") String accountName, @RequestParam("password") String password) throws Exception {
         userService.verifyInfo(accountName, password);
     }
 
@@ -110,32 +110,31 @@ public class UserController {
     }
 
 
-
     @GetMapping("/feed")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public List<PhotoForFeed> getFeedsPageForUser() throws MalformedURLException {
+    public List<PhotoForFeed> getFeedsPageForUser(@RequestParam("limit") int pageLimit, @RequestParam ("page") int pageNumber) throws MalformedURLException {
         SecurityContext context = SecurityContextHolder.getContext();
         String username = (String) context.getAuthentication().getPrincipal();
 
-        System.out.println("\n FEED: user.findByUsername()");
-        User currentUser = userService.findByUsername(username);
+        System.out.println(username + " " + pageLimit + " " + pageNumber);
 
-        System.out.println("\n FEED: user.getFollows()");
+        User currentUser = userService.findByUsername(username);
         Set<User> users = currentUser.getFollows();
         users.add(currentUser);
 
-        List<Photo> photos = new ArrayList<>();
+        List<Integer> ids = new ArrayList<>();
         for (User usr : users) {
-            System.out.println("\n FEED: photoService.findRecentPhotosForSUser");
-            photos.addAll(photoService.findRecentPhotosForUser(usr.getId(), LocalDateTime.now().minusDays(1), LocalDateTime.now()));
+            ids.add(usr.getId());
+            // Find Photos for Users where user names should be passed in as a list
+            //photos.addAll(photoService.findRecentPhotosForUser(usr.getId(), LocalDateTime.now().minusDays(1), LocalDateTime.now()));
         }
+        List<Photo> photos = photoService.findRecentPhotosByTime(ids, pageNumber, pageLimit);
 
-        Collections.sort(photos);
+        //Collections.sort(photos);
 
         List<PhotoForFeed> clientPhotos = new ArrayList<>();
         for (Photo photo : photos) {
-            System.out.println("\n FEED: photo.getLikedBy() photo.getComments():");
             List<User> likedBy = photo.getLikedBy();
             List<PhotoComment> comments = photo.getComments();
 

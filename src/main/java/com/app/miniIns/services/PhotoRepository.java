@@ -3,11 +3,15 @@ package com.app.miniIns.services;
 import com.app.miniIns.entities.Photo;
 import com.app.miniIns.entities.PhotoForHomeExplore;
 import com.app.miniIns.entities.PhotoForHomeExplore;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import javax.transaction.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -75,5 +79,14 @@ public interface PhotoRepository extends CrudRepository<Photo, UUID> {
             nativeQuery = true
     )
     void addlLike(int id, UUID uuid);
+
+//    @Query (
+//            "select new com.app.miniIns.entities.Photo(" +
+//                    "photo.uuid," +
+//                    "photo.s3Key," +
+//                    "photo.createDateTime) " +
+//                    "from Photo photo " +
+//                    "where photo.userId in :ids ")
+    List<Photo> findByUserIdIn(List<Integer> ids, Pageable pageable);
 
 }

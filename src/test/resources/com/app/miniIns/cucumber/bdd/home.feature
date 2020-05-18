@@ -18,7 +18,7 @@ Feature: home
     When User with username "username2" uploads file "MiniIns/img1.png"
     Then Response has status code 201
 
-    When User with username "username1" visits page "/feed"
+    When User with username "username1" visits page "/feed" with page 0 size 2
     Then Response has status code 200
     And Response has value 1 for "$.size()"
     And Response has value "username1" for "$.[0].username"
@@ -30,7 +30,7 @@ Feature: home
     When User with username "username1" (un)follows "username4" through "/user/username4/follow"
     Then Response has status code 201
 
-    When User with username "username1" visits page "/feed"
+    When User with username "username1" visits page "/feed" with page 0 size 5
     Then Response has status code 200
     And Response has value 5 for "$.size()"
     And Response has value "username2" for "$.[0].username"
@@ -46,7 +46,7 @@ Feature: home
     When User with username "username2" uploads file "MiniIns/img1.png"
     Then Response has status code 201
 
-    When User with username "username1" visits page "/feed"
+    When User with username "username1" visits page "/feed" with page 0 size 5
     Then Response has status code 200
     And Response has value 5 for "$.size()"
 
@@ -56,13 +56,26 @@ Feature: home
     And Response has value "username2" for "$.[3].username"
     And Response has value "username1" for "$.[4].username"
 
+    When User with username "username1" visits page "/feed" with page 0 size 2
+    Then Response has status code 200
+    And Response has value 2 for "$.size()"
+
+    And Response has value "username2" for "$.[0].username"
+    And Response has value "username2" for "$.[1].username"
+
+    When User with username "username1" visits page "/feed" with page 1 size 2
+    Then Response has status code 200
+    And Response has value 2 for "$.size()"
+    And Response has value "username4" for "$.[0].username"
+    And Response has value "username2" for "$.[1].username"
+
     When User with username "username1" (un)follows "username2" through "/user/username2/unfollow"
     Then Response has status code 201
 
     When User with username "username4" uploads file "MiniIns/img1.png"
     Then Response has status code 201
 
-    When User with username "username1" visits page "/feed"
+    When User with username "username1" visits page "/feed" with page 0 size 5
     Then Response has status code 200
     And Response has value 3 for "$.size()"
     And Response has value "username4" for "$.[0].username"

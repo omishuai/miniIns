@@ -70,6 +70,12 @@ public class Photo implements  Comparable{
     public Photo() {
     }
 
+    public Photo(UUID uuid, String s3Key, LocalDateTime createDateTime) {
+        this.uuid = uuid;
+        this.s3Key = s3Key;
+        this.createDateTime = createDateTime;
+    }
+
     public Photo(UUID uuid){this.uuid = uuid;}
 
     public Photo(User user, String filename) {
