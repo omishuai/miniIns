@@ -23,7 +23,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 
-    @ExceptionHandler(value = {EmptyInputException.class, InvalidAttributeValueException.class})
+    @ExceptionHandler(value = {EmptyInputException.class, InvalidAttributeValueException.class, IllegalArgumentException.class})
     protected ResponseEntity<Object> handleBadRequest(
             Exception ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorResponse(ex.getMessage()),

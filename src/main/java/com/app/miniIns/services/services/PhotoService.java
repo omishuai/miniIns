@@ -14,6 +14,7 @@ import java.util.*;
 @Service
 public class PhotoService{
 
+    private int PAGE_LIMIT = 15;
     @Autowired
     private PhotoRepository photoRepository;
 
@@ -21,11 +22,14 @@ public class PhotoService{
         return  photoRepository.findByUuid(id);
     }
 
-    public List<PhotoForHomeExplore> findByUserIdForHomePageable(int id, int page, int size) {
-        return photoRepository.findByUserIdForHomePageable(id, PageRequest.of(page, size, Sort.by("createDateTime").descending()));
+    public List<PhotoForHomeExplore> findByUserIdForHomePageable(int id, int page, int limit) throws IllegalArgumentException{
+        if (limit > PAGE_LIMIT || limit < 0) throw new IllegalArgumentException("Limit " + limit + " Does Not Fall In 0 to " + PAGE_LIMIT);
+        return photoRepository.findByUserIdForHomePageable(id, PageRequest.of(page, limit, Sort.by("createDateTime").descending()));
+
     }
 
-    public List<PhotoForHomeExplore> findAllByCreateDateTimeForExplore(int page, int limit) {
+    public List<PhotoForHomeExplore> findAllByCreateDateTimeForExplore(int page, int limit) throws IllegalArgumentException{
+        if (limit > PAGE_LIMIT || limit < 0) throw new IllegalArgumentException("Limit " + limit + " Does Not Fall In 0 to " + PAGE_LIMIT);
         return photoRepository.findAllByCreateDateTimeForExplore(PageRequest.of(page, limit, Sort.by("createDateTime").descending()));
     }
 
@@ -48,7 +52,8 @@ public class PhotoService{
         return ls;
     }
 
-    public List<Photo> findRecentPhotosByTime(List<Integer> ids, int pageNumber, int pageLimit) {
-        return photoRepository.findByUserIdIn(ids, PageRequest.of(pageNumber, pageLimit, Sort.by("createDateTime").descending()));
+    public List<Photo> findRecentPhotosByTime(List<Integer> ids, int pageNumber, int limit) throws IllegalArgumentException{
+        if (limit > PAGE_LIMIT || limit < 0) throw new IllegalArgumentException("Limit " + limit + " Does Not Fall In 0 to " + PAGE_LIMIT);
+        return photoRepository.findByUserIdIn(ids, PageRequest.of(pageNumber, limit, Sort.by("createDateTime").descending()));
     }
 }
