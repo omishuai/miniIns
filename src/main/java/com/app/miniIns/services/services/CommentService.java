@@ -1,8 +1,9 @@
-package com.app.miniIns.services;
+package com.app.miniIns.services.services;
 
-import com.app.miniIns.entities.PhotoComment;
-import com.app.miniIns.entities.Photo;
+import com.app.miniIns.entities.server.PhotoComment;
+import com.app.miniIns.entities.server.Photo;
 import com.app.miniIns.exceptions.EmptyInputException;
+import com.app.miniIns.services.repositories.CommentRepository;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,18 +16,6 @@ public class CommentService {
 
     @Autowired
     private CommentRepository commentRepository;
-
-    public CommentRepository getCommentRepository() {
-        return commentRepository;
-    }
-
-    public void setCommentRepository(CommentRepository commentRepository) {
-        this.commentRepository = commentRepository;
-    }
-
-    public List<PhotoComment> findByPhotoIdByOrderByTime(UUID photoId) {
-        return commentRepository.findByPhotoUuidOrderByCreateDateTime(photoId);
-    }
 
     public PhotoComment addCommentToPhoto(String text,String fromUser, Photo photo) throws EmptyInputException {
 

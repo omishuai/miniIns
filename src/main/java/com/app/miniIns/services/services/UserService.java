@@ -1,7 +1,10 @@
-package com.app.miniIns.services;
+package com.app.miniIns.services.services;
 
-import com.app.miniIns.entities.*;
+import com.app.miniIns.entities.client.UserForHome;
+import com.app.miniIns.entities.client.UserTemplate;
+import com.app.miniIns.entities.server.User;
 import com.app.miniIns.exceptions.*;
+import com.app.miniIns.services.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
@@ -15,15 +18,6 @@ import java.util.List;
 @Service
 @Validated
 public class UserService {
-
-    public UserRepository getUserRepo() {
-        return userRepo;
-    }
-
-    public void setUserRepo(UserRepository userRepo) {
-        this.userRepo = userRepo;
-    }
-
 
     @Autowired
     private UserRepository userRepo;

@@ -1,6 +1,7 @@
-package com.app.miniIns.services;
+package com.app.miniIns.services.services;
 
-import com.app.miniIns.entities.Message;
+import com.app.miniIns.entities.server.Message;
+import com.app.miniIns.services.repositories.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -14,15 +15,6 @@ public class MessageService {
 
     @Autowired
     private MessageRepository messageRepository;
-
-
-    public MessageRepository getMessageRepository() {
-        return messageRepository;
-    }
-
-    public void setMessageRepository(MessageRepository messageRepository) {
-        this.messageRepository = messageRepository;
-    }
 
     public List<Message> findAll() {
         List<Message> messages = new ArrayList<>();
@@ -50,7 +42,6 @@ public class MessageService {
     public void deleteById(int messageId) {
         messageRepository.deleteById(messageId);
     }
-
 
     public Message addMessage(Message message){
         return messageRepository.save(message);

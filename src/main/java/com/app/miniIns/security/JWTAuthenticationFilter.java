@@ -1,7 +1,6 @@
 package com.app.miniIns.security;
 
-import com.app.miniIns.entities.User;
-import com.app.miniIns.entities.UserTemplate;
+import com.app.miniIns.entities.client.UserTemplate;
 import com.app.miniIns.exceptions.MyAuthenticationException;
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,6 +1,6 @@
-package com.app.miniIns.services;
+package com.app.miniIns.services.repositories;
 
-import com.app.miniIns.entities.PhotoComment;
+import com.app.miniIns.entities.server.PhotoComment;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

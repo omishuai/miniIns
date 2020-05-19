@@ -1,4 +1,4 @@
-package com.app.miniIns.entities;
+package com.app.miniIns.entities.server;
 
 import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;

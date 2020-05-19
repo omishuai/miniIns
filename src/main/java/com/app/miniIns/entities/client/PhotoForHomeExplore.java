@@ -1,6 +1,4 @@
-package com.app.miniIns.entities;
-
-import org.hibernate.annotations.CreationTimestamp;
+package com.app.miniIns.entities.client;
 
 import java.net.URL;
 import java.time.LocalDateTime;

@@ -1,4 +1,4 @@
-package com.app.miniIns.services;
+package com.app.miniIns.services.services;
 
 import org.springframework.web.multipart.MultipartFile;
 

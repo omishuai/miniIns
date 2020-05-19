@@ -2,8 +2,15 @@ package com.app.miniIns.cucumber.bdd.stepdefs;
 
 import com.app.miniIns.cucumber.bdd.*;
 import com.app.miniIns.cucumber.bdd.WebsocketMessages;
-import com.app.miniIns.services.*;
-import com.app.miniIns.entities.*;
+import com.app.miniIns.entities.server.Message;
+import com.app.miniIns.entities.server.Photo;
+import com.app.miniIns.entities.server.PhotoComment;
+import com.app.miniIns.entities.server.User;
+import com.app.miniIns.services.repositories.CommentRepository;
+import com.app.miniIns.services.repositories.MessageRepository;
+import com.app.miniIns.services.repositories.PhotoRepository;
+import com.app.miniIns.services.repositories.UserRepository;
+import com.app.miniIns.services.services.MessageService;
 import com.jayway.jsonpath.JsonPath;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;

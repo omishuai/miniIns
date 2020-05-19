@@ -1,8 +1,6 @@
-package com.app.miniIns.entities;
+package com.app.miniIns.entities.server;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

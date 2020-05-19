@@ -1,7 +1,6 @@
-package com.app.miniIns.entities;
+package com.app.miniIns.entities.client;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class UserForHome implements Serializable {
 

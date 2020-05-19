@@ -1,4 +1,4 @@
-package com.app.miniIns.entities;
+package com.app.miniIns.entities.client;
 
 public class UserTemplate {
 

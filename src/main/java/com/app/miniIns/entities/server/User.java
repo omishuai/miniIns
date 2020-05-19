@@ -1,4 +1,4 @@
-package com.app.miniIns.entities;
+package com.app.miniIns.entities.server;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;

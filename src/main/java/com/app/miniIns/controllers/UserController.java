@@ -1,7 +1,12 @@
 package com.app.miniIns.controllers;
 
-import com.app.miniIns.entities.*;
-import com.app.miniIns.services.*;
+import com.app.miniIns.entities.client.*;
+import com.app.miniIns.entities.server.Photo;
+import com.app.miniIns.entities.server.PhotoComment;
+import com.app.miniIns.entities.server.User;
+import com.app.miniIns.services.services.FileStorageService;
+import com.app.miniIns.services.services.PhotoService;
+import com.app.miniIns.services.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContext;

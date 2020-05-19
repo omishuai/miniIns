@@ -1,8 +1,9 @@
-package com.app.miniIns.services;
+package com.app.miniIns.services.services;
 
-import com.app.miniIns.entities.Photo;
-import com.app.miniIns.entities.PhotoForHomeExplore;
-import com.app.miniIns.entities.User;
+import com.app.miniIns.entities.server.Photo;
+import com.app.miniIns.entities.client.PhotoForHomeExplore;
+import com.app.miniIns.entities.server.User;
+import com.app.miniIns.services.repositories.PhotoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -12,14 +13,6 @@ import java.util.*;
 
 @Service
 public class PhotoService{
-
-    public PhotoRepository getPhotoRepository() {
-        return photoRepository;
-    }
-
-    public void setPhotoRepository(PhotoRepository photoRepository) {
-        this.photoRepository = photoRepository;
-    }
 
     @Autowired
     private PhotoRepository photoRepository;

@@ -1,8 +1,8 @@
-package com.app.miniIns.services;
+package com.app.miniIns.services.repositories;
 
-import com.app.miniIns.entities.User;
-import com.app.miniIns.entities.UserForHome;
-import com.app.miniIns.entities.UserTemplate;
+import com.app.miniIns.entities.server.User;
+import com.app.miniIns.entities.client.UserForHome;
+import com.app.miniIns.entities.client.UserTemplate;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends CrudRepository<User, Integer> {
     User findByEmail(String email);
 
-    @Query("select new com.app.miniIns.entities.UserForHome(" +
+    @Query("select new com.app.miniIns.entities.client.UserForHome(" +
             "user.id," +
             "user.gender," +
             "user.username," +
@@ -32,7 +32,7 @@ public interface UserRepository extends CrudRepository<User, Integer> {
     <T> T findByUsername(String username, Class<T> tclass);
 
 
-    @Query("select new com.app.miniIns.entities.UserTemplate(" +
+    @Query("select new com.app.miniIns.entities.client.UserTemplate(" +
             "user.id, " +
             "user.username, " +
             "user.password, " +
@@ -41,7 +41,7 @@ public interface UserRepository extends CrudRepository<User, Integer> {
             " from User user where user.username = :username")
     UserTemplate findByUsernameByProjection(String username);
 
-    @Query("select new com.app.miniIns.entities.UserTemplate(" +
+    @Query("select new com.app.miniIns.entities.client.UserTemplate(" +
             "user.id, " +
             "user.username, " +
             "user.password, " +

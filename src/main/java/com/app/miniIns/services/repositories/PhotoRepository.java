@@ -1,7 +1,7 @@
-package com.app.miniIns.services;
+package com.app.miniIns.services.repositories;
 
-import com.app.miniIns.entities.Photo;
-import com.app.miniIns.entities.PhotoForHomeExplore;
+import com.app.miniIns.entities.server.Photo;
+import com.app.miniIns.entities.client.PhotoForHomeExplore;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +15,7 @@ public interface PhotoRepository extends CrudRepository<Photo, UUID> {
 
     Photo findByUuid(UUID uuid);
 
-    @Query("select new com.app.miniIns.entities.PhotoForHomeExplore(" +
+    @Query("select new com.app.miniIns.entities.client.PhotoForHomeExplore(" +
             "user.username," +
             "photo.s3Key," +
             "photo.uuid," +
@@ -29,7 +29,7 @@ public interface PhotoRepository extends CrudRepository<Photo, UUID> {
             "group by user.id, photo.s3Key order by photo.createDateTime")
     List<PhotoForHomeExplore> findAllByCreateDateTimeForExplore(Pageable pageable);
 
-    @Query("select new com.app.miniIns.entities.PhotoForHomeExplore(" +
+    @Query("select new com.app.miniIns.entities.client.PhotoForHomeExplore(" +
             "user.username," +
             "photo.s3Key," +
             "photo.uuid," +

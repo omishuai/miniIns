@@ -1,9 +1,11 @@
 package com.app.miniIns.controllers;
 
-import com.app.miniIns.entities.*;
+import com.app.miniIns.entities.client.ClientComment;
+import com.app.miniIns.entities.server.Photo;
+import com.app.miniIns.entities.server.PhotoComment;
 import com.app.miniIns.exceptions.EmptyInputException;
-import com.app.miniIns.services.CommentService;
-import com.app.miniIns.services.PhotoService;
+import com.app.miniIns.services.services.CommentService;
+import com.app.miniIns.services.services.PhotoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContext;

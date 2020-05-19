@@ -1,4 +1,4 @@
-package com.app.miniIns.entities;
+package com.app.miniIns.entities.client;
 
 
 import java.time.LocalDateTime;
