@@ -31,7 +31,7 @@ public interface CommentRepository extends CrudRepository<PhotoComment, Integer>
     @Query(value =
                     "select user.username " +
                    "from User user " +
-                        "left join relationship on user.id = follower.id " +
+                        "left join relationship on user.id = follower " +
                         "left join photo_liked_by_user on user.id = user_id " +
                    "where photo_id = :photoId And user.id = :userId"
             ,

@@ -39,8 +39,8 @@ public class User {
     @ManyToMany
     @JoinTable(
             name = "relationship",
-            joinColumns = { @JoinColumn(name = "followerId") },
-            inverseJoinColumns = { @JoinColumn(name = "followedId") })
+            joinColumns = { @JoinColumn(name = "follower") },
+            inverseJoinColumns = { @JoinColumn(name = "followed") })
     private Set<User> follows = new HashSet<>();
 
     @ManyToMany(mappedBy = "follows")

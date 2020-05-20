@@ -33,7 +33,7 @@ public class Photo implements  Comparable{
     private LocalDateTime createDateTime;
 
     @ManyToMany
-    @JoinTable(name="photo_liked_user",
+    @JoinTable(name="photo_liked_by_user",
             joinColumns=@JoinColumn(name = "photo_id"),
             inverseJoinColumns=@JoinColumn(name = "user_id"))
     private List<User> likedBy;

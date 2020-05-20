@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class PhotoForFeed {
+public class PhotoForFeed{
 
     private String username;
     private URL url;
@@ -36,9 +36,23 @@ public class PhotoForFeed {
         this.commentsCount = commentsCount;
     }
 
+//    @Override
+//    public int compareTo(Object o) {
+//
+//        if (o == null) return -1;
+//        if (o instanceof PhotoForFeed) {
+//            PhotoForFeed target = (PhotoForFeed) o;
+//            if (this.getCreateDateTime().isAfter((target.getCreateDateTime()))) return -1;
+//            return 1;
+//        }
+//        return 1;
+//    }
+
     public String getS3Key() {
         return s3Key;
     }
+
+
 
     public void setS3Key(String s3Key) {
         this.s3Key = s3Key;
@@ -98,5 +112,19 @@ public class PhotoForFeed {
 
     public List<ClientComment> getPhotoComments() {
         return photoComments;
+    }
+
+    @Override
+    public String toString() {
+        return "PhotoForFeed{" +
+                "username='" + username + '\'' +
+                ", url=" + url +
+                ", s3Key='" + s3Key + '\'' +
+                ", uuid=" + uuid +
+                ", likedByCount=" + likedByCount +
+                ", commentsCount=" + commentsCount +
+                ", likedByFollows=" + likedByFollows +
+                ", photoComments=" + photoComments +
+                '}';
     }
 }

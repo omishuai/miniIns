@@ -8,6 +8,7 @@ import com.app.miniIns.services.services.CommentService;
 import com.app.miniIns.services.services.FileStorageService;
 import com.app.miniIns.services.services.PhotoService;
 import com.app.miniIns.services.services.UserService;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContext;
@@ -131,11 +132,12 @@ public class UserController {
         // Find Photos for Users where user names should be passed in as a list
         List<PhotoForFeed> photos = photoService.findRecentPhotosByTime(currentUser.getId(), pageNumber, pageLimit);
 
-        List<PhotoForFeed> clientPhotos = new ArrayList<>();
+        System.out.println(photos.size());
         for (PhotoForFeed photo : photos) {
 
             //one query for
             int sampleSize = 5;
+            System.out.println("processing: "+ photo);
             List<ClientComment> sample = commentService.findByPhotoUuidForFeed(photo.getUuid(), sampleSize);
 //            List<PhotoComment> comments = photo.getComments();
 //            List<ClientComment> sample = new ArrayList<>();
@@ -156,14 +158,15 @@ public class UserController {
 //                    likedByFollows.add(user.getUsername());
 //                }
 //            }
+            System.out.println(sample);
             List<String> likedByFollows = commentService.findByPhotoUuidAndUserIdAndFollowsForFeed(currentUser.getId(), photo.getUuid());
-
+            System.out.println(likedByFollows);
             URL url = fileStorageService.getUrl(photo.getS3Key());
             photo.setUrl(url);
             photo.setLikedByFollows(likedByFollows);
             photo.setPhotoComments(sample);
         }
-        return clientPhotos;
+        return photos;
     }
 
 
