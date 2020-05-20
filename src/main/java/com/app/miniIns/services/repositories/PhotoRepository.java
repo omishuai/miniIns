@@ -3,6 +3,7 @@ package com.app.miniIns.services.repositories;
 import com.app.miniIns.entities.client.PhotoForFeed;
 import com.app.miniIns.entities.server.Photo;
 import com.app.miniIns.entities.client.PhotoForHomeExplore;
+import com.app.miniIns.entities.server.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -45,20 +46,25 @@ public interface PhotoRepository extends CrudRepository<Photo, UUID> {
     List<PhotoForHomeExplore> findByUserIdForHomePageable(int userId, Pageable pageable);
 
     //String username, UUID uuid, int likedByCount, int commentsCount
-
-            @Query("select new com.app.miniIns.entities.client.PhotoForFeed(" +
+    @Query("select new com.app.miniIns.entities.client.PhotoForFeed(" +
                     "user.username," +
                     "photo.uuid," +
                     "photo.s3Key," +
                     "count(likedBy), " +
-                    "count(comments))" +
+                    "count(comments)) " +
+
                     "from Photo photo " +
-                    "left join photo.user user " +
-                    "left join user.followedBy follow" +
-                    "left join photo.comments comments " +
-                    "left join photo.likedBy likedBy "+
-                    "where user.id = :id or follow.follower = :id group by photo.s3Key"
-    )
+            "left join photo.user user " +
+            "left join photo.comments comments " +
+            "left join photo.likedBy likedBy "+
+
+                    "where user in (" +
+                    "select user " +
+                    "from User user " +
+                    "left join user.followedBy fb " +
+                    "where user.id = :id or fb.id = :id) " +
+
+                    "group by photo.s3Key")
     List<PhotoForFeed> findByUserIdIn(int id, Pageable pageable);
 
     @Transactional
@@ -77,6 +83,15 @@ public interface PhotoRepository extends CrudRepository<Photo, UUID> {
     )
     void addlLike(int id, UUID uuid);
 
-
+    @Query(
+                    "select user from User user " +
+                        "left join user.followedBy fb " +
+                    "where fb.id = :userId " +
+                        "and user.id in (" +
+                            "select likedBy.id " +
+                            "from Photo photo " +
+                                "left join photo.likedBy likedBy " +
+                            "where photo.id = :photoId) ")
+    List<User>findByPhotoUuidAndUserIdAndFollowsForFeed(int userId, UUID photoId);
 
 }

@@ -118,49 +118,20 @@ public class UserController {
     public List<PhotoForFeed> getFeedsPageForUser(@RequestParam("limit") int pageLimit, @RequestParam ("page") int pageNumber) throws MalformedURLException {
         SecurityContext context = SecurityContextHolder.getContext();
         String username = (String) context.getAuthentication().getPrincipal();
-
-        //query
         User currentUser = userService.findByUsername(username);
-//        Set<User> users = currentUser.getFollows();
-//        users.add(currentUser);
-//
-//        List<Integer> ids = new ArrayList<>();
-//        for (User usr : users) {
-//            ids.add(usr.getId());
-//        }
 
         // Find Photos for Users where user names should be passed in as a list
         List<PhotoForFeed> photos = photoService.findRecentPhotosByTime(currentUser.getId(), pageNumber, pageLimit);
 
-        System.out.println(photos.size());
         for (PhotoForFeed photo : photos) {
 
-            //one query for
             int sampleSize = 5;
-            System.out.println("processing: "+ photo);
             List<ClientComment> sample = commentService.findByPhotoUuidForFeed(photo.getUuid(), sampleSize);
-//            List<PhotoComment> comments = photo.getComments();
-//            List<ClientComment> sample = new ArrayList<>();
-//            for (PhotoComment photoComment : comments.subList(0,Math.min(comments.size(), 5))) {
-//                sample.add(new ClientComment(
-//                        photoComment.getId(),
-//                        photoComment.getText(),
-//                        photoComment.getCreateDateTime(),
-//                        photoComment.getFromUser(),
-//                        photoComment.getPhoto().getUuid(),
-//                        photoComment.getToId()));
-//            }
 
-//            List<User> likedBy = photo.getLikedBy();
-//            List<String> likedByFollows = new ArrayList<>();
-//            for (User user : likedBy) {
-//                if (users.contains(user)) {
-//                    likedByFollows.add(user.getUsername());
-//                }
-//            }
-            System.out.println(sample);
-            List<String> likedByFollows = commentService.findByPhotoUuidAndUserIdAndFollowsForFeed(currentUser.getId(), photo.getUuid());
-            System.out.println(likedByFollows);
+            List<User> follows = photoService.findByPhotoUuidAndUserIdAndFollowsForFeed(currentUser.getId(), photo.getUuid());
+            List<String> likedByFollows = new ArrayList<>();
+            for (User user: follows) likedByFollows.add(user.getUsername());
+
             URL url = fileStorageService.getUrl(photo.getS3Key());
             photo.setUrl(url);
             photo.setLikedByFollows(likedByFollows);

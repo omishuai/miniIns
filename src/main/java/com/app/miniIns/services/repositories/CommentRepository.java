@@ -26,17 +26,7 @@ public interface CommentRepository extends CrudRepository<PhotoComment, Integer>
             "WHERE photo.uuid = :uuid ")
     List<ClientComment> findByPhotoUuidOrderByCreateDateTime(UUID uuid, Pageable pageable);
 
-    @Transactional
-    @Modifying
-    @Query(value =
-                    "select user.username " +
-                   "from User user " +
-                        "left join relationship on user.id = follower " +
-                        "left join photo_liked_by_user on user.id = user_id " +
-                   "where photo_id = :photoId And user.id = :userId"
-            ,
-            nativeQuery = true)
-    List<String>findByPhotoUuidAndUserIdAndFollowsForFeed(int userId, UUID photoId);
+
 
 
 }

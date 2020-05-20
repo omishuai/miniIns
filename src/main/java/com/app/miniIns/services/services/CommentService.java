@@ -80,9 +80,7 @@ public class CommentService {
         return commentRepository.findById(id);
     }
 
-    public List<String> findByPhotoUuidAndUserIdAndFollowsForFeed(int userId, UUID photoId) {
-        return commentRepository.findByPhotoUuidAndUserIdAndFollowsForFeed(userId, photoId);
-    }
+
 
 
 }

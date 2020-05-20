@@ -55,6 +55,12 @@ public class PhotoService{
 
     public List<PhotoForFeed> findRecentPhotosByTime(int id, int pageNumber, int limit) throws IllegalArgumentException{
         if (limit > PAGE_LIMIT || limit < 0) throw new IllegalArgumentException("Limit " + limit + " Does Not Fall In 0 to " + PAGE_LIMIT);
+//        return new ArrayList<PhotoForFeed>();
         return photoRepository.findByUserIdIn(id, PageRequest.of(pageNumber, limit, Sort.by("createDateTime").descending()));
     }
+
+    public List<User> findByPhotoUuidAndUserIdAndFollowsForFeed(int userId, UUID photoId) {
+        return photoRepository.findByPhotoUuidAndUserIdAndFollowsForFeed(userId, photoId);
+    }
+
 }
