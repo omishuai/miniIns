@@ -1,5 +1,6 @@
 package com.app.miniIns.services.services;
 
+import com.app.miniIns.entities.client.PhotoForFeed;
 import com.app.miniIns.entities.server.Photo;
 import com.app.miniIns.entities.client.PhotoForHomeExplore;
 import com.app.miniIns.entities.server.User;
@@ -52,8 +53,8 @@ public class PhotoService{
         return ls;
     }
 
-    public List<Photo> findRecentPhotosByTime(List<Integer> ids, int pageNumber, int limit) throws IllegalArgumentException{
+    public List<PhotoForFeed> findRecentPhotosByTime(int id, int pageNumber, int limit) throws IllegalArgumentException{
         if (limit > PAGE_LIMIT || limit < 0) throw new IllegalArgumentException("Limit " + limit + " Does Not Fall In 0 to " + PAGE_LIMIT);
-        return photoRepository.findByUserIdIn(ids, PageRequest.of(pageNumber, limit, Sort.by("createDateTime").descending()));
+        return photoRepository.findByUserIdIn(id, PageRequest.of(pageNumber, limit, Sort.by("createDateTime").descending()));
     }
 }

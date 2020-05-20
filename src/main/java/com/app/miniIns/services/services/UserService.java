@@ -22,7 +22,6 @@ public class UserService {
     @Autowired
     private UserRepository userRepo;
 
-
     public void followUser(String follower, String followed) {
         User user1 = findByUsername(follower);
         User user2 = findByUsername(followed);

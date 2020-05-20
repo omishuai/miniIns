@@ -2,8 +2,8 @@ package com.app.miniIns.controllers;
 
 
 import static org.assertj.core.api.Assertions.*;
-import com.app.miniIns.services.UserService;
-import com.app.miniIns.entities.*;
+import com.app.miniIns.services.services.UserService;
+import com.app.miniIns.entities.server.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.*;

@@ -1,11 +1,15 @@
 package com.app.miniIns.services.services;
 
+import com.app.miniIns.entities.client.ClientComment;
+import com.app.miniIns.entities.client.ClientUser;
 import com.app.miniIns.entities.server.PhotoComment;
 import com.app.miniIns.entities.server.Photo;
 import com.app.miniIns.exceptions.EmptyInputException;
 import com.app.miniIns.services.repositories.CommentRepository;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import javax.management.InvalidAttributeValueException;
 import java.util.List;
@@ -68,8 +72,16 @@ public class CommentService {
         return commentRepository.save(photoComment);
     }
 
+    public List<ClientComment> findByPhotoUuidForFeed(UUID photoId, int limit) {
+        return commentRepository.findByPhotoUuidOrderByCreateDateTime(photoId, PageRequest.of(0, limit, Sort.by("createDateTime").descending()));
+    }
+
     public PhotoComment findById(int id) {
         return commentRepository.findById(id);
+    }
+
+    public List<String> findByPhotoUuidAndUserIdAndFollowsForFeed(int userId, UUID photoId) {
+        return commentRepository.findByPhotoUuidAndUserIdAndFollowsForFeed(userId, photoId);
     }
 
 

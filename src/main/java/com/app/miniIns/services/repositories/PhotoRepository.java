@@ -1,5 +1,6 @@
 package com.app.miniIns.services.repositories;
 
+import com.app.miniIns.entities.client.PhotoForFeed;
 import com.app.miniIns.entities.server.Photo;
 import com.app.miniIns.entities.client.PhotoForHomeExplore;
 import org.springframework.data.domain.Pageable;
@@ -43,7 +44,43 @@ public interface PhotoRepository extends CrudRepository<Photo, UUID> {
             "where user.id = :userId group by user.id, photo.s3Key")
     List<PhotoForHomeExplore> findByUserIdForHomePageable(int userId, Pageable pageable);
 
-    // Directly accessing the joined table without entity
+    //String username, UUID uuid, int likedByCount, int commentsCount
+    @Query (
+            "select new com.app.miniIns.entities.client.PhotoForFeed(" +
+                    "user.username," +
+                    "photo.uuid," +
+                    "photo.s3Key," +
+                    "photo.createDateTime," +
+                    "count(likedBy), " +
+                    "count(comments)) " +
+                    "from User user " +
+                    "left join user.photos " +
+                    "left join user.follows " +
+                    "left join Photo photo "+
+                    "left join photo.comments comments " +
+                    "left join photo.likedBy likedBy "+
+                    "where user.id = :id " +
+                    "group by photo.s3Key "
+//
+//                    "UNION " +
+//
+//                    "select new com.app.miniIns.entities.client.PhotoForFeed(" +
+//                    "user.username," +
+//                    "photo.uuid," +
+//                    "photo.s3Key," +
+//                    "photo.createDateTime," +
+//                    "count(comments)," +
+//                    "count(likedBy)) " +
+//                    ") " +
+//                    "from Photo photo " +
+//                    "left join photo.user user "+
+//                    "left join photo.comments comments " +
+//                    "left join photo.likedBy likedBy "+
+//                    "where user.id = :id " +
+//                    "group by photo.s3Key"
+    )
+    List<PhotoForFeed> findByUserIdIn(int id, Pageable pageable);
+
     @Transactional
     @Modifying
     @Query(
@@ -52,8 +89,6 @@ public interface PhotoRepository extends CrudRepository<Photo, UUID> {
     )
     void removeLike(int id, UUID uuid);
 
-
-    // Directly accessing the joined table without entity
     @Transactional
     @Modifying
     @Query(
@@ -62,6 +97,6 @@ public interface PhotoRepository extends CrudRepository<Photo, UUID> {
     )
     void addlLike(int id, UUID uuid);
 
-    List<Photo> findByUserIdIn(List<Integer> ids, Pageable pageable);
+
 
 }

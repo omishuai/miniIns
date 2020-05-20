@@ -4,6 +4,7 @@ import com.app.miniIns.entities.client.*;
 import com.app.miniIns.entities.server.Photo;
 import com.app.miniIns.entities.server.PhotoComment;
 import com.app.miniIns.entities.server.User;
+import com.app.miniIns.services.services.CommentService;
 import com.app.miniIns.services.services.FileStorageService;
 import com.app.miniIns.services.services.PhotoService;
 import com.app.miniIns.services.services.UserService;
@@ -14,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 @Controller
@@ -26,16 +28,14 @@ public class UserController {
     private FileStorageService fileStorageService;
 
     @Autowired
-    private UserService userService;
+    private CommentService commentService;
 
-    public UserService getUserService() {
-        return userService;
-    }
+    @Autowired
+    private UserService userService;
 
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
-
 
     @PostMapping(path = "/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -85,9 +85,6 @@ public class UserController {
         return userForHome;
     }
 
-
-    //////////////////////////////////////////////////////////////////////////////
-
     //follow user
     @PostMapping(path = "/user/{username}/follow")
     @ResponseStatus(HttpStatus.CREATED)
@@ -121,52 +118,50 @@ public class UserController {
         SecurityContext context = SecurityContextHolder.getContext();
         String username = (String) context.getAuthentication().getPrincipal();
 
-        System.out.println(username + " " + pageLimit + " " + pageNumber);
-
+        //query
         User currentUser = userService.findByUsername(username);
-        Set<User> users = currentUser.getFollows();
-        users.add(currentUser);
-
-        List<Integer> ids = new ArrayList<>();
-        for (User usr : users) {
-            ids.add(usr.getId());
-        }
+//        Set<User> users = currentUser.getFollows();
+//        users.add(currentUser);
+//
+//        List<Integer> ids = new ArrayList<>();
+//        for (User usr : users) {
+//            ids.add(usr.getId());
+//        }
 
         // Find Photos for Users where user names should be passed in as a list
-        List<Photo> photos = photoService.findRecentPhotosByTime(ids, pageNumber, pageLimit);
+        List<PhotoForFeed> photos = photoService.findRecentPhotosByTime(currentUser.getId(), pageNumber, pageLimit);
 
         List<PhotoForFeed> clientPhotos = new ArrayList<>();
-        for (Photo photo : photos) {
-            List<User> likedBy = photo.getLikedBy();
-            List<PhotoComment> comments = photo.getComments();
+        for (PhotoForFeed photo : photos) {
 
-            List<ClientComment> sample = new ArrayList<>();
-            for (PhotoComment photoComment : comments.subList(0,comments.size() > 5 ? 5 : comments.size())) {
-                sample.add(new ClientComment(
-                        photoComment.getId(),
-                        photoComment.getText(),
-                        photoComment.getCreateDateTime(),
-                        photoComment.getFromUser(),
-                        photoComment.getPhoto().getUuid(),
-                        photoComment.getToId()));
-            }
+            //one query for
+            int sampleSize = 5;
+            List<ClientComment> sample = commentService.findByPhotoUuidForFeed(photo.getUuid(), sampleSize);
+//            List<PhotoComment> comments = photo.getComments();
+//            List<ClientComment> sample = new ArrayList<>();
+//            for (PhotoComment photoComment : comments.subList(0,Math.min(comments.size(), 5))) {
+//                sample.add(new ClientComment(
+//                        photoComment.getId(),
+//                        photoComment.getText(),
+//                        photoComment.getCreateDateTime(),
+//                        photoComment.getFromUser(),
+//                        photoComment.getPhoto().getUuid(),
+//                        photoComment.getToId()));
+//            }
 
+//            List<User> likedBy = photo.getLikedBy();
+//            List<String> likedByFollows = new ArrayList<>();
+//            for (User user : likedBy) {
+//                if (users.contains(user)) {
+//                    likedByFollows.add(user.getUsername());
+//                }
+//            }
+            List<String> likedByFollows = commentService.findByPhotoUuidAndUserIdAndFollowsForFeed(currentUser.getId(), photo.getUuid());
 
-            List<String> likedByFollows = new ArrayList<>();
-            for (User user : likedBy) {
-                if (users.contains(user)) {
-                    likedByFollows.add(user.getUsername());
-                }
-            }
-
-            clientPhotos.add(
-                    new PhotoForFeed(
-                            photo.getUser().getUsername(),
-                            fileStorageService.getUrl(photo.getS3Key()),
-                            photo.getUuid(),
-                            likedBy.size(),
-                            comments.size(),
-                            likedByFollows, sample));
+            URL url = fileStorageService.getUrl(photo.getS3Key());
+            photo.setUrl(url);
+            photo.setLikedByFollows(likedByFollows);
+            photo.setPhotoComments(sample);
         }
         return clientPhotos;
     }
