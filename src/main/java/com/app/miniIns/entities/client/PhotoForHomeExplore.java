@@ -1,7 +1,7 @@
 package com.app.miniIns.entities.client;
 
 import java.net.URL;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 public class PhotoForHomeExplore implements Comparable {
@@ -9,11 +9,11 @@ public class PhotoForHomeExplore implements Comparable {
     private String s3Key;
     private URL s3Url;
     private UUID uuid;
-    private LocalDateTime createDateTime;
+    private ZonedDateTime createDateTime;
     private long commentsCount;
     private long likedByCount;
 
-    public PhotoForHomeExplore(String username, String s3Key, UUID uuid, LocalDateTime createDateTime, long commentsCount, long likedByCount) {
+    public PhotoForHomeExplore(String username, String s3Key, UUID uuid, ZonedDateTime createDateTime, long commentsCount, long likedByCount) {
         this.username = username;
         this.s3Key = s3Key;
         this.uuid = uuid;
@@ -74,7 +74,7 @@ public class PhotoForHomeExplore implements Comparable {
         return uuid;
     }
 
-    public LocalDateTime getCreateDateTime() {
+    public ZonedDateTime getCreateDateTime() {
         return createDateTime;
     }
 }

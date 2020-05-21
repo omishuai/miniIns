@@ -4,7 +4,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +30,7 @@ public class Photo implements  Comparable{
     private String filename;
 
     @CreationTimestamp
-    private LocalDateTime createDateTime;
+    private ZonedDateTime createDateTime;
 
     @ManyToMany
     @JoinTable(name="photo_liked_by_user",
@@ -44,7 +44,7 @@ public class Photo implements  Comparable{
     private List<PhotoComment> comments = new ArrayList<>();
 
 
-    public LocalDateTime getCreateDateTime() {
+        public ZonedDateTime getCreateDateTime() {
         return createDateTime;
     }
 
@@ -68,7 +68,7 @@ public class Photo implements  Comparable{
     public Photo() {
     }
 
-    public Photo(UUID uuid, String s3Key, LocalDateTime createDateTime) {
+    public Photo(UUID uuid, String s3Key, ZonedDateTime createDateTime) {
         this.uuid = uuid;
         this.s3Key = s3Key;
         this.createDateTime = createDateTime;

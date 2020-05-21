@@ -5,6 +5,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table (name = "commentsOnPhoto")
@@ -17,7 +18,7 @@ public class PhotoComment  implements  Comparable{
     private String text;
 
     @CreationTimestamp
-    private LocalDateTime createDateTime;
+    private ZonedDateTime createDateTime;
 
     private String fromUser;
 
@@ -82,7 +83,7 @@ public class PhotoComment  implements  Comparable{
         return text;
     }
 
-    public LocalDateTime getCreateDateTime() {
+    public ZonedDateTime getCreateDateTime() {
         return createDateTime;
     }
 
