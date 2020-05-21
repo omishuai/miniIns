@@ -91,7 +91,7 @@ public interface PhotoRepository extends CrudRepository<Photo, UUID> {
                             "select likedBy.id " +
                             "from Photo photo " +
                                 "left join photo.likedBy likedBy " +
-                            "where photo.id = :photoId) ")
+                            "where photo.uuid = :photoId) ")
     List<User>findByPhotoUuidAndUserIdAndFollowsForFeed(int userId, UUID photoId);
 
 }
