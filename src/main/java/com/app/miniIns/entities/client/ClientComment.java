@@ -1,7 +1,8 @@
-package com.app.miniIns.entities;
+package com.app.miniIns.entities.client;
 
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 public class ClientComment {
@@ -10,7 +11,7 @@ public class ClientComment {
 
     private String text;
 
-    private LocalDateTime createDateTime;
+    private ZonedDateTime createDateTime;
 
     private String fromUser;
 
@@ -18,7 +19,7 @@ public class ClientComment {
 
     private int toId;
 
-    public ClientComment(int id, String text, LocalDateTime createDateTime, String fromUser, UUID photoId, int toId) {
+    public ClientComment(int id, String text, ZonedDateTime createDateTime, String fromUser, UUID photoId, int toId) {
         this.id = id;
         this.text = text;
         this.createDateTime = createDateTime;
@@ -50,7 +51,7 @@ public class ClientComment {
     }
 
 
-    public LocalDateTime getCreateDateTime() {
+    public ZonedDateTime getCreateDateTime() {
         return createDateTime;
     }
 

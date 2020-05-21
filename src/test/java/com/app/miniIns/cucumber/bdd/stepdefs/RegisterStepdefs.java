@@ -2,8 +2,15 @@ package com.app.miniIns.cucumber.bdd.stepdefs;
 
 import com.app.miniIns.cucumber.bdd.*;
 import com.app.miniIns.cucumber.bdd.WebsocketMessages;
-import com.app.miniIns.services.*;
-import com.app.miniIns.entities.*;
+import com.app.miniIns.entities.server.Message;
+import com.app.miniIns.entities.server.Photo;
+import com.app.miniIns.entities.server.PhotoComment;
+import com.app.miniIns.entities.server.User;
+import com.app.miniIns.services.repositories.CommentRepository;
+import com.app.miniIns.services.repositories.MessageRepository;
+import com.app.miniIns.services.repositories.PhotoRepository;
+import com.app.miniIns.services.repositories.UserRepository;
+import com.app.miniIns.services.services.MessageService;
 import com.jayway.jsonpath.JsonPath;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -164,6 +171,7 @@ public class RegisterStepdefs {
 
     @And("User is authenticated")
     public void userWithIsAuthenticated() {
+        log.info(response.getBody());
         String username = JsonPath.read(response.getBody(), "$.username");
         String code = response.getHeaders().get("Authorization").get(0);
 
@@ -190,6 +198,8 @@ public class RegisterStepdefs {
                 HttpMethod.GET,
                 request,
                 String.class);
+
+        log.info(response.getBody());
     }
 
     String uploadedPhotoId;
@@ -424,7 +434,7 @@ public class RegisterStepdefs {
 
         log.info(response.getBody());
         if (response.getStatusCodeValue() == 201)
-            commentId = JsonPath.read(response.getBody(), "$.photoComments[0].id");
+            commentId = JsonPath.read(response.getBody(), "$.id");
     }
 
     @When("User {string} responds {string} to comment")
@@ -485,8 +495,39 @@ public class RegisterStepdefs {
     public void responseRespondsToAComment(String path) {
         Assertions.assertEquals((int)JsonPath.read(response.getBody(), path), commentId);
         if (response.getStatusCodeValue() == 201) {
-            int len = JsonPath.read(response.getBody(), "$.photoComments.size()");
-            commentId = JsonPath.read(response.getBody(), "$.photoComments["+(len-1)+"].id");
+            commentId = JsonPath.read(response.getBody(), "$.id");
         }
+    }
+
+    @When("User with username {string} visits page {string} with page {int} size {int}")
+    public void userWithUsernameVisitsPageWithPageSize(String user, String page, int pageNumber, int pageLimit) throws URISyntaxException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        String sec = (String)userAuthMap.get(user);
+        if (sec != null)
+            headers.setBearerAuth(sec);
+
+//        MultiValueMap<String, Integer> map = new LinkedMultiValueMap();
+//        map.add("pageLimit", pageLimit);
+//        map.add("pageNumber", pageNumber);
+
+        HttpEntity request = new HttpEntity<>(headers);
+
+
+        // build the request
+        final String baseUrl = "http://localhost:8080" + page+ "?page="+pageNumber+"&limit="+pageLimit;
+        URI uri = new URI(baseUrl);
+        log.info(uri);
+        //make an HTTP GET request with headers
+        response = restTemplate.exchange(
+                uri,
+                HttpMethod.GET,
+                request,
+                String.class);
+
+        log.info(response.getBody());
+
+
+
     }
 }

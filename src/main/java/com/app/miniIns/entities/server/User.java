@@ -1,4 +1,4 @@
-package com.app.miniIns.entities;
+package com.app.miniIns.entities.server;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -14,6 +14,8 @@ public class User {
     @NotNull (message = "Please Enter Username")
     @Pattern(regexp = "^[A-Z0-9a-z]+$", message = "Username Only Allows Alphanumeric Characters")
     private String username;
+
+    private String intro;
 
     @NotNull (message = "Please Enter Email")
     @Email (message = "Invalid Email")
@@ -32,15 +34,22 @@ public class User {
 
     private String salt;
 
+    private String profilePhotoKey;
+
     @ManyToMany
     @JoinTable(
             name = "relationship",
-            joinColumns = { @JoinColumn(name = "followerId") },
-            inverseJoinColumns = { @JoinColumn(name = "followedId") })
+            joinColumns = { @JoinColumn(name = "follower") },
+            inverseJoinColumns = { @JoinColumn(name = "followed") })
     private Set<User> follows = new HashSet<>();
 
     @ManyToMany(mappedBy = "follows")
     private Set<User> followedBy = new HashSet<>();
+
+    @OneToMany (
+            mappedBy = "user",
+            cascade = CascadeType.ALL)
+    private List<Photo> photos = new ArrayList<>();
 
 
 
@@ -74,6 +83,9 @@ public class User {
         return username.equals(u.username) && email.equals(u.email);
     }
 
+    public List<Photo> getPhotos() {
+        return photos;
+    }
 
 
     public Set<User> getFollows() {
@@ -119,5 +131,21 @@ public class User {
 
     public int getAge() {
         return age;
+    }
+
+    public String getIntro() {
+        return intro;
+    }
+
+    public void setIntro(String intro) {
+        this.intro = intro;
+    }
+
+    public String getProfilePhotoKey() {
+        return profilePhotoKey;
+    }
+
+    public void setProfilePhotoKey(String profilePhotoKey) {
+        this.profilePhotoKey = profilePhotoKey;
     }
 }

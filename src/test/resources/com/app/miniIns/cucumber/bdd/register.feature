@@ -5,10 +5,6 @@ Feature: Create User
     Given empty database
     When User registers with username "username",password "password", email "email@server.com", age 21 and gender "male"
     Then Response has status code 201
-    And Response has value "username" for "$.username"
-    And Response has value "email@server.com" for "$.email"
-    And Response has value 21 for "$.age"
-    And Response has value "male" for "$.gender"
 
   Scenario: Users Failed to Register Due to Existing Username
     Given empty database
@@ -16,7 +12,6 @@ Feature: Create User
     When User registers with username "username",password "password", email "email@server.com", age 21 and gender "male"
     Then Response has status code 409
     And  Response has value "Existing Username" for "$.message"
-
 
   Scenario: Users Failed to Register Due to Existing Email
     Given empty database

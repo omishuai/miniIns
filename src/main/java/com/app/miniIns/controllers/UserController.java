@@ -1,7 +1,14 @@
 package com.app.miniIns.controllers;
 
-import com.app.miniIns.entities.*;
-import com.app.miniIns.services.*;
+import com.app.miniIns.entities.client.*;
+import com.app.miniIns.entities.server.Photo;
+import com.app.miniIns.entities.server.PhotoComment;
+import com.app.miniIns.entities.server.User;
+import com.app.miniIns.services.services.CommentService;
+import com.app.miniIns.services.services.FileStorageService;
+import com.app.miniIns.services.services.PhotoService;
+import com.app.miniIns.services.services.UserService;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContext;
@@ -9,7 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.net.MalformedURLException;
-import java.time.LocalDateTime;
+import java.net.URL;
 import java.util.*;
 
 @Controller
@@ -22,11 +29,10 @@ public class UserController {
     private FileStorageService fileStorageService;
 
     @Autowired
-    private UserService userService;
+    private CommentService commentService;
 
-    public UserService getUserService() {
-        return userService;
-    }
+    @Autowired
+    private UserService userService;
 
     public void setUserService(UserService userService) {
         this.userService = userService;
@@ -35,134 +41,104 @@ public class UserController {
     @PostMapping(path = "/register")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public ClientUser register(
+    public void register(
             @RequestParam("username") String username,
             @RequestParam("email") String email,
             @RequestParam("password") String password,
             @RequestParam("age") int age,
             @RequestParam("gender") String gender) throws Exception {
 
-        User res = userService.addUser(new User(username, email, password, age, gender));
-        return new ClientUser(res.getUsername(), res.getEmail(), res.getAge(), res.getGender());
+        userService.addUser(new User(username, email, password, age, gender));
     }
 
 
     @PostMapping(path = "/login")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ClientUser login(@RequestParam("user") String accountName, String password) throws Exception {
-        User res = userService.verifyInfo(accountName, password);
-        return constructClientUserWithFollowingList(res);
+    public void login(@RequestParam("username") String accountName, @RequestParam("password") String password) throws Exception {
+        userService.verifyInfo(accountName, password);
+    }
+
+    @GetMapping("/user/{user}")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public ClientUserForHome getGreetingPageForUser(@PathVariable  String user, @RequestParam("page") int page, @RequestParam("limit") int limit ) throws MalformedURLException {
+
+        System.out.println("\n userService.findByUsernameProjection:");
+        UserForHome res = userService.findByUsernameProjection(user);
+
+        System.out.println("\n photoService.findByUserIdForHome:" + page + " "+ limit);
+        List<PhotoForHomeExplore> serverPhotos = photoService.findByUserIdForHomePageable(res.getId(), page, limit);
+        for (PhotoForHomeExplore p : serverPhotos)
+            p.setS3Url(fileStorageService.getUrl(p.getS3Key()));
+
+        ClientUserForHome userForHome = new ClientUserForHome(
+                res.getId(),
+                res.getGender(),
+                res.getUsername(),
+                res.getAge(),
+                res.getIntro(),
+                res.getFollowsCount(),
+                res.getFollowedByCount(),
+                res.getPhotosCount(),
+                serverPhotos,
+                res.getProfilePhotoKey());
+        return userForHome;
     }
 
     //follow user
     @PostMapping(path = "/user/{username}/follow")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public UserRelation follow(@PathVariable("username") String followedUsername) {
+    public void follow(@PathVariable("username") String followedUsername) {
 
         // Get the current user in context
         SecurityContext context = SecurityContextHolder.getContext();
         String followerUsername = (String) context.getAuthentication().getPrincipal();
 
         userService.followUser(followerUsername, followedUsername);
-
-        ClientUser follower = constructClientUserWithFollowingList(userService.findByUsername(followerUsername));
-        ClientUser followed = constructClientUserWithFollowingList(userService.findByUsername(followedUsername));
-
-        return new UserRelation(follower, followed);
     }
 
     @PostMapping(path = "/user/{username}/unfollow")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public UserRelation unfollow(@PathVariable("username") String unfollowedUsername) {
+    public void unfollow(@PathVariable("username") String unfollowedUsername) {
         
         // Get the current user in context
         SecurityContext context = SecurityContextHolder.getContext();
         String followerUsername = (String) context.getAuthentication().getPrincipal();
 
         userService.stopFollowUser(followerUsername, unfollowedUsername);
-
-        ClientUser follower = constructClientUserWithFollowingList(userService.findByUsername(followerUsername));
-        ClientUser unfollowed = constructClientUserWithFollowingList(userService.findByUsername(unfollowedUsername));
-
-        return new UserRelation(follower, unfollowed);
     }
 
-    @GetMapping("/user/{user}")
-    @ResponseBody
-    @ResponseStatus(HttpStatus.OK)
-    public UserResponse getGreetingPageForUser(@PathVariable  String user) throws MalformedURLException {
-
-        User res = userService.findByUsername(user);
-        List<String> following = new ArrayList<>();
-        for (User usr : res.getFollows()) following.add(usr.getUsername());
-        List<String> followedBy = new ArrayList<>();
-        for (User usr : res.getFollowedBy()) followedBy.add(usr.getUsername());
-
-        ClientUser u =  new ClientUser(
-                res.getUsername(),
-                res.getEmail(),
-                res.getAge(),
-                res.getGender(),
-                following,
-                followedBy);
-
-        List<Photo> serverPhotos = photoService.findByUserId(res.getId());
-        Collections.sort(serverPhotos);
-
-        List<ClientPhoto>  photos = new ArrayList<>();
-        for (Photo p : serverPhotos)
-            photos.add(new ClientPhoto(p.getUser().getUsername(), fileStorageService.getUrl(p.getUuid().toString()), p.getUuid()));
-
-
-        return new UserResponse(u, photos);
-    }
 
     @GetMapping("/feed")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public UserResponse getFeedsPageForUser() throws MalformedURLException {
+    public List<PhotoForFeed> getFeedsPageForUser(@RequestParam("limit") int pageLimit, @RequestParam ("page") int pageNumber) throws MalformedURLException {
         SecurityContext context = SecurityContextHolder.getContext();
         String username = (String) context.getAuthentication().getPrincipal();
-
         User currentUser = userService.findByUsername(username);
-        Set<User> users = currentUser.getFollows();
-        users.add(currentUser);
 
-        List<Photo> photos = new ArrayList<>();
-        for (User usr : users) {
-            photos.addAll(photoService.findRecentPhotosForUser(usr.getId(), LocalDateTime.now().minusDays(1), LocalDateTime.now()));
+        // Find Photos for Users where user names should be passed in as a list
+        List<PhotoForFeed> photos = photoService.findRecentPhotosByTime(currentUser.getId(), pageNumber, pageLimit);
+
+        for (PhotoForFeed photo : photos) {
+
+            int sampleSize = 5;
+            List<ClientComment> sample = commentService.findByPhotoUuidForFeed(photo.getUuid(), sampleSize);
+
+            List<User> follows = photoService.findByPhotoUuidAndUserIdAndFollowsForFeed(currentUser.getId(), photo.getUuid());
+            List<String> likedByFollows = new ArrayList<>();
+            for (User user: follows) likedByFollows.add(user.getUsername());
+
+            URL url = fileStorageService.getUrl(photo.getS3Key());
+            photo.setUrl(url);
+            photo.setLikedByFollows(likedByFollows);
+            photo.setPhotoComments(sample);
         }
-
-        Collections.sort(photos);
-
-        List<ClientPhoto> clientPhotos = new ArrayList<>();
-        for (Photo photo : photos) {
-            clientPhotos.add(new ClientPhoto(photo.getUser().getUsername(), fileStorageService.getUrl(photo.getUuid().toString()), photo.getUuid()));
-        }
-
-        ClientUser clientUser = constructClientUserWithFollowingList(currentUser);
-
-        return new UserResponse(clientUser, clientPhotos);
+        return photos;
     }
 
-    public  ClientUser constructClientUserWithFollowingList(User user) {
-
-        List<String> following = new ArrayList<>();
-        for (User usr : user.getFollows()) following.add(usr.getUsername());
-
-        List<String> followedBy = new ArrayList<>();
-        for (User usr : user.getFollowedBy()) followedBy.add(usr.getUsername());
-
-        return new ClientUser(
-                user.getUsername(),
-                user.getEmail(),
-                user.getAge(),
-                user.getGender(),
-                following,
-                followedBy);
-    }
 
 }

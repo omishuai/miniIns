@@ -1,9 +1,11 @@
 package com.app.miniIns.controllers;
 
-import com.app.miniIns.entities.*;
+import com.app.miniIns.entities.client.ClientComment;
+import com.app.miniIns.entities.server.Photo;
+import com.app.miniIns.entities.server.PhotoComment;
 import com.app.miniIns.exceptions.EmptyInputException;
-import com.app.miniIns.services.CommentService;
-import com.app.miniIns.services.PhotoService;
+import com.app.miniIns.services.services.CommentService;
+import com.app.miniIns.services.services.PhotoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContext;
@@ -22,13 +24,10 @@ public class CommentController {
     @Autowired
     private PhotoService photoService;
 
-    @Autowired
-    private PhotoReformatter photoReformatter;
-
     @PostMapping("/photo/{photoId}/comment")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public ClientPhoto postComment(@RequestParam String text, @PathVariable("photoId")  String photoId) throws EmptyInputException, MalformedURLException {
+    public ClientComment postComment(@RequestParam String text, @PathVariable("photoId")  String photoId) throws EmptyInputException, MalformedURLException {
 
         UUID pid = UUID.fromString(photoId);
 
@@ -37,20 +36,32 @@ public class CommentController {
 
         //Assume Initialized already in the class fields; the returned photo is updated and saved to db
         Photo photo = photoService.findById(pid);
-        commentService.addCommentToPhoto(text, username, photo);
+        PhotoComment photoComment = commentService.addCommentToPhoto(text, username, photo);
 
-        return photoReformatter.constructClientPhoto(photo);
+        return new ClientComment(
+                photoComment.getId(),
+                photoComment.getText(),
+                photoComment.getCreateDateTime(),
+                photoComment.getFromUser(),
+                photoComment.getPhoto().getUuid(),
+                photoComment.getToId());
     }
 
     @PostMapping("/comment/{commentId}/reply")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public ClientPhoto replyComment(@RequestParam String text, @PathVariable("commentId") int commentId) throws Exception {
+    public ClientComment replyComment(@RequestParam String text, @PathVariable("commentId") int commentId) throws Exception {
 
         SecurityContext context = SecurityContextHolder.getContext();
         String commentingUsername = (String) context.getAuthentication().getPrincipal();
 
-        PhotoComment photoComment = commentService.replyToComment(commentId, commentingUsername, text);
-        return photoReformatter.constructClientPhoto(photoComment.getPhoto());
+       PhotoComment photoComment = commentService.replyToComment(commentId, commentingUsername, text);
+        return new ClientComment(
+                photoComment.getId(),
+                photoComment.getText(),
+                photoComment.getCreateDateTime(),
+                photoComment.getFromUser(),
+                photoComment.getPhoto().getUuid(),
+                photoComment.getToId());
     }
 }

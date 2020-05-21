@@ -1,7 +1,6 @@
-package com.app.miniIns.services;
+package com.app.miniIns.services.repositories;
 
-import com.app.miniIns.entities.Message;
-import com.app.miniIns.entities.User;
+import com.app.miniIns.entities.server.Message;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

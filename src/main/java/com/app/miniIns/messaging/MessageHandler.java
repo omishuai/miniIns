@@ -1,9 +1,9 @@
 package com.app.miniIns.messaging;
 
-import com.app.miniIns.entities.Message;
-import com.app.miniIns.entities.User;
-import com.app.miniIns.services.MessageService;
-import com.app.miniIns.services.UserService;
+import com.app.miniIns.entities.server.Message;
+import com.app.miniIns.entities.server.User;
+import com.app.miniIns.services.services.MessageService;
+import com.app.miniIns.services.services.UserService;
 import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

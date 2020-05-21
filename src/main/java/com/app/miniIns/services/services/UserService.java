@@ -1,7 +1,10 @@
-package com.app.miniIns.services;
+package com.app.miniIns.services.services;
 
-import com.app.miniIns.entities.*;
+import com.app.miniIns.entities.client.UserForHome;
+import com.app.miniIns.entities.client.UserTemplate;
+import com.app.miniIns.entities.server.User;
 import com.app.miniIns.exceptions.*;
+import com.app.miniIns.services.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
@@ -16,32 +19,20 @@ import java.util.List;
 @Validated
 public class UserService {
 
-    public UserRepository getUserRepo() {
-        return userRepo;
-    }
-
-    public void setUserRepo(UserRepository userRepo) {
-        this.userRepo = userRepo;
-    }
-
-
     @Autowired
     private UserRepository userRepo;
 
-
     public void followUser(String follower, String followed) {
-        User user1 = userRepo.findByUsername(follower);
-        User user2 = userRepo.findByUsername(followed);
+        User user1 = findByUsername(follower);
+        User user2 = findByUsername(followed);
         user1.getFollows().add(user2);
-
         userRepo.save(user1);
     }
 
     public void stopFollowUser(String follower, String followed) {
-        User user1 = userRepo.findByUsername(follower);
-        User user2 = userRepo.findByUsername(followed);
+        User user1 = findByUsername(follower);
+        User user2 = findByUsername(followed);
         user1.getFollows().remove(user2);
-
         userRepo.save(user1);
     }
 
@@ -56,8 +47,12 @@ public class UserService {
         return res;
     }
 
+    public UserForHome findByUsernameProjection(String username) {
+        return userRepo.findByUsernameProjection(username);
+    }
+
     public User findByUsername(String username) {
-        return userRepo.findByUsername(username);
+        return userRepo.findByUsername(username, User.class);
     }
 
 
@@ -73,7 +68,7 @@ public class UserService {
         return userRepo.save(user);
     }
 
-    public User verifyInfo(String account, String password) throws Exception {
+    public UserTemplate verifyInfo(String account, String password) throws Exception {
         if (account == null || (account.equals(""))) throw new EmptyInputException("Please Enter Username or Email");
 
         String email = account.contains("@") ? account : "";
@@ -81,16 +76,16 @@ public class UserService {
 
         if (password == null || password.equals("")) throw new EmptyInputException("Please Enter Password");
 
-        User savedUser;
+        UserTemplate userTemplate;
         if (!email.equals("")) {
-            savedUser = findByEmail(email);
-            if (savedUser == null) throw new VerificationFailureException("Unregistered " + email);
+            userTemplate = userRepo.findByEmailByProjection(email);
+            if (userTemplate == null) throw new VerificationFailureException("Unregistered " + email);
         } else {
-            savedUser = findByUsername(username);
-            if (savedUser == null) throw new VerificationFailureException("Unregistered " + username);
+            userTemplate = userRepo.findByUsernameByProjection(username);
+            if (userTemplate == null) throw new VerificationFailureException("Unregistered " + username);
         }
 
-        if (savedUser.getPassword().equals(BCrypt.hashpw(password, savedUser.getSalt()))) return savedUser;
+        if (userTemplate.getPassword().equals(BCrypt.hashpw(password, userTemplate.getSalt()))) return userTemplate;
         throw new VerificationFailureException("Incorrect Password");
     }
 

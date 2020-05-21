@@ -1,23 +1,27 @@
-package com.app.miniIns.entities;
+package com.app.miniIns.entities.server;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 public class Photo implements  Comparable{
+
+    // To avoid checking the existence before inserting to table
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Type(type="org.hibernate.type.UUIDCharType")
-    private UUID uuid = UUID.randomUUID();
+//    @Type(type="org.hibernate.type.UUIDCharType")
+//    @Type(type="uuid-char")
+    private UUID uuid;
 
-    @ManyToOne
+    private String s3Key = UUID.randomUUID().toString();
+
+    @ManyToOne (fetch = FetchType.LAZY)
     @JoinColumn (name="userId", referencedColumnName = "id")
     @NotNull
     private User user;
@@ -26,20 +30,30 @@ public class Photo implements  Comparable{
     private String filename;
 
     @CreationTimestamp
-    private LocalDateTime createDateTime;
+    private ZonedDateTime createDateTime;
 
-    @OneToMany (
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    @ManyToMany
+    @JoinTable(name="photo_liked_by_user",
+            joinColumns=@JoinColumn(name = "photo_id"),
+            inverseJoinColumns=@JoinColumn(name = "user_id"))
     private List<User> likedBy;
 
+    @OneToMany (
+            mappedBy = "photo",
+            cascade = CascadeType.ALL)
+    private List<PhotoComment> comments = new ArrayList<>();
 
-    public LocalDateTime getCreateDateTime() {
+
+        public ZonedDateTime getCreateDateTime() {
         return createDateTime;
     }
 
     public List<User> getLikedBy() {
         return likedBy;
+    }
+
+    public List<PhotoComment> getComments() {
+        return comments;
     }
 
     public void setLikedBy(List<User> likedBy) {
@@ -51,8 +65,16 @@ public class Photo implements  Comparable{
 //    }
 
 
+    public Photo() {
+    }
 
-    public Photo(){}
+    public Photo(UUID uuid, String s3Key, ZonedDateTime createDateTime) {
+        this.uuid = uuid;
+        this.s3Key = s3Key;
+        this.createDateTime = createDateTime;
+    }
+
+    public Photo(UUID uuid){this.uuid = uuid;}
 
     public Photo(User user, String filename) {
         this.user = user;
@@ -74,6 +96,9 @@ public class Photo implements  Comparable{
         return String.format("{uuid: %s, userId: %d, filename: '%s'}", uuid, user.getId(), filename);
     }
 
+    public String getS3Key() {
+        return s3Key;
+    }
 
     public UUID getUuid() {
         return uuid;

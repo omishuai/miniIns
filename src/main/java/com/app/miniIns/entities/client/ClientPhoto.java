@@ -1,4 +1,4 @@
-package com.app.miniIns.entities;
+package com.app.miniIns.entities.client;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -10,6 +10,8 @@ public class ClientPhoto {
     private String username;
     private URL url;
     private UUID uuid;
+    private long likedByCount;
+    private long commnetsCount;
     private List<ClientUser> likedBy = new ArrayList<>();
 
     private List<ClientComment> photoComments = new ArrayList<>();
@@ -19,6 +21,14 @@ public class ClientPhoto {
         this.username = username;
         this.url = url;
         this.uuid = uuid;
+    }
+
+
+    public ClientPhoto(URL url, UUID uuid, long likedByCount, long commnetsCount) {
+        this.url = url;
+        this.uuid = uuid;
+        this.likedByCount = likedByCount;
+        this.commnetsCount = commnetsCount;
     }
 
     public ClientPhoto(String username, URL url, UUID uuid, List<ClientUser> likedBy, List<ClientComment> comments) {
@@ -63,6 +73,14 @@ public class ClientPhoto {
 
     public UUID getUuid() {
         return uuid;
+    }
+
+    public long getLikedByCount() {
+        return likedByCount;
+    }
+
+    public long getCommnetsCount() {
+        return commnetsCount;
     }
 
 }

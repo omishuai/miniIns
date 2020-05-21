@@ -1,7 +1,7 @@
 package com.app.miniIns.security;
 
-import com.app.miniIns.services.UserService;
-import com.app.miniIns.entities.User;
+import com.app.miniIns.entities.client.UserTemplate;
+import com.app.miniIns.services.services.UserService;
 import com.app.miniIns.exceptions.MyAuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -22,7 +22,7 @@ public class MyAuthenticationProvider implements AuthenticationProvider {
         String name = authentication.getPrincipal() == null ? "" : authentication.getPrincipal().toString();
         String password = authentication.getCredentials() == null ? "" : authentication.getCredentials().toString();
 
-        User returnedUser;
+        UserTemplate returnedUser;
         try {
             returnedUser = userService.verifyInfo(name, password);
         } catch (Exception e) {

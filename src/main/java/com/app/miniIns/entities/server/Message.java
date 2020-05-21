@@ -1,8 +1,9 @@
-package com.app.miniIns.entities;
+package com.app.miniIns.entities.server;
 
 import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Entity
 public class Message implements Comparable{
@@ -19,7 +20,7 @@ public class Message implements Comparable{
     private User receiver;
 
     @CreationTimestamp
-    private LocalDateTime createDateTime;
+    private ZonedDateTime createDateTime;
 
     private String text;
 
@@ -66,7 +67,7 @@ public class Message implements Comparable{
         return receiver;
     }
 
-    public LocalDateTime getCreateDateTime() {
+    public ZonedDateTime getCreateDateTime() {
         return createDateTime;
     }
 

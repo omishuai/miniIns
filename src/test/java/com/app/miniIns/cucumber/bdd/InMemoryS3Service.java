@@ -1,6 +1,6 @@
 package com.app.miniIns.cucumber.bdd;
 
-import com.app.miniIns.services.FileStorageService;
+import com.app.miniIns.services.services.FileStorageService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

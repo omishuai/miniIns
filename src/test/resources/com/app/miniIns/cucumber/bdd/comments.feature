@@ -12,17 +12,17 @@ Feature: commenting on photos
     ##record the id of the comment
     When User "username2" comments "message1" on photo
     Then Response has status code 201
-    And Response has value 1 for "$.photoComments.size()"
-    And Response has value "username2" for "$.photoComments[0].fromUser"
-    And Response has value "message1" for "$.photoComments[0].text"
+#    And Response has value 1 for "$.photoComments.size()"
+    And Response has value "username2" for "$.fromUser"
+    And Response has value "message1" for "$.text"
 
     When User "username1" comments "message2" on photo
     Then Response has status code 201
-    And Response has value 2 for "$.photoComments.size()"
-    And Response has value "username2" for "$.photoComments[0].fromUser"
-    And Response has value "message1" for "$.photoComments[0].text"
-    And Response has value "username1" for "$.photoComments[1].fromUser"
-    And Response has value "message2" for "$.photoComments[1].text"
+#    And Response has value 2 for "$.photoComments.size()"
+#    And Response has value "username2" for "$.photoComments[0].fromUser"
+#    And Response has value "message1" for "$.photoComments[0].text"
+    And Response has value "username1" for "$.fromUser"
+    And Response has value "message2" for "$.text"
 
   Scenario: user comments on a photo, and the owner of the photo replies
     Given empty database
@@ -35,19 +35,15 @@ Feature: commenting on photos
     #record the id of the comment
     When User "username2" comments "message1" on photo
     Then Response has status code 201
-    And Response has value 1 for "$.photoComments.size()"
-    And Response has value "username2" for "$.photoComments[0].fromUser"
-    And Response has value "message1" for "$.photoComments[0].text"
+    And Response has value "username2" for "$.fromUser"
+    And Response has value "message1" for "$.text"
 
     When User "username1" responds "re:message1" to comment
-
     Then Response has status code 201
-    And Response has value 2 for "$.photoComments.size()"
-    And Response has value "username2" for "$.photoComments[0].fromUser"
-    And Response has value "message1" for "$.photoComments[0].text"
-    And Response has value "username1" for "$.photoComments[1].fromUser"
-    And Response has value "re:message1" for "$.photoComments[1].text"
-    And Response responds to a comment with id for "$.photoComments[1].toId"
+#    And Response has value 2 for "$.photoComments.size()"
+    And Response has value "username1" for "$.fromUser"
+    And Response has value "re:message1" for "$.text"
+    And Response responds to a comment with id for "$.toId"
 
   Scenario: User comments without a message
     Given empty database
@@ -77,18 +73,14 @@ Feature: commenting on photos
 
     When User "username2" comments "message1" on photo
     Then Response has status code 201
-    And Response has value 1 for "$.photoComments.size()"
-    And Response has value "username2" for "$.photoComments[0].fromUser"
-    And Response has value "message1" for "$.photoComments[0].text"
+    And Response has value "username2" for "$.fromUser"
+    And Response has value "message1" for "$.text"
 
     When User "username1" responds "re:message1" to comment
     Then Response has status code 201
-    And Response has value 2 for "$.photoComments.size()"
-    And Response has value "username2" for "$.photoComments[0].fromUser"
-    And Response has value "message1" for "$.photoComments[0].text"
-    And Response has value "username1" for "$.photoComments[1].fromUser"
-    And Response has value "re:message1" for "$.photoComments[1].text"
-    And Response responds to a comment with id for "$.photoComments[1].toId"
+    And Response has value "username1" for "$.fromUser"
+    And Response has value "re:message1" for "$.text"
+    And Response responds to a comment with id for "$.toId"
 
     # Comment on a comment that is not sent to the user
     When User "username3" responds "re:message2" to comment
@@ -108,25 +100,20 @@ Feature: commenting on photos
 
     When User "username2" comments "message1" on photo
     Then Response has status code 201
-    And Response has value 1 for "$.photoComments.size()"
-    And Response has value "username2" for "$.photoComments[0].fromUser"
-    And Response has value "message1" for "$.photoComments[0].text"
+    And Response has value "username2" for "$.fromUser"
+    And Response has value "message1" for "$.text"
 
     When User "username1" responds "re:message1" to comment
     Then Response has status code 201
-    And Response has value 2 for "$.photoComments.size()"
-    And Response has value "username2" for "$.photoComments[0].fromUser"
-    And Response has value "message1" for "$.photoComments[0].text"
-    And Response has value "username1" for "$.photoComments[1].fromUser"
-    And Response has value "re:message1" for "$.photoComments[1].text"
-    And Response responds to a comment with id for "$.photoComments[1].toId"
+    And Response has value "username1" for "$.fromUser"
+    And Response has value "re:message1" for "$.text"
+    And Response responds to a comment with id for "$.toId"
 
     When User "username2" responds "re:message3" to comment
     Then Response has status code 201
-    And Response has value 3 for "$.photoComments.size()"
-    And Response has value "username2" for "$.photoComments[2].fromUser"
-    And Response has value "re:message3" for "$.photoComments[2].text"
-    And Response responds to a comment with id for "$.photoComments[2].toId"
+    And Response has value "username2" for "$.fromUser"
+    And Response has value "re:message3" for "$.text"
+    And Response responds to a comment with id for "$.toId"
 
     #
     When User "username2" responds "re:message4" to comment with id 100
